@@ -5,6 +5,7 @@ import gpup.component.target.*;
 import gpup.component.task.ProcessingType;
 import gpup.dto.TargetDTO;
 
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -314,14 +315,18 @@ public class TargetGraph implements DirectableGraph, GraphActions {
         return waitingFrozen;
     }
 
-    public List<String> getTargetsNamesList(){
-        List<String> targetsNameList = new ArrayList<>();
 
-        targetMap.forEach(((targetName,target)->{
-            targetsNameList.add(targetName);
-        }));
 
-        return targetsNameList;
+
+
+
+
+
+
+
+    public Set<String> getTargetsNamesList(){
+
+        return targetMap.keySet();
     }
 }
 
