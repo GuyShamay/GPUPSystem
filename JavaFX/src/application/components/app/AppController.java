@@ -11,6 +11,7 @@ import javafx.stage.FileChooser;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileNotFoundException;
+import javafx.scene.control.ComboBox;
 
 public class AppController {
     private Engine engine;
@@ -30,6 +31,9 @@ public class AppController {
     public void setModel(Engine engine) {
         this.engine = engine;
     }
+
+    @FXML
+    private ComboBox<String> ComboBoxActions;
 
     @FXML
     void buttonActionsClicked(ActionEvent event) {
@@ -69,6 +73,17 @@ public class AppController {
 
     @FXML
     void buttonTaskClicked(ActionEvent event) {
+
+    }
+
+    @FXML
+    public void initialize() {
+        ComboBoxActions.getItems().removeAll(ComboBoxActions.getItems());
+        ComboBoxActions.getItems().addAll("Find Path","Find Circle","What-if?");
+    }
+
+    @FXML
+    void ActionChoosen(ActionEvent event) {
 
     }
 
