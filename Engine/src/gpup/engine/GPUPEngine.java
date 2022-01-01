@@ -31,6 +31,7 @@ public class GPUPEngine implements Engine {
     private TargetGraph targetGraph;
     private Task task; // can it run several tasks?
     private ProcessingType processingType;
+    private int maxParallelism;
 
     private void loadXmlToTargetGraph(String path) throws FileNotFoundException, JAXBException, TargetExistException {
         final String PACKAGE_NAME = "gpup.jaxb.schema.generated";
@@ -46,6 +47,23 @@ public class GPUPEngine implements Engine {
     @Override
     public void buildGraphFromXml(String path) throws JAXBException, FileNotFoundException, TargetExistException {
         loadXmlToTargetGraph(path);
+    }
+
+    @Override
+    public void buildGraphFromXml(File file) throws JAXBException, FileNotFoundException, TargetExistException {
+        loadFileToGraph(file);
+    }
+
+    private void loadFileToGraph(File file) throws FileNotFoundException, JAXBException {
+        final String PACKAGE_NAME = "gpup.jaxb.schema.generated.v2";
+        GPUPDescriptor gpupDescriptor;
+
+        InputStream inputStream = new FileInputStream(file);
+        JAXBContext jc = JAXBContext.newInstance(PACKAGE_NAME);
+        Unmarshaller u = jc.createUnmarshaller();
+        gpupDescriptor = (GPUPDescriptor) u.unmarshal(inputStream);
+        targetGraph = GPUPParser.parseTargetGraph(gpupDescriptor);
+        maxParallelism = GPUPParser.getMaxParallelism(gpupDescriptor);
     }
 
     @Override
