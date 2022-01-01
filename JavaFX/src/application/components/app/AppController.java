@@ -6,6 +6,7 @@ import gpup.engine.Engine;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 
 import javax.xml.bind.JAXBException;
@@ -15,6 +16,9 @@ import javafx.scene.control.ComboBox;
 
 public class AppController {
     private Engine engine;
+
+    @FXML
+    private BorderPane borderPaneApp;
 
     @FXML
     private Button buttonLoadFile;
