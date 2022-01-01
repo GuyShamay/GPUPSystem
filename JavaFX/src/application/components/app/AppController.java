@@ -1,6 +1,11 @@
 package application.components.app;
 
 
+import application.Component;
+import application.ComponentCreator;
+import application.ComponentType;
+import application.Controller;
+import application.components.findPathes.FindPathesController;
 import application.components.graphinfo.GraphInfoController;
 import application.tools.AppTools;
 import gpup.dto.TargetGraphDTO;
@@ -19,10 +24,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 
+import java.net.URL;
+import java.util.List;
+import java.util.Set;
+
 import javafx.scene.control.ComboBox;
 
-public class AppController {
+public class AppController implements Controller {
     private Engine engine;
+    private FindPathesController findPathesController;
+    private static final String FINDPATHES_FXML_NAME = "../findPathes/pathes.fxml";
 
     private GraphInfoController graphInfoController;
 
@@ -61,6 +72,7 @@ public class AppController {
         Button btn = (Button) event.getSource();
         loadFile(btn);
         // Add text : loaded successfully
+
     }
 
     private void loadFile(Button btn) {
@@ -75,7 +87,7 @@ public class AppController {
                 engine.buildGraphFromXml(selectedFile);
             } catch (JAXBException e) {
                 AppTools.warningAlert("File loading", "Something went wrong", "Probably with laoding the XML Schema");
-            } catch (FileNotFoundException e) {
+            }catch (FileNotFoundException e) {
                 AppTools.warningAlert("File loading", "The file isn't exist", "In order to continue please load again");
             }
         }
@@ -89,22 +101,22 @@ public class AppController {
     @FXML
     public void initialize() {
         ComboBoxActions.getItems().removeAll(ComboBoxActions.getItems());
-        ComboBoxActions.getItems().addAll("Find Path", "Find Circle", "What-if?");
+        ComboBoxActions.getItems().addAll("Find Path","Find Circle","What-if?");
     }
 
     @FXML
     void ActionChoosen(ActionEvent event) {
-
-
-
-
-
-
-
-
-
-
-
+        switch (ComboBoxActions.getSelectionModel().getSelectedItem()){
+            case "Find Path":
+                findPath();
+                break;
+            case "Find Circle":
+                findCircle();
+                break;
+            case "What-if?":
+                whatif();
+                break;
+        }
     }
 
 
@@ -113,32 +125,31 @@ public class AppController {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public void setGraphInfoController(GraphInfoController graphInfoController) {
         this.graphInfoController = graphInfoController;
         this.graphInfoController.setAppController(this);
     }
 
+    private void whatif() {
+    }
     public ObservableList<TargetInfoDTO> getEngineInfo() {
 
         TargetGraphDTO targetGraphDTO = engine.getGraphInfo();
         List<TargetInfoDTO> list = engine.getTargetsInfo();
         return FXCollections.observableArrayList(list);
-
     }
+    private void findCircle() {
+    }
+
+    private void findPath() {
+            URL url = getClass().getResource(FINDPATHES_FXML_NAME);
+            Component findPathComponent = ComponentCreator.createComponent(url);
+            findPathComponent.getController().setAppController(this);
+            borderPaneApp.setCenter(findPathComponent.getPane());
+    }
+
+    public Set<String> getTargetsList(){
+        return engine.getTargetsNamesList();
+    }
+
 }

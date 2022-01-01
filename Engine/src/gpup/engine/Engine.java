@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public interface Engine {
@@ -34,4 +35,12 @@ public interface Engine {
     CircuitDTO findCircuit(String targetName);
 
     List<TargetInfoDTO> getTargetsInfo();
+
+
+
+
+
+
+
+   Set<String> getTargetsNamesList();
 }
