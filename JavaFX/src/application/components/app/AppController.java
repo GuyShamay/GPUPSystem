@@ -4,6 +4,7 @@ package application.components.app;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 
 public class AppController {
 
@@ -18,6 +19,9 @@ public class AppController {
 
     @FXML
     private Button buttonTask;
+
+    @FXML
+    private ComboBox<String> ComboBoxActions;
 
     @FXML
     void buttonActionsClicked(ActionEvent event) {
@@ -38,4 +42,17 @@ public class AppController {
     void buttonTaskClicked(ActionEvent event) {
 
     }
+
+    @FXML
+    public void initialize() {
+        ComboBoxActions.getItems().removeAll(ComboBoxActions.getItems());
+        ComboBoxActions.getItems().addAll("Find Path","Find Circle","What-if?");
+    }
+
+    @FXML
+    void ActionChoosen(ActionEvent event) {
+
+    }
+
+
 }
