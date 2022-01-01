@@ -5,12 +5,14 @@ import gpup.component.target.TargetsRelationType;
 import gpup.dto.*;
 import gpup.exception.TargetExistException;
 import javax.xml.bind.JAXBException;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.function.Consumer;
 
 public interface Engine {
     void buildGraphFromXml(String path) throws JAXBException, FileNotFoundException, TargetExistException;
+    void buildGraphFromXml(File file) throws JAXBException, FileNotFoundException, TargetExistException;
 
     TargetDTO getTargetInfo(String name);
 
