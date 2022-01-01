@@ -8,9 +8,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 
 public class GPUPDesktopApp extends Application {
@@ -25,10 +27,10 @@ public class GPUPDesktopApp extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader();
         URL url = getClass().getResource(APP_FXML_NAME);
         fxmlLoader.setLocation(url);
-        BorderPane root = fxmlLoader.load(url.openStream());
+        InputStream i = url.openStream();
+        BorderPane root = fxmlLoader.load(i);
         AppController appController = fxmlLoader.getController();
         appController.setModel(engine);
-
 
         addComponent(root,WELCOME_FXML_NAME);
 
@@ -45,8 +47,4 @@ public class GPUPDesktopApp extends Application {
         GridPane welcomeComponent = newfxmlLoader.load(url.openStream());
         root.setCenter(welcomeComponent);
     }
-
-
-
-
 }

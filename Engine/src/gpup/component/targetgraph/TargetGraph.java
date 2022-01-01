@@ -313,5 +313,15 @@ public class TargetGraph implements DirectableGraph, GraphActions {
 
         return waitingFrozen;
     }
+
+    public List<String> getTargetsNamesList(){
+        List<String> targetsNameList = new ArrayList<>();
+
+        targetMap.forEach(((targetName,target)->{
+            targetsNameList.add(targetName);
+        }));
+
+        return targetsNameList;
+    }
 }
 

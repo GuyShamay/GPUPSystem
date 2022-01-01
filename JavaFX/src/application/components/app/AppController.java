@@ -1,6 +1,11 @@
 package application.components.app;
 
 
+import application.Component;
+import application.ComponentCreator;
+import application.ComponentType;
+import application.Controller;
+import application.components.findPathes.FindPathesController;
 import application.tools.AppTools;
 import gpup.engine.Engine;
 import javafx.event.ActionEvent;
@@ -12,10 +17,15 @@ import javafx.stage.FileChooser;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.net.URL;
+import java.util.List;
+
 import javafx.scene.control.ComboBox;
 
-public class AppController {
+public class AppController implements Controller {
     private Engine engine;
+    private FindPathesController findPathesController;
+    private static final String FINDPATHES_FXML_NAME = "../findPathes/pathes.fxml";
 
     @FXML
     private BorderPane borderPaneApp;
@@ -88,8 +98,38 @@ public class AppController {
 
     @FXML
     void ActionChoosen(ActionEvent event) {
-
+        switch (ComboBoxActions.getSelectionModel().getSelectedItem()){
+            case "Find Path":
+                findPath();
+                break;
+            case "Find Circle":
+                findCircle();
+                break;
+            case "What-if?":
+                whatif();
+                break;
+        }
     }
 
+    private void whatif() {
+    }
 
+    private void findCircle() {
+    }
+
+    private void findPath() {
+            URL url = getClass().getResource(FINDPATHES_FXML_NAME);
+            Component findPathComponent = ComponentCreator.createComponent(url);
+            findPathComponent.getController().setAppController(this);
+            borderPaneApp.setCenter(findPathComponent.getPane());
+    }
+
+    public List<String> getTargetsList(){
+        return engine.getTargetsNamesList();
+    }
+
+    @Override
+    public void setAppController(Controller appController) {
+
+    }
 }
