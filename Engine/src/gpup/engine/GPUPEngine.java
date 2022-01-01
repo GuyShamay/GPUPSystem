@@ -176,7 +176,6 @@ public class GPUPEngine implements Engine {
 
     }
 
-
     public void createTaskDirectory(String path) {
         File taskDirectory = new File(path);
         if (!taskDirectory.exists()) {
@@ -200,6 +199,11 @@ public class GPUPEngine implements Engine {
         }
     }
 
+    @Override
+    public List<TargetInfoDTO> getTargetsInfo() {
+        return targetGraph.getTargetsInfo();
+    }
+
     private void writeTargetToFile(Instant start, Instant end, GPUPConsumerDTO target, String path) throws IOException {
         String fileName = target.getName() + ".log";
         try (Writer out = new BufferedWriter(
@@ -214,7 +218,6 @@ public class GPUPEngine implements Engine {
     }
 
     private StatisticsDTO calcStatistics(Duration totalRunDuration) {
-
         return new StatisticsDTO(totalRunDuration, task.getTargetsRunInfo());
     }
 

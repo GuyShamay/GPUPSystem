@@ -6,8 +6,13 @@ import application.ComponentCreator;
 import application.ComponentType;
 import application.Controller;
 import application.components.findPathes.FindPathesController;
+import application.components.graphinfo.GraphInfoController;
 import application.tools.AppTools;
+import gpup.dto.TargetGraphDTO;
+import gpup.dto.TargetInfoDTO;
 import gpup.engine.Engine;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -17,6 +22,8 @@ import javafx.stage.FileChooser;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.List;
+
 import java.net.URL;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +34,9 @@ public class AppController implements Controller {
     private Engine engine;
     private FindPathesController findPathesController;
     private static final String FINDPATHES_FXML_NAME = "../findPathes/pathes.fxml";
+
+    private GraphInfoController graphInfoController;
+
 
     @FXML
     private BorderPane borderPaneApp;
@@ -42,6 +52,7 @@ public class AppController implements Controller {
 
     @FXML
     private Button buttonTask;
+
     @FXML
     private ComboBox<String> ComboBoxActions;
 
@@ -53,13 +64,14 @@ public class AppController implements Controller {
     @FXML
     void buttonInfoClicked(ActionEvent event) {
 
-    }
 
+    }
 
     @FXML
     void buttonLoadFileClicked(ActionEvent event) {
         Button btn = (Button) event.getSource();
         loadFile(btn);
+        // Add text : loaded successfully
 
     }
 
@@ -112,9 +124,20 @@ public class AppController implements Controller {
         this.engine = engine;
     }
 
-    private void whatif() {
+
+    public void setGraphInfoController(GraphInfoController graphInfoController) {
+        this.graphInfoController = graphInfoController;
+        this.graphInfoController.setAppController(this);
     }
 
+    private void whatif() {
+    }
+    public ObservableList<TargetInfoDTO> getEngineInfo() {
+
+        TargetGraphDTO targetGraphDTO = engine.getGraphInfo();
+        List<TargetInfoDTO> list = engine.getTargetsInfo();
+        return FXCollections.observableArrayList(list);
+    }
     private void findCircle() {
     }
 
@@ -128,4 +151,5 @@ public class AppController implements Controller {
     public Set<String> getTargetsList(){
         return engine.getTargetsNamesList();
     }
+
 }
