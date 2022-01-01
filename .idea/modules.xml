@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Console/Console.iml" filepath="$PROJECT_DIR$/Console/Console.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Engine/Engine.iml" filepath="$PROJECT_DIR$/Engine/Engine.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GPUPSystem.iml" filepath="$PROJECT_DIR$/GPUPSystem.iml" />
+      <module fileurl="file://$PROJECT_DIR$/JavaFX/JavaFX.iml" filepath="$PROJECT_DIR$/JavaFX/JavaFX.iml" />
+    </modules>
+  </component>
+</project>
