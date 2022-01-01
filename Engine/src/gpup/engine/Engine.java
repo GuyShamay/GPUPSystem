@@ -29,7 +29,6 @@ public interface Engine {
 
     PathsDTO findPaths(String src, String dest, TargetsRelationType type);
 
-
     boolean isFirstTaskRun();
 
     CircuitDTO findCircuit(String targetName);

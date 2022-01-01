@@ -23,7 +23,9 @@ import javafx.scene.control.ComboBox;
 
 public class AppController {
     private Engine engine;
+
     private GraphInfoController graphInfoController;
+
 
     @FXML
     private BorderPane borderPaneApp;
@@ -93,12 +95,39 @@ public class AppController {
     @FXML
     void ActionChoosen(ActionEvent event) {
 
+
+
+
+
+
+
+
+
+
+
     }
 
 
     public void setModel(Engine engine) {
         this.engine = engine;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public void setGraphInfoController(GraphInfoController graphInfoController) {
         this.graphInfoController = graphInfoController;
