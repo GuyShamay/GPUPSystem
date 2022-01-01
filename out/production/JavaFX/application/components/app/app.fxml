@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+
+
+<BorderPane fx:id="borderPaneApp" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.components.app.AppController">
+   <top>
+      <HBox prefHeight="46.0" prefWidth="600.0" spacing="20.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="buttonLoadFile" mnemonicParsing="false" onAction="#buttonLoadFileClicked" prefHeight="25.0" prefWidth="98.0" text="Load File" />
+            <Button fx:id="buttonInfo" mnemonicParsing="false" onAction="#buttonInfoClicked" prefHeight="25.0" prefWidth="98.0" text="Information" />
+            <ComboBox fx:id="ComboBoxActions" onAction="#ActionChoosen" prefHeight="25.0" prefWidth="98.0" promptText="Actions">
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+            </ComboBox>
+            <Button fx:id="buttonTask" mnemonicParsing="false" onAction="#buttonTaskClicked" prefHeight="25.0" prefWidth="98.0" text="Task" />
+         </children>
+         <padding>
+            <Insets left="80.0" top="10.0" />
+         </padding>
+      </HBox>
+   </top>
+</BorderPane>
