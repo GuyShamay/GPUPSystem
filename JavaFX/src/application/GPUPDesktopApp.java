@@ -13,26 +13,29 @@ import java.io.IOException;
 import java.net.URL;
 
 public class GPUPDesktopApp extends Application {
-    private static final String APP_FXML_NAME = "application/components/app/app.fxml";
+    private static final String APP_FXML_NAME = "components/app/app.fxml";
+    private static final String LOAD_FXML_NAME = "components/app/app.fxml";
 
     private Engine engine = new GPUPEngine(); // Model
 
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        Scene s = null;
-        AppController appController = createAppComponent(s);
-
-        primaryStage.setScene(s);
-
-    }
-
-    private AppController createAppComponent(Scene scene) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader();
         URL url = getClass().getResource(APP_FXML_NAME);
         fxmlLoader.setLocation(url);
         BorderPane root = fxmlLoader.load(url.openStream());
-        scene = new Scene(root, 600, 600);
-        return fxmlLoader.getController();
+        AppController appController = fxmlLoader.getController();
+        Scene scene = new Scene(root, 600, 600);
+
+        url = getClass().getResource(LOAD_FXML_NAME);
+        fxmlLoader.setLocation(url);
+        BorderPane loadComponent = fxmlLoader.load(url.openStream());
+        //AppController appController = fxmlLoader.getController();
+
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
+
+
 }
