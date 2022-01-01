@@ -32,13 +32,7 @@ public class GPUPDesktopApp extends Application {
 
         addComponent(root,WELCOME_FXML_NAME);
 
-        Scene scene = new Scene(root, 600, 600);
-
-        url = getClass().getResource(LOAD_FXML_NAME);
-        fxmlLoader.setLocation(url);
-        BorderPane loadComponent = fxmlLoader.load(url.openStream());
-        //AppController appController = fxmlLoader.getController();
-
+        Scene scene = new Scene(root, 800, 600);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
