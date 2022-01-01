@@ -1,10 +1,9 @@
 package application.components.app;
 
 
-import application.Component;
-import application.ComponentCreator;
-import application.ComponentType;
-import application.Controller;
+import application.general.Component;
+import application.general.ComponentCreator;
+import application.general.Controller;
 import application.components.findPathes.FindPathesController;
 import application.components.graphinfo.GraphInfoController;
 import application.tools.AppTools;
@@ -25,7 +24,6 @@ import java.io.FileNotFoundException;
 import java.util.List;
 
 import java.net.URL;
-import java.util.List;
 import java.util.Set;
 
 import javafx.scene.control.ComboBox;
@@ -33,10 +31,9 @@ import javafx.scene.control.ComboBox;
 public class AppController implements Controller {
     private Engine engine;
     private FindPathesController findPathesController;
-    private static final String FINDPATHES_FXML_NAME = "../findPathes/pathes.fxml";
+    private static final String FINDPATHS_FXML_NAME = "../findPathes/pathes.fxml";
 
     private GraphInfoController graphInfoController;
-
 
     @FXML
     private BorderPane borderPaneApp;
@@ -105,7 +102,7 @@ public class AppController implements Controller {
     }
 
     @FXML
-    void ActionChoosen(ActionEvent event) {
+    void ActionChosen(ActionEvent event) {
         switch (ComboBoxActions.getSelectionModel().getSelectedItem()){
             case "Find Path":
                 findPath();
@@ -142,7 +139,7 @@ public class AppController implements Controller {
     }
 
     private void findPath() {
-            URL url = getClass().getResource(FINDPATHES_FXML_NAME);
+            URL url = getClass().getResource(FINDPATHS_FXML_NAME);
             Component findPathComponent = ComponentCreator.createComponent(url);
             findPathComponent.getController().setAppController(this);
             borderPaneApp.setCenter(findPathComponent.getPane());
@@ -151,5 +148,4 @@ public class AppController implements Controller {
     public Set<String> getTargetsList(){
         return engine.getTargetsNamesList();
     }
-
 }

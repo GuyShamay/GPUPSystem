@@ -13,7 +13,7 @@
          <children>
             <Button fx:id="buttonLoadFile" mnemonicParsing="false" onAction="#buttonLoadFileClicked" prefHeight="25.0" prefWidth="98.0" text="Load File" />
             <Button fx:id="buttonInfo" mnemonicParsing="false" onAction="#buttonInfoClicked" prefHeight="25.0" prefWidth="98.0" text="Information" />
-            <ComboBox fx:id="ComboBoxActions" onAction="#ActionChoosen" prefHeight="25.0" prefWidth="98.0" promptText="Actions">
+            <ComboBox fx:id="ComboBoxActions" onAction="#ActionChosen" prefHeight="25.0" prefWidth="98.0" promptText="Actions">
                <opaqueInsets>
                   <Insets />
                </opaqueInsets>

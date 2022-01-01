@@ -1,6 +1,5 @@
 package application.components.findPathes;
 
-import application.Controller;
 import application.components.app.AppController;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -11,7 +10,6 @@ import javafx.scene.input.InputMethodEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 
-import java.util.List;
 import java.util.Set;
 
 public class FindPathesController {

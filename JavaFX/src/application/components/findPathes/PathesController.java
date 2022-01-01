@@ -1,6 +1,6 @@
 package application.components.findPathes;
 
-import application.Controller;
+import application.general.Controller;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
