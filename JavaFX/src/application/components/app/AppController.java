@@ -5,12 +5,14 @@ import application.tools.AppTools;
 import gpup.engine.Engine;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.stage.FileChooser;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileNotFoundException;
+
 import javafx.scene.control.ComboBox;
 
 public class AppController {
@@ -47,28 +49,25 @@ public class AppController {
 
     @FXML
     void buttonLoadFileClicked(ActionEvent event) {
-        Button btn = (Button) event.getSource();
-        loadFile(btn);
-
-
+        Node node = (Node) event.getSource();
+        File file = loadFile(node);
+        try {
+            engine.buildGraphFromXml(file);
+        } catch (JAXBException e) {
+            AppTools.warningAlert("File loading", "Something went wrong", "Probably with laoding the XML Schema");
+        } catch (FileNotFoundException e) {
+            AppTools.warningAlert("File loading", "The file isn't exist", "In order to continue please load again");
+        }
     }
 
-    private void loadFile(Button btn) {
+    private File loadFile(Node node) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open XML File");
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Xml Files", "*.xml"));
-        File selectedFile = fileChooser.showOpenDialog(btn.getScene().getWindow());
+        File selectedFile = fileChooser.showOpenDialog(node.getScene().getWindow());
 
-        if (selectedFile != null) {
-            try {
-                engine.buildGraphFromXml(selectedFile);
-            } catch (JAXBException e) {
-                AppTools.warningAlert("File loading", "Something went wrong", "Probably with laoding the XML Schema");
-            }catch (FileNotFoundException e) {
-                AppTools.warningAlert("File loading", "The file isn't exist", "In order to continue please load again");
-            }
-        }
+        return selectedFile;
     }
 
     @FXML
@@ -79,7 +78,7 @@ public class AppController {
     @FXML
     public void initialize() {
         ComboBoxActions.getItems().removeAll(ComboBoxActions.getItems());
-        ComboBoxActions.getItems().addAll("Find Path","Find Circle","What-if?");
+        ComboBoxActions.getItems().addAll("Find Path", "Find Circle", "What-if?");
     }
 
     @FXML
