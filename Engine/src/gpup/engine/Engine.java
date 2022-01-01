@@ -8,6 +8,7 @@ import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 import java.util.function.Consumer;
 
 public interface Engine {
@@ -32,4 +33,6 @@ public interface Engine {
     boolean isFirstTaskRun();
 
     CircuitDTO findCircuit(String targetName);
+
+    List<TargetInfoDTO> getTargetsInfo();
 }

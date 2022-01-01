@@ -15,6 +15,7 @@ public class Target {
     private List<Target> justOpenedList = new ArrayList<>();
     private List<Target> skippedList = new ArrayList<>();
     private Duration taskRunDuration;
+    private int serialSetCounter;
 
     public Target(String name) {
         this.name = name;
@@ -122,5 +123,13 @@ public class Target {
 
     public Duration getTaskRunDuration() {
         return taskRunDuration;
+    }
+
+    public int getSerialSetCounter() {
+        return serialSetCounter;
+    }
+
+    public void setSerialSetCounter(int serialSetCounter) {
+        this.serialSetCounter = serialSetCounter;
     }
 }

@@ -1,8 +1,13 @@
 package application.components.app;
 
 
+import application.components.graphinfo.GraphInfoController;
 import application.tools.AppTools;
+import gpup.dto.TargetGraphDTO;
+import gpup.dto.TargetInfoDTO;
 import gpup.engine.Engine;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -12,10 +17,13 @@ import javafx.stage.FileChooser;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.List;
+
 import javafx.scene.control.ComboBox;
 
 public class AppController {
     private Engine engine;
+    private GraphInfoController graphInfoController;
 
     @FXML
     private BorderPane borderPaneApp;
@@ -32,10 +40,6 @@ public class AppController {
     @FXML
     private Button buttonTask;
 
-    public void setModel(Engine engine) {
-        this.engine = engine;
-    }
-
     @FXML
     private ComboBox<String> ComboBoxActions;
 
@@ -47,14 +51,14 @@ public class AppController {
     @FXML
     void buttonInfoClicked(ActionEvent event) {
 
+
     }
 
     @FXML
     void buttonLoadFileClicked(ActionEvent event) {
         Button btn = (Button) event.getSource();
         loadFile(btn);
-
-
+        // Add text : loaded successfully
     }
 
     private void loadFile(Button btn) {
@@ -69,7 +73,7 @@ public class AppController {
                 engine.buildGraphFromXml(selectedFile);
             } catch (JAXBException e) {
                 AppTools.warningAlert("File loading", "Something went wrong", "Probably with laoding the XML Schema");
-            }catch (FileNotFoundException e) {
+            } catch (FileNotFoundException e) {
                 AppTools.warningAlert("File loading", "The file isn't exist", "In order to continue please load again");
             }
         }
@@ -83,7 +87,7 @@ public class AppController {
     @FXML
     public void initialize() {
         ComboBoxActions.getItems().removeAll(ComboBoxActions.getItems());
-        ComboBoxActions.getItems().addAll("Find Path","Find Circle","What-if?");
+        ComboBoxActions.getItems().addAll("Find Path", "Find Circle", "What-if?");
     }
 
     @FXML
@@ -92,4 +96,20 @@ public class AppController {
     }
 
 
+    public void setModel(Engine engine) {
+        this.engine = engine;
+    }
+
+    public void setGraphInfoController(GraphInfoController graphInfoController) {
+        this.graphInfoController = graphInfoController;
+        this.graphInfoController.setAppController(this);
+    }
+
+    public ObservableList<TargetInfoDTO> getEngineInfo() {
+
+        TargetGraphDTO targetGraphDTO = engine.getGraphInfo();
+        List<TargetInfoDTO> list = engine.getTargetsInfo();
+        return FXCollections.observableArrayList(list);
+
+    }
 }

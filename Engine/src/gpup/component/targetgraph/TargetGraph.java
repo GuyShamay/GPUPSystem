@@ -4,6 +4,7 @@ import gpup.component.serialset.SerialSet;
 import gpup.component.target.*;
 import gpup.component.task.ProcessingType;
 import gpup.dto.TargetDTO;
+import gpup.dto.TargetInfoDTO;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -312,6 +313,14 @@ public class TargetGraph implements DirectableGraph, GraphActions {
         }));
 
         return waitingFrozen;
+    }
+
+    public List<TargetInfoDTO> getTargetsInfo() {
+        List<TargetInfoDTO> list = new ArrayList<>();
+        targetMap.forEach((s, target) -> {
+            list.add(new TargetInfoDTO(target));
+        });
+        return list;
     }
 }
 
