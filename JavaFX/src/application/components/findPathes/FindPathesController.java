@@ -12,6 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 
 import java.util.List;
+import java.util.Set;
 
 public class FindPathesController {
     AppController appController;
@@ -67,9 +68,9 @@ public class FindPathesController {
     }
 
     private void initTargetsButtons() {
-        List<String> targetsList = appController.getTargetsList();
+        Set<String> targets = appController.getTargetsList();
 
-        targetsList.forEach(((targetName)->{
+        targets.forEach(((targetName)->{
             Button b = new Button(targetName);
             vboxTargets.getChildren().add(b);
         }));

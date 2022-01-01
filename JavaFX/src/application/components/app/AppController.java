@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.List;
+import java.util.Set;
 
 import javafx.scene.control.ComboBox;
 
@@ -41,11 +42,6 @@ public class AppController implements Controller {
 
     @FXML
     private Button buttonTask;
-
-    public void setModel(Engine engine) {
-        this.engine = engine;
-    }
-
     @FXML
     private ComboBox<String> ComboBoxActions;
 
@@ -59,11 +55,11 @@ public class AppController implements Controller {
 
     }
 
+
     @FXML
     void buttonLoadFileClicked(ActionEvent event) {
         Button btn = (Button) event.getSource();
         loadFile(btn);
-
 
     }
 
@@ -111,6 +107,11 @@ public class AppController implements Controller {
         }
     }
 
+
+    public void setModel(Engine engine) {
+        this.engine = engine;
+    }
+
     private void whatif() {
     }
 
@@ -124,12 +125,7 @@ public class AppController implements Controller {
             borderPaneApp.setCenter(findPathComponent.getPane());
     }
 
-    public List<String> getTargetsList(){
+    public Set<String> getTargetsList(){
         return engine.getTargetsNamesList();
-    }
-
-    @Override
-    public void setAppController(Controller appController) {
-
     }
 }

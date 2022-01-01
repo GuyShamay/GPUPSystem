@@ -218,7 +218,7 @@ public class GPUPEngine implements Engine {
         return new StatisticsDTO(totalRunDuration, task.getTargetsRunInfo());
     }
 
-    public List<String> getTargetsNamesList(){
+    public Set<String> getTargetsNamesList(){
         return targetGraph.getTargetsNamesList();
     }
 }
