@@ -1,12 +1,14 @@
 package application.components.app;
 
 
+import application.components.findPathes.PathsController;
 import application.general.Component;
 import application.general.ComponentCreator;
 import application.general.Controller;
-import application.components.findPathes.FindPathesController;
 import application.components.graphinfo.GraphInfoController;
 import application.tools.AppTools;
+import gpup.component.target.TargetsRelationType;
+import gpup.dto.PathsDTO;
 import gpup.dto.TargetGraphDTO;
 import gpup.dto.TargetInfoDTO;
 import gpup.engine.Engine;
@@ -30,7 +32,7 @@ import javafx.scene.control.ComboBox;
 
 public class AppController implements Controller {
     private Engine engine;
-    private FindPathesController findPathesController;
+    private PathsController findPathesController;
     private static final String FINDPATHS_FXML_NAME = "../findPathes/pathes.fxml";
 
     private GraphInfoController graphInfoController;
@@ -114,6 +116,7 @@ public class AppController implements Controller {
                 whatif();
                 break;
         }
+        ComboBoxActions.getSelectionModel().clearSelection();
     }
 
 
@@ -129,8 +132,8 @@ public class AppController implements Controller {
 
     private void whatif() {
     }
-    public ObservableList<TargetInfoDTO> getEngineInfo() {
 
+    public ObservableList<TargetInfoDTO> getEngineInfo() {
         TargetGraphDTO targetGraphDTO = engine.getGraphInfo();
         List<TargetInfoDTO> list = engine.getTargetsInfo();
         return FXCollections.observableArrayList(list);
@@ -142,10 +145,15 @@ public class AppController implements Controller {
             URL url = getClass().getResource(FINDPATHS_FXML_NAME);
             Component findPathComponent = ComponentCreator.createComponent(url);
             findPathComponent.getController().setAppController(this);
+            findPathComponent.getController().Init();
             borderPaneApp.setCenter(findPathComponent.getPane());
     }
 
     public Set<String> getTargetsList(){
         return engine.getTargetsNamesList();
+    }
+
+    public PathsDTO findPaths(String src, String dest, TargetsRelationType type){
+        return engine.findPaths(src, dest, type);
     }
 }
