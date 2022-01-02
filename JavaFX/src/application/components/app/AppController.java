@@ -6,13 +6,13 @@ import application.general.Component;
 import application.general.ComponentCreator;
 import application.general.Controller;
 import application.tools.AppTools;
-import gpup.component.target.TargetsRelationType;
-import gpup.dto.PathsDTO;
+import component.target.TargetsRelationType;
+import dto.PathsDTO;
 import application.components.graphinfo.InfoController;
-import gpup.dto.SerialSetDTO;
-import gpup.dto.TargetGraphDTO;
-import gpup.dto.TargetInfoDTO;
-import gpup.engine.Engine;
+import dto.SerialSetDTO;
+import dto.TargetGraphDTO;
+import dto.TargetInfoDTO;
+import engine.Engine;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -58,18 +58,20 @@ public class AppController implements Controller {
     private Button buttonInfo;
 
     @FXML
-    private Button buttonActions;
-
-    @FXML
     private Button buttonTask;
 
     @FXML
-    private ComboBox<String> ComboBoxActions;
+    private ComboBox<String> comboBoxActions;
 
     @FXML
     public void initialize() {
-        ComboBoxActions.getItems().removeAll(ComboBoxActions.getItems());
-        ComboBoxActions.getItems().addAll("Find Path", "Find Circle", "What-if?");
+        comboBoxActions.getItems().removeAll(comboBoxActions.getItems());
+        comboBoxActions.getItems().addAll("Find Path", "Find Circle", "What-if?");
+
+        // Disable all buttons except Load
+        buttonInfo.setDisable(true);
+        buttonTask.setDisable(true);
+        comboBoxActions.setDisable(true);
     }
 
     //--------------------------------------------------------------------------
@@ -104,6 +106,10 @@ public class AppController implements Controller {
         Button btn = (Button) event.getSource();
         if (!engine.isInitialized()) {
             loadFile(btn);
+
+            buttonInfo.setDisable(false);
+            buttonTask.setDisable(false);
+            comboBoxActions.setDisable(false);
             // Add text : loaded successfully
         } else { // there is a loaded file
             if (AppTools.confirmationAlert("File Loading", "There is a loaded file in the system.", "Are you sure you want to load a new file, and overwrite the existing one?")) {
@@ -114,12 +120,12 @@ public class AppController implements Controller {
     }
 
     private void loadFile(Button btn) {
-        FileChooser fileChooser = new FileChooser();
+        /*FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open XML File");
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Xml Files", "*.xml"));
-        File selectedFile = fileChooser.showOpenDialog(btn.getScene().getWindow());
-
+        File selectedFile = fileChooser.showOpenDialog(btn.getScene().getWindow());*/
+File selectedFile = new File("C:\\Users\\guysh\\Downloads\\ex2-big.xml");
         if (selectedFile != null) {
             try {
                 engine.buildGraphFromXml(selectedFile);
@@ -149,7 +155,7 @@ public class AppController implements Controller {
 
     @FXML
     void ActionChosen(ActionEvent event) {
-        switch (ComboBoxActions.getSelectionModel().getSelectedItem()) {
+        switch (comboBoxActions.getSelectionModel().getSelectedItem()) {
             case "Find Path":
                 findPath();
                 break;
@@ -160,7 +166,7 @@ public class AppController implements Controller {
                 whatif();
                 break;
         }
-        ComboBoxActions.getSelectionModel().clearSelection();
+//        comboBoxActions.getSelectionModel().clearSelection();
     }
 
     public void setWelcomePage(GridPane welcomePage) {

@@ -2,10 +2,9 @@ package application.components.graphinfo;
 
 import application.components.app.AppController;
 import application.general.Controller;
-import gpup.component.serialset.SerialSet;
-import gpup.dto.SerialSetDTO;
-import gpup.dto.TargetGraphDTO;
-import gpup.dto.TargetInfoDTO;
+import dto.SerialSetDTO;
+import dto.TargetGraphDTO;
+import dto.TargetInfoDTO;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;

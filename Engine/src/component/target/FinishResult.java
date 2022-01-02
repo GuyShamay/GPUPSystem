@@ -1,0 +1,7 @@
+package component.target;
+
+public enum FinishResult {
+    SUCCESS,
+    WARNING,
+    FAILURE
+}

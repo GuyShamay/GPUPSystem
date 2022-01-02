@@ -1,11 +1,11 @@
 package main.app;
 
-import gpup.component.task.ProcessingType;
-import gpup.component.target.TargetsRelationType;
-import gpup.dto.CircuitDTO;
-import gpup.dto.PathsDTO;
-import gpup.dto.TargetDTO;
-import gpup.engine.Engine;
+import component.task.ProcessingType;
+import component.target.TargetsRelationType;
+import dto.CircuitDTO;
+import dto.PathsDTO;
+import dto.TargetDTO;
+import engine.Engine;
 
 import javax.xml.bind.JAXBException;
 import java.io.FileNotFoundException;

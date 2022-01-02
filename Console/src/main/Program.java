@@ -1,7 +1,7 @@
 package main;
 
 import main.app.GPUPApp;
-import gpup.engine.GPUPEngine;
+import engine.GPUPEngine;
 
 public class Program {
     public static void main(String[] args) {

@@ -1,14 +1,13 @@
 package application;
 
 import application.components.app.AppController;
-import gpup.engine.Engine;
-import gpup.engine.GPUPEngine;
+import engine.Engine;
+import engine.GPUPEngine;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
