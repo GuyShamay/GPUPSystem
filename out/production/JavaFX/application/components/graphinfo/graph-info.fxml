@@ -13,10 +13,11 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane minHeight="200.0" minWidth="520.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.components.graphinfo.InfoController">
-   <center>
-      <ScrollPane fitToHeight="true" fitToWidth="true" minHeight="200.0" minWidth="520.0">
-         <content>
+
+<ScrollPane fitToHeight="true" fitToWidth="true" minHeight="350.0" minWidth="400.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.components.graphinfo.InfoController">
+   <content>
+      <BorderPane minHeight="400.0" minWidth="520.0">
+         <center>
             <GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="200.0" minWidth="520.0" prefHeight="600.0" prefWidth="1000.0">
               <columnConstraints>
                   <ColumnConstraints hgrow="NEVER" maxWidth="15.0" minWidth="15.0" prefWidth="15.0" />
@@ -106,7 +107,7 @@
                   <Label text="Serial Sets:" GridPane.columnIndex="5" GridPane.rowIndex="1" />
                </children>
             </GridPane>
-         </content>
-      </ScrollPane>
-   </center>
-</BorderPane>
+         </center>
+      </BorderPane>
+   </content>
+</ScrollPane>

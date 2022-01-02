@@ -6,7 +6,6 @@ import application.general.Component;
 import application.general.ComponentCreator;
 import application.general.Controller;
 import application.components.findPathes.FindPathesController;
-import application.components.graphinfo.GraphInfoController;
 import application.tools.AppTools;
 import gpup.dto.SerialSetDTO;
 import gpup.dto.TargetGraphDTO;
@@ -16,15 +15,15 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.List;
 
 import java.net.URL;
@@ -34,11 +33,13 @@ import javafx.scene.control.ComboBox;
 
 public class AppController implements Controller {
     private Engine engine;
+
+    private GridPane welcomePage;
+
     private FindPathesController findPathesController;
-    private GraphInfoController graphInfoController;
+    private InfoController graphInfoController;
     private static final String FINDPATHS_FXML_NAME = "../findPathes/pathes.fxml";
     private static final String INFO_FXML_NAME = "../graphinfo/graph-info.fxml";
-
 
     @FXML
     private BorderPane borderPaneApp;
@@ -66,33 +67,26 @@ public class AppController implements Controller {
     @FXML
     void buttonInfoClicked(ActionEvent event) {
 
-        /*URL url = getClass().getResource(INFO_FXML_NAME);
-        Component infComponent = ComponentCreator.createComponent(url);
-        graphInfoController = (GraphInfoController) infComponent.getController();
-        graphInfoController.initialize();
-        borderPaneApp.setCenter(infComponent.getPane());*/
-
-        FXMLLoader fxmlLoader = new FXMLLoader();
         URL url = getClass().getResource(INFO_FXML_NAME);
-        fxmlLoader.setLocation(url);
-        try {
-            BorderPane infoComp = fxmlLoader.load(url.openStream());
-            InfoController infoController = fxmlLoader.getController();
-            infoController.setAppController(this);
-            infoController.fetchData();
-            borderPaneApp.setCenter(infoComp);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        Component infoComponent = ComponentCreator.createComponent(url);
+        graphInfoController = (InfoController) infoComponent.getController();
+        graphInfoController.setAppController(this);
+        graphInfoController.fetchData();
+        borderPaneApp.setCenter(infoComponent.getPane());
     }
 
     @FXML
     void buttonLoadFileClicked(ActionEvent event) {
         Button btn = (Button) event.getSource();
-        loadFile(btn);
-        // Add text : loaded successfully
-
+        if (!engine.isInitialized()) {
+            loadFile(btn);
+            // Add text : loaded successfully
+        } else { // there is a loaded file
+            if (AppTools.confirmationAlert("File Loading", "There is a loaded file in the system.", "Are you sure you want to load a new file, and overwrite the existing one?")) {
+                loadFile(btn);
+                borderPaneApp.setCenter(welcomePage);
+            }
+        }
     }
 
     private void loadFile(Button btn) {
@@ -139,15 +133,13 @@ public class AppController implements Controller {
         }
     }
 
-
-    public void setModel(Engine engine) {
-        this.engine = engine;
+    public void setWelcomePage(GridPane welcomePage) {
+        this.welcomePage = welcomePage;
     }
 
 
-    public void setGraphInfoController(GraphInfoController graphInfoController) {
-        this.graphInfoController = graphInfoController;
-        this.graphInfoController.setAppController(this);
+    public void setModel(Engine engine) {
+        this.engine = engine;
     }
 
     private void whatif() {

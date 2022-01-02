@@ -1,12 +1,13 @@
 package application.general;
 
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 
 public class Component {
     private Controller controller;
-    private Pane pane;
+    private Region pane;
 
-    public void setPane(Pane pane) {
+    public void setPane(Region pane) {
         this.pane = pane;
     }
 
@@ -18,7 +19,8 @@ public class Component {
         return controller;
     }
 
-    public Pane getPane() {
+    public Region getPane() {
         return pane;
     }
+
 }
