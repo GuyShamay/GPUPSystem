@@ -2,8 +2,8 @@ package application.components.findPathes;
 
 import application.components.app.AppController;
 import application.general.Controller;
-import gpup.component.target.TargetsRelationType;
-import gpup.dto.PathsDTO;
+import component.target.TargetsRelationType;
+import dto.PathsDTO;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

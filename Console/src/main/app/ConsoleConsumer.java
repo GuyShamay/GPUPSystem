@@ -1,6 +1,6 @@
 package main.app;
 
-import gpup.dto.GPUPConsumerDTO;
+import dto.GPUPConsumerDTO;
 
 import java.util.function.Consumer;
 
