@@ -175,6 +175,7 @@ public class AppController implements Controller {
     }
 
     private void findCircle() {
+
     }
 
     private void findPath() {
@@ -185,6 +186,8 @@ public class AppController implements Controller {
         borderPaneApp.setCenter(findPathComponent.getPane());
 
     }
+
+
 
     public TargetGraphDTO getGraphInfo() {
         return engine.getGraphInfo();
