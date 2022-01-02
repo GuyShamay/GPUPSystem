@@ -39,7 +39,7 @@ public abstract class GPUPParser {
     private static SerialSet parseSerialSet(GPUPDescriptor.GPUPSerialSets.GPUPSerialSet gpupSerialSet, Map<String, Target> targetMap) {
         String targetsByString = gpupSerialSet.getTargets();
         String name = gpupSerialSet.getName();
-        SerialSet serialSet = new SerialSet(name);
+        SerialSet serialSet = new SerialSet(name, gpupSerialSet.getTargets());
         try {
             List<Target> targets = parseSerialSetFromString(targetsByString, targetMap);
             serialSet.setTargets(targets);

@@ -224,4 +224,8 @@ public class GPUPEngine implements Engine {
     public Set<String> getTargetsNamesList(){
         return targetGraph.getTargetsNamesList();
     }
+
+    @Override
+    public List<SerialSetDTO> getSerialSetInfo() {
+return targetGraph.getSerialSetInfo();    }
 }

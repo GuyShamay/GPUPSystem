@@ -13,14 +13,27 @@ public class TargetInfoDTO {
     private final SimpleStringProperty name;
     private final SimpleStringProperty data;
     private final SimpleStringProperty type;
+//    private final int dependsOn;
+//    private final int requiredFor;
+//    private final int serialSets;
+//    private final String name;
+//    private final String data;
+//    private final String type;
 
     public TargetInfoDTO(Target target) {
         data = new SimpleStringProperty(target.getUserData());
         name = new SimpleStringProperty(target.getName());
         type = new SimpleStringProperty(target.getType().toString());
         dependsOn = new SimpleIntegerProperty(target.getDependsOnList().size());
-        requiredFor =new SimpleIntegerProperty( target.getRequiredForList().size());
+        requiredFor = new SimpleIntegerProperty(target.getRequiredForList().size());
         serialSets = new SimpleIntegerProperty(target.getSerialSetCounter());
+
+//        data = target.getUserData();
+//        name = target.getName();
+//        type = target.getType().toString();
+//        dependsOn = target.getDependsOnList().size();
+//        requiredFor = target.getRequiredForList().size();
+//        serialSets = target.getSerialSetCounter();
     }
 
     public int getDependsOn() {

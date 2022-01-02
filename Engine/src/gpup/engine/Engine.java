@@ -43,4 +43,6 @@ public interface Engine {
 
 
    Set<String> getTargetsNamesList();
+
+    List<SerialSetDTO> getSerialSetInfo();
 }

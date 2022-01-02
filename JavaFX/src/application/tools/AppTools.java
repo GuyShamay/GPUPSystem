@@ -10,4 +10,5 @@ public abstract class AppTools {
         alert.setContentText(instructions);
         alert.showAndWait();
     }
+
 }
