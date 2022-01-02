@@ -10,6 +10,26 @@ public class TargetGraphDTO {
     private final int root;
     private final int count;
 
+    public int getLeaves() {
+        return leaves;
+    }
+
+    public int getIndependent() {
+        return independent;
+    }
+
+    public int getMiddle() {
+        return middle;
+    }
+
+    public int getRoot() {
+        return root;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
     public TargetGraphDTO(TargetGraph targetGraph) {
         leaves = targetGraph.getSpecificTypeOfTargetsNum(TargetType.Leaf);
         independent = targetGraph.getSpecificTypeOfTargetsNum(TargetType.Independent);

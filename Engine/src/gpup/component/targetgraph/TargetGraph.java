@@ -3,6 +3,7 @@ package gpup.component.targetgraph;
 import gpup.component.serialset.SerialSet;
 import gpup.component.target.*;
 import gpup.component.task.ProcessingType;
+import gpup.dto.SerialSetDTO;
 import gpup.dto.TargetDTO;
 import gpup.dto.TargetInfoDTO;
 import java.util.*;
@@ -324,6 +325,14 @@ public class TargetGraph implements DirectableGraph, GraphActions {
 
     public Set<String> getTargetsNamesList() {
         return targetMap.keySet();
+    }
+
+    public List<SerialSetDTO> getSerialSetInfo() {
+        List<SerialSetDTO> list = new ArrayList<>();
+        serialSets.forEach((s, serialSet) -> {
+            list.add(new SerialSetDTO(serialSet));
+        });
+        return list;
     }
 }
 

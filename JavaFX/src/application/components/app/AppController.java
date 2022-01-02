@@ -5,10 +5,11 @@ import application.components.findPathes.PathsController;
 import application.general.Component;
 import application.general.ComponentCreator;
 import application.general.Controller;
-import application.components.graphinfo.GraphInfoController;
 import application.tools.AppTools;
 import gpup.component.target.TargetsRelationType;
 import gpup.dto.PathsDTO;
+import application.components.graphinfo.InfoController;
+import gpup.dto.SerialSetDTO;
 import gpup.dto.TargetGraphDTO;
 import gpup.dto.TargetInfoDTO;
 import gpup.engine.Engine;
@@ -18,6 +19,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 
 import javax.xml.bind.JAXBException;
@@ -31,11 +33,20 @@ import java.util.Set;
 import javafx.scene.control.ComboBox;
 
 public class AppController implements Controller {
+    //--------------------------------------------------------------------------
+    //Controllers & Modal:
     private Engine engine;
     private PathsController findPathesController;
-    private static final String FINDPATHS_FXML_NAME = "../findPathes/pathes.fxml";
+    private InfoController graphInfoController;
 
-    private GraphInfoController graphInfoController;
+    //--------------------------------------------------------------------------
+    //Vars & Const:
+    private GridPane welcomePage;
+    private static final String FINDPATHS_FXML_NAME = "../findPathes/pathes.fxml";
+    private static final String INFO_FXML_NAME = "../graphinfo/graph-info.fxml";
+
+    //--------------------------------------------------------------------------
+    //FXML Controls:
 
     @FXML
     private BorderPane borderPaneApp;
@@ -56,22 +67,50 @@ public class AppController implements Controller {
     private ComboBox<String> ComboBoxActions;
 
     @FXML
-    void buttonActionsClicked(ActionEvent event) {
-
+    public void initialize() {
+        ComboBoxActions.getItems().removeAll(ComboBoxActions.getItems());
+        ComboBoxActions.getItems().addAll("Find Path", "Find Circle", "What-if?");
     }
+
+    //--------------------------------------------------------------------------
+    //Show Information
 
     @FXML
     void buttonInfoClicked(ActionEvent event) {
 
-
+        URL url = getClass().getResource(INFO_FXML_NAME);
+        Component infoComponent = ComponentCreator.createComponent(url);
+        graphInfoController = (InfoController) infoComponent.getController();
+        graphInfoController.setAppController(this);
+        graphInfoController.fetchData();
+        borderPaneApp.setCenter(infoComponent.getPane());
     }
+
+    public ObservableList<SerialSetDTO> getSerialSetInfo() {
+        List<SerialSetDTO> list = engine.getSerialSetInfo();
+        return FXCollections.observableArrayList(list);
+    }
+
+    public ObservableList<TargetInfoDTO> getTargetsInfo() {
+        List<TargetInfoDTO> list = engine.getTargetsInfo();
+        return FXCollections.observableArrayList(list);
+    }
+
+    //--------------------------------------------------------------------------
+    //Load File
 
     @FXML
     void buttonLoadFileClicked(ActionEvent event) {
         Button btn = (Button) event.getSource();
-        loadFile(btn);
-        // Add text : loaded successfully
-
+        if (!engine.isInitialized()) {
+            loadFile(btn);
+            // Add text : loaded successfully
+        } else { // there is a loaded file
+            if (AppTools.confirmationAlert("File Loading", "There is a loaded file in the system.", "Are you sure you want to load a new file, and overwrite the existing one?")) {
+                loadFile(btn);
+                borderPaneApp.setCenter(welcomePage);
+            }
+        }
     }
 
     private void loadFile(Button btn) {
@@ -86,26 +125,31 @@ public class AppController implements Controller {
                 engine.buildGraphFromXml(selectedFile);
             } catch (JAXBException e) {
                 AppTools.warningAlert("File loading", "Something went wrong", "Probably with laoding the XML Schema");
-            }catch (FileNotFoundException e) {
+            } catch (FileNotFoundException e) {
                 AppTools.warningAlert("File loading", "The file isn't exist", "In order to continue please load again");
             }
         }
     }
+
+    //--------------------------------------------------------------------------
+    // Run Task
 
     @FXML
     void buttonTaskClicked(ActionEvent event) {
 
     }
 
+    //--------------------------------------------------------------------------
+    // Actions: paths, circle, what-if
+
     @FXML
-    public void initialize() {
-        ComboBoxActions.getItems().removeAll(ComboBoxActions.getItems());
-        ComboBoxActions.getItems().addAll("Find Path","Find Circle","What-if?");
+    void buttonActionsClicked(ActionEvent event) {
+
     }
 
     @FXML
     void ActionChosen(ActionEvent event) {
-        switch (ComboBoxActions.getSelectionModel().getSelectedItem()){
+        switch (ComboBoxActions.getSelectionModel().getSelectedItem()) {
             case "Find Path":
                 findPath();
                 break;
@@ -119,41 +163,39 @@ public class AppController implements Controller {
         ComboBoxActions.getSelectionModel().clearSelection();
     }
 
+    public void setWelcomePage(GridPane welcomePage) {
+        this.welcomePage = welcomePage;
+    }
 
     public void setModel(Engine engine) {
         this.engine = engine;
     }
 
-
-    public void setGraphInfoController(GraphInfoController graphInfoController) {
-        this.graphInfoController = graphInfoController;
-        this.graphInfoController.setAppController(this);
-    }
-
     private void whatif() {
     }
 
-    public ObservableList<TargetInfoDTO> getEngineInfo() {
-        TargetGraphDTO targetGraphDTO = engine.getGraphInfo();
-        List<TargetInfoDTO> list = engine.getTargetsInfo();
-        return FXCollections.observableArrayList(list);
-    }
     private void findCircle() {
     }
 
     private void findPath() {
-            URL url = getClass().getResource(FINDPATHS_FXML_NAME);
-            Component findPathComponent = ComponentCreator.createComponent(url);
-            findPathComponent.getController().setAppController(this);
-            findPathComponent.getController().Init();
-            borderPaneApp.setCenter(findPathComponent.getPane());
+        URL url = getClass().getResource(FINDPATHS_FXML_NAME);
+        Component findPathComponent = ComponentCreator.createComponent(url);
+        findPathComponent.getController().setAppController(this);
+        findPathComponent.getController().Init();
+        borderPaneApp.setCenter(findPathComponent.getPane());
+
     }
 
-    public Set<String> getTargetsList(){
+    public TargetGraphDTO getGraphInfo() {
+        return engine.getGraphInfo();
+    }
+
+    public PathsDTO getFoundPaths(String src, String dest, TargetsRelationType type) {
+        return engine.findPaths(src, dest, type);
+    }
+
+    public Set<String> getTargetsListByName() {
         return engine.getTargetsNamesList();
     }
 
-    public PathsDTO findPaths(String src, String dest, TargetsRelationType type){
-        return engine.findPaths(src, dest, type);
-    }
 }

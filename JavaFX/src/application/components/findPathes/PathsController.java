@@ -53,7 +53,7 @@ public class PathsController implements Controller {
     void onFindPathClicked(ActionEvent event) {
         textFlowPaths.getChildren().clear();
         TargetsRelationType relationType = checkBoxDependsOn.isSelected() == true ? TargetsRelationType.DependsOn : TargetsRelationType.RequiredFor;
-        PathsDTO paths = appController.findPaths(choiseBoxFrom.getValue(),choiseBoxTo.getValue(),relationType);
+        PathsDTO paths = appController.getFoundPaths(choiseBoxFrom.getValue(),choiseBoxTo.getValue(),relationType);
         textFlowPaths.getChildren().add(new Text(paths.toString().substring(paths.toString().indexOf(":")+1)));
     }
 
@@ -71,7 +71,7 @@ public class PathsController implements Controller {
     }
 
     private void initTargetsButtons() {
-        Set<String> targets = appController.getTargetsList();
+        Set<String> targets = appController.getTargetsListByName();
         ObservableList<String> fromList = choiseBoxFrom.getItems();
         for (String targetName : targets) { fromList.add(targetName); }
         choiseBoxTo.getItems().addAll(fromList);
