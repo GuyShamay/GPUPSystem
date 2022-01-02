@@ -65,7 +65,6 @@ public class AppController implements Controller {
 
     @FXML
     public void initialize() {
-        // need to work with ObservableList<String> and connect it to comboBox.
         comboBoxActions.getItems().removeAll(comboBoxActions.getItems());
         comboBoxActions.getItems().addAll("Find Path", "Find Circle", "What-if?");
 
