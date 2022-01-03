@@ -1,18 +1,24 @@
 package application.components.task.config;
 
 import application.components.app.AppController;
+import application.components.task.config.compile.CompileConfigController;
+import application.components.task.config.simulation.SimulationConfigController;
+import application.general.Component;
+import application.general.ComponentCreator;
 import application.general.Controller;
 import component.target.TargetsRelationType;
+import component.task.ProcessingType;
+import component.task.config.Config;
 import component.task.config.Selections;
 import component.task.config.TaskConfig;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableArray;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.BorderPane;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -25,13 +31,24 @@ public class TaskConfigController implements Controller {
     }
 
     private AppController appController;
+    private SimulationConfigController simulationController;
+    private CompileConfigController compileController;
 
     private TaskConfig taskConfig;
+    private Config typeConfig;
+
     private Selections.TargetSelect targetSelect = Selections.TargetSelect.non;
     private Selections.SettingsSelect settingsSelect = Selections.SettingsSelect.non;
     private Selections.TypeSelect typeSelect = Selections.TypeSelect.non;
+    private boolean targetSubmit;
+    private boolean settingsSubmit;
+    private boolean typeSubmit;
+
+    private final String SIMULATION_CONFIG_FXML_NAME = "simulation/simulation-config.fxml";
+    private final String COMPILE_CONFIG_FXML_NAME = "compile/compile-config.fxml";
 
     ObservableList<String> targets;
+
     @FXML
     private CheckBox allTargetCheckBox;
 
@@ -55,6 +72,9 @@ public class TaskConfigController implements Controller {
 
     @FXML
     private Label warningTargetsLabel;
+
+    @FXML
+    private Label warningTaskTypeLabel;
 
     @FXML
     private CheckBox fromScratchCheckBox;
@@ -81,7 +101,7 @@ public class TaskConfigController implements Controller {
     private CheckBox compileCheckBox;
 
     @FXML
-    private Pane taskParamPane;
+    private BorderPane taskParamBorderPane;
 
     @FXML
     private Button finalSubmitButton;
@@ -90,6 +110,9 @@ public class TaskConfigController implements Controller {
     public void initialize() {
         taskConfig = new TaskConfig();
         wayChoice.getItems().addAll("Depends On", "Required For");
+        targetSubmit = false;
+        settingsSubmit = false;
+        typeSubmit = false;
     }
 
     public void fetchData() {
@@ -98,7 +121,8 @@ public class TaskConfigController implements Controller {
     }
 
     private void fillThreadsSpinner() {
-
+        SpinnerValueFactory<Integer> factory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, appController.getMaxParallelism());
+        threadSpinner.setValueFactory(factory);
     }
 
     private void fillTargetsInView() {
@@ -185,6 +209,7 @@ public class TaskConfigController implements Controller {
             warningTargetsLabel.setText("Settings submitted!");
             submitTargetButton.setDisable(true);
             disableAllTargets();
+            targetSubmit = true;
         }
     }
 
@@ -236,6 +261,7 @@ public class TaskConfigController implements Controller {
             settingsSelect = Selections.SettingsSelect.scratch;
         } else {
             settingsSelect = Selections.SettingsSelect.non;
+
         }
     }
 
@@ -257,16 +283,18 @@ public class TaskConfigController implements Controller {
                 warningSettingsLabel.setText("You have to select an option");
                 break;
             case scratch:
-                taskConfig.setFromScratch(true);
+                taskConfig.setProcessingType(ProcessingType.FromScratch);
                 break;
             case inc:
-                taskConfig.setIncremental(true);
+                taskConfig.setProcessingType(ProcessingType.Incremental);
                 break;
         }
         if (settingsSelect != Selections.SettingsSelect.non) {
             fromScratchCheckBox.setDisable(true);
             incrementalCheckBox.setDisable(true);
             taskConfig.setThreadsParallelism(threadSpinner.getValue());
+            warningSettingsLabel.setText("Settings submitted!");
+            settingsSubmit = true;
         }
     }
     // -------------------------------------------------------------------
@@ -274,19 +302,62 @@ public class TaskConfigController implements Controller {
 
     @FXML
     void simulationChecked(ActionEvent event) {
-        compileCheckBox.setSelected(!simulationCheckBox.isSelected());
+        if (simulationCheckBox.isSelected()) {
+            compileCheckBox.setSelected(!simulationCheckBox.isSelected());
+            typeSelect = Selections.TypeSelect.simulation;
+            URL url = getClass().getResource(SIMULATION_CONFIG_FXML_NAME);
+            Component simulationComp = ComponentCreator.createComponent(url);
+            simulationController = (SimulationConfigController) simulationComp.getController();
+            simulationController.setAppController(this);
+            taskParamBorderPane.setCenter(simulationComp.getPane());
+        } else {
+            typeSelect = Selections.TypeSelect.non;
+        }
 
     }
 
     @FXML
     void compileChecked(ActionEvent event) {
-        simulationCheckBox.setSelected(!compileCheckBox.isSelected());
+        if (compileCheckBox.isSelected()) {
+            simulationCheckBox.setSelected(!compileCheckBox.isSelected());
+            typeSelect = Selections.TypeSelect.compile;
 
+            URL url = getClass().getResource(COMPILE_CONFIG_FXML_NAME);
+            Component compileComp = ComponentCreator.createComponent(url);
+            compileController = (CompileConfigController) compileComp.getController();
+            compileController.setAppController(this);
+            taskParamBorderPane.setCenter(compileComp.getPane());
+        } else {
+            typeSelect = Selections.TypeSelect.non;
+        }
     }
-
 
     @FXML
     void buttonFinalSubmitClicked(ActionEvent event) {
+        switch (typeSelect) {
+            case non:
+                warningTaskTypeLabel.setText("You have to select an option");
+                break;
+            case simulation:
+                break;
+            case compile:
+                break;
+        }
+        if (typeSelect != Selections.TypeSelect.non) {
+            if (targetSubmit) {
+                if (settingsSubmit) {
+                    //appController.setTaskConfig(taskConfig);
+                } else {
+                    warningTaskTypeLabel.setText("Please complete step 2");
 
+                }
+            } else {
+                warningTaskTypeLabel.setText("Please complete step 1");
+            }
+        }
+    }
+
+    public void updateConfig(Config config) {
+        this.taskConfig.setConfig(config);
     }
 }

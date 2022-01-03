@@ -236,4 +236,9 @@ return targetGraph.getSerialSetInfo();    }
         targetsList.forEach((target -> {targetsDTOList.add(new TargetInfoDTO(target));}));
         return targetsDTOList;
     }
+
+    @Override
+    public int getMaxParallelism() {
+        return maxParallelism;
+    }
 }

@@ -38,15 +38,11 @@ public interface Engine {
 
     List<TargetInfoDTO> getTargetsInfo();
 
-
-
-
-
-
-
    Set<String> getTargetsNamesList();
 
     List<SerialSetDTO> getSerialSetInfo();
 
     List<TargetInfoDTO> getTargetsByRelation(String target,TargetsRelationType relationType);
+
+    int getMaxParallelism();
 }

@@ -16,7 +16,6 @@ public class Target {
     private List<Target> skippedList = new ArrayList<>();
     private Duration taskRunDuration;
     private int serialSetCounter;
-
     private boolean isLockBySerialSet;
 
     public Target(String name) {

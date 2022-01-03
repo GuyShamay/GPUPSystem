@@ -173,6 +173,9 @@ public class AppController implements Controller {
         stage.show();
     }
 
+    public int getMaxParallelism() {
+        return engine.getMaxParallelism();
+    }
     //--------------------------------------------------------------------------
     // Actions: paths, circle, what-if
 
@@ -238,4 +241,6 @@ public class AppController implements Controller {
     public List<TargetInfoDTO> getTarget (String targetName,TargetsRelationType relationType){
         return engine.getTargetsByRelation(targetName,relationType);
     }
+
+
 }
