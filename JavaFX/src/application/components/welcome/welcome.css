@@ -1,0 +1,18 @@
+#welcome{
+    -fx-font-weight: bold;
+    -fx-font-size: 30px;
+}
+#desktop-app{
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+}
+
+.page{
+    -fx-background-color: white;
+
+}
+
+.label-instr{
+    -fx-font-weight: bold;
+}
+

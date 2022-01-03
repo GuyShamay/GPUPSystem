@@ -6,6 +6,7 @@ import engine.GPUPEngine;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
@@ -44,9 +45,10 @@ public class GPUPDesktopApp extends Application {
     private void addComponent(BorderPane root, String welcomeFxmlName) throws IOException {
 
         URL url = getClass().getResource(WELCOME_FXML_NAME);
-        FXMLLoader newfxmlLoader = new FXMLLoader();
-        newfxmlLoader.setLocation(url);
-        GridPane welcomeComponent = newfxmlLoader.load(url.openStream());
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(url);
+        AnchorPane welcomeComponent = fxmlLoader.load(url.openStream());
+        appController.setWelcomeController(fxmlLoader.getController());
         appController.setWelcomePage(welcomeComponent);
         root.setCenter(welcomeComponent);
     }

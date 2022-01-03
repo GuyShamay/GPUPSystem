@@ -21,6 +21,7 @@ public class SerialSet {
     public String getTargetAsString() {
         return targetAsString;
     }
+
     public void setTargets(List<Target> targets) {
         this.targets = targets;
     }
@@ -31,5 +32,12 @@ public class SerialSet {
 
     public String getName() {
         return name;
+    }
+
+    public void lockAll(Target lockingTarget) {
+        targets.stream().filter(target -> !(target.equals(lockingTarget))).forEach(Target::lock);
+    }
+    public void unlockAll(){
+        targets.forEach(Target::unlock);
     }
 }

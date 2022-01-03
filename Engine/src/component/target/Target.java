@@ -17,6 +17,8 @@ public class Target {
     private Duration taskRunDuration;
     private int serialSetCounter;
 
+    private boolean isLockBySerialSet;
+
     public Target(String name) {
         this.name = name;
         requiredForList = new ArrayList<>();
@@ -129,7 +131,23 @@ public class Target {
         return serialSetCounter;
     }
 
+    public void incrementSerialSetCounter() {
+        serialSetCounter++;
+    }
+
     public void setSerialSetCounter(int serialSetCounter) {
         this.serialSetCounter = serialSetCounter;
+    }
+
+    public boolean isLock() {
+        return isLockBySerialSet;
+    }
+
+    public void lock() {
+        isLockBySerialSet = true;
+    }
+
+    public void unlock() {
+        isLockBySerialSet = false;
     }
 }

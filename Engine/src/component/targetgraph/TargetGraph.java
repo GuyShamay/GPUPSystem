@@ -32,6 +32,9 @@ public class TargetGraph implements DirectableGraph, GraphActions {
 
     public void setSerialSets(Map<String, SerialSet> serialSets) {
         this.serialSets = serialSets;
+        serialSets.forEach((s, serialSet) -> {
+            serialSet.getTargets().forEach(Target::incrementSerialSetCounter);
+        });
     }
 
     public String getWorkingDirectory() {

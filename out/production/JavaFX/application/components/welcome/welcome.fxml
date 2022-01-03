@@ -1,52 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.AnchorPane?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
-  <columnConstraints>
-      <ColumnConstraints hgrow="NEVER" maxWidth="20.0" minWidth="20.0" prefWidth="20.0" />
-      <ColumnConstraints halignment="LEFT" hgrow="NEVER" prefWidth="100.0" />
-      <ColumnConstraints halignment="LEFT" hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
-      <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-    <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
-      <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
-    <ColumnConstraints hgrow="NEVER" maxWidth="20.0" minWidth="20.0" prefWidth="20.0" />
-  </columnConstraints>
-  <rowConstraints>
-      <RowConstraints maxHeight="20.0" minHeight="20.0" prefHeight="20.0" vgrow="NEVER" />
-      <RowConstraints vgrow="NEVER" />
-    <RowConstraints vgrow="NEVER" />
-    <RowConstraints vgrow="NEVER" />
-      <RowConstraints maxHeight="10.0" minHeight="10.0" prefHeight="10.0" vgrow="NEVER" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-    <RowConstraints maxHeight="20.0" minHeight="20.0" prefHeight="20.0" vgrow="NEVER" />
-  </rowConstraints>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: white;" styleClass="page" stylesheets="@welcome.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.components.welcome.WelcomeController">
    <children>
-      <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="3" GridPane.rowIndex="1">
+      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@../../../resources/gpup-logo-big.png" />
          </image>
       </ImageView>
-      <Label id="welcome" text="Welcome!" GridPane.columnIndex="1" GridPane.rowIndex="2">
-         <GridPane.margin>
-            <Insets />
-         </GridPane.margin>
-         <padding>
-            <Insets left="15.0" />
-         </padding>
-      </Label>
-      <Label id="header" text="Desktop Application for G.P.U.P System" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="3">
-         <GridPane.margin>
-            <Insets left="15.0" />
-         </GridPane.margin>
-      </Label>
-      <Label text=" Description of the System's optiona" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="5" />
+      <Label id="welcome" layoutX="206.0" layoutY="34.0" text="Welcome!" />
+      <Label id="desktop-app" layoutX="206.0" layoutY="79.0" text="G.P.U.P System Desktop Application" />
+      <Label layoutX="74.0" layoutY="143.0" styleClass="label-desp" text="A generic system for streamlining and improving processes." />
+      <Label layoutX="74.0" layoutY="179.0" styleClass="label-desp" text="The system maintains a dependent graph of different information," />
+      <Label layoutX="74.0" layoutY="217.0" styleClass="label-desp" text="and allows it to perform various tasks on it." />
+      <Label layoutX="74.0" layoutY="300.0" styleClass="label-instr" text="To start, please load a XML file via the 'Load' button" />
+      <Label fx:id="labelLoadingStatus" layoutX="74.0" layoutY="333.0" styleClass="label-instr" />
    </children>
-</GridPane>
+</AnchorPane>
