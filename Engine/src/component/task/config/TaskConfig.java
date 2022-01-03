@@ -1,19 +1,33 @@
 package component.task.config;
 
 import component.target.TargetsRelationType;
+import component.task.ProcessingType;
+import component.task.TaskType;
 
 import java.util.List;
 
 public class TaskConfig {
     private boolean isAllTargets;
-    private boolean fromScratch;
-    private boolean incremental;
+    private ProcessingType processingType;
     private List<String> customTargets;
     private String whatIfTarget;
     private TargetsRelationType whatIfRelation;
     private int threadsParallelism;
-    private Config specificConfig;
 
+    public Config getSpecificConfig() {
+        return specificConfig;
+    }
+
+    private Config specificConfig;
+    private TaskType taskType;
+
+    public TaskType getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(TaskType taskType) {
+        this.taskType = taskType;
+    }
 
     public boolean isAllTargets() {
         return isAllTargets;
@@ -23,20 +37,12 @@ public class TaskConfig {
         isAllTargets = allTargets;
     }
 
-    public boolean isFromScratch() {
-        return fromScratch;
+    public ProcessingType getProcessingType() {
+        return processingType;
     }
 
-    public void setFromScratch(boolean fromScratch) {
-        this.fromScratch = fromScratch;
-    }
-
-    public boolean isIncremental() {
-        return incremental;
-    }
-
-    public void setIncremental(boolean incremental) {
-        this.incremental = incremental;
+    public void setProcessingType(ProcessingType processingType) {
+        this.processingType = processingType;
     }
 
     public List<String> getCustomTargets() {

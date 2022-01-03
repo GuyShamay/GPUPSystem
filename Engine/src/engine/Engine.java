@@ -24,7 +24,9 @@ public interface Engine {
 
     boolean isInitialized();
 
-    void initTask(int targetProcessingTimeMs, int taskProcessingTimeType, float successProb, float successWithWarningsProb, ProcessingType status);
+ //   void initTask(int targetProcessingTimeMs, int taskProcessingTimeType, float successProb, float successWithWarningsProb, ProcessingType status);
+
+    void initTaskGPUP1(int targetProcessingTimeMs, int taskProcessingTimeType, float successProb, float successWithWarningsProb, ProcessingType status);
 
     void setProcessingType(ProcessingType processingStartStatus);
 
@@ -49,4 +51,6 @@ public interface Engine {
     List<SerialSetDTO> getSerialSetInfo();
 
     List<TargetInfoDTO> getTargetsByRelation(String target,TargetsRelationType relationType);
+
+
 }

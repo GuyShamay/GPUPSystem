@@ -17,13 +17,16 @@ public class TargetGraph implements DirectableGraph, GraphActions {
     private Map<String, List<Target>> dependsOnGraph;
     private Map<String, Target> targetMap;
     private Map<String, List<Target>> gTranspose;
-
     private Map<String, SerialSet> serialSets;
 
     public TargetGraph(String name) {
         this.name = name;
         dependsOnGraph = new HashMap<>();
         targetMap = new HashMap<>();
+    }
+
+    public TargetGraph() {
+        this.name=null;
     }
 
     public SerialSet getSerialSet(String name) {
@@ -55,7 +58,38 @@ public class TargetGraph implements DirectableGraph, GraphActions {
             targetMap.put(target.getName(), target);
         });
         targetMap.values().forEach(target -> target.getDependsOnList().forEach(target1 -> addEdge(target.getName(), target1)));
-        updateLeavesAndIndependentsToWaiting();
+       // updateLeavesAndIndependentsToWaiting();
+    }
+
+    public TargetGraph buildSubGraph(List<String> subTargetsList)
+    {
+        TargetGraph subTargetGraph = new TargetGraph();
+        Map<String, List<Target>> SubGraphDependsOn = new HashMap<>();
+        Map<String, Target> subTargetMap = new HashMap<>();
+
+        subTargetsList.forEach(targetName -> {
+            SubGraphDependsOn.put(targetName,new LinkedList<>());
+            subTargetMap.put(targetName,targetMap.get(targetName));
+        });
+
+        subTargetGraph.setDependsOnList(SubGraphDependsOn);
+        subTargetGraph.setTargetMap(subTargetMap);
+
+        subTargetMap.values().forEach(target -> {
+            target.getDependsOnList().forEach(adj->{
+                if(subTargetsList.contains(adj.getName())) subTargetGraph.addEdge(target.getName(),adj);
+            });
+        });
+
+        return subTargetGraph;
+    }
+
+    private void setTargetMap(Map<String, Target> subTargetMap) {
+        targetMap=subTargetMap;
+    }
+
+    private void setDependsOnList(Map<String, List<Target>> subDependsOnGraph) {
+        dependsOnGraph = subDependsOnGraph;
     }
 
     @Override
@@ -350,6 +384,30 @@ public class TargetGraph implements DirectableGraph, GraphActions {
                 break;
         }
         return targetsList;
+    }
+
+    public void updateTargetsTypes(){
+        dependsOnGraph.forEach((s, targets) -> {
+            if(targets.isEmpty() && !isTargetRequiredForSomeone(s))
+                targetMap.get(s).setType(TargetType.Independent);
+            else if(!targets.isEmpty() && isTargetRequiredForSomeone(s))
+                targetMap.get(s).setType(TargetType.Middle);
+            else if (isTargetRequiredForSomeone(s))
+                targetMap.get(s).setType(TargetType.Root);
+            else
+                targetMap.get(s).setType(TargetType.Leaf);
+        });
+    }
+
+    private boolean isTargetRequiredForSomeone(String s) {
+        boolean res=true;
+        for (List<Target> adjList : dependsOnGraph.values()) {
+            if (adjList.contains(targetMap.get(s))){
+                res = false;
+                break;
+            }
+        }
+        return res;
     }
 }
 

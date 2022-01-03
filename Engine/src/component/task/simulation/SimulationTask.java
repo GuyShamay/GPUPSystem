@@ -4,6 +4,8 @@ package component.task.simulation;
 import component.target.FinishResult;
 import component.target.Target;
 import component.task.Task;
+import component.task.config.Config;
+import component.task.config.SimulationConfig;
 import dto.StatisticsDTO;
 
 import java.util.ArrayList;
@@ -28,6 +30,15 @@ public class SimulationTask implements Task {
         this.processingTimeType = processingTime;
         this.successProb = succesProb;
         this.successWithWarningsProb = ifSucces_withWarningsProb;
+    }
+
+    public SimulationTask(Config config){
+        this.random = null;
+        this.name = null;
+        this.processingTimeInMs = 0;
+        this.processingTimeType = ProcessingTimeType.Permanent;
+        this.successProb = 0;
+        this.successWithWarningsProb =0;
     }
 
     public FinishResult run() throws InterruptedException {
