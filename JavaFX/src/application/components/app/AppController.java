@@ -2,35 +2,32 @@ package application.components.app;
 
 
 import application.components.findPathes.PathsController;
+import application.components.graphinfo.InfoController;
 import application.general.Component;
 import application.general.ComponentCreator;
 import application.general.Controller;
 import application.tools.AppTools;
 import component.target.TargetsRelationType;
-import dto.PathsDTO;
-import application.components.graphinfo.InfoController;
-import dto.SerialSetDTO;
-import dto.TargetGraphDTO;
-import dto.TargetInfoDTO;
+import dto.*;
 import engine.Engine;
+import engine.GPUPEngine;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.stage.FileChooser;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.List;
-
 import java.net.URL;
+import java.util.List;
 import java.util.Set;
-
-import javafx.scene.control.ComboBox;
 
 public class AppController implements Controller {
     //--------------------------------------------------------------------------
@@ -44,6 +41,8 @@ public class AppController implements Controller {
     private GridPane welcomePage;
     private static final String FINDPATHS_FXML_NAME = "../findPathes/pathes.fxml";
     private static final String INFO_FXML_NAME = "../graphinfo/graph-info.fxml";
+    private static final String FINDCIRCUIT_FXML_NAME = "../findCircuit/findCircuit.fxml";
+    private static final String WHATIF_FXML_NAME = "../whatIf/whatIf.fxml";
 
     //--------------------------------------------------------------------------
     //FXML Controls:
@@ -66,7 +65,7 @@ public class AppController implements Controller {
     @FXML
     public void initialize() {
         comboBoxActions.getItems().removeAll(comboBoxActions.getItems());
-        comboBoxActions.getItems().addAll("Find Path", "Find Circle", "What-if?");
+        comboBoxActions.getItems().addAll("Find Path", "Find Circuit", "What-if?");
 
         // Disable all buttons except Load
         buttonInfo.setDisable(true);
@@ -125,7 +124,7 @@ public class AppController implements Controller {
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Xml Files", "*.xml"));
         File selectedFile = fileChooser.showOpenDialog(btn.getScene().getWindow());*/
-File selectedFile = new File("C:\\Users\\guysh\\Downloads\\ex2-big.xml");
+File selectedFile = new File("C:\\Users\\Noam\\Downloads\\ex2-big.xml");
         if (selectedFile != null) {
             try {
                 engine.buildGraphFromXml(selectedFile);
@@ -155,18 +154,22 @@ File selectedFile = new File("C:\\Users\\guysh\\Downloads\\ex2-big.xml");
 
     @FXML
     void ActionChosen(ActionEvent event) {
+        String path="";
         switch (comboBoxActions.getSelectionModel().getSelectedItem()) {
             case "Find Path":
-                findPath();
+                path=FINDPATHS_FXML_NAME;
                 break;
-            case "Find Circle":
-                findCircle();
+            case "Find Circuit":
+                path = FINDCIRCUIT_FXML_NAME;
                 break;
             case "What-if?":
-                whatif();
+                path = WHATIF_FXML_NAME;
                 break;
         }
-//        comboBoxActions.getSelectionModel().clearSelection();
+        URL url = getClass().getResource(path);
+        makeComponent(url);
+
+        comboBoxActions.getSelectionModel().clearAndSelect(-1);
     }
 
     public void setWelcomePage(GridPane welcomePage) {
@@ -177,23 +180,12 @@ File selectedFile = new File("C:\\Users\\guysh\\Downloads\\ex2-big.xml");
         this.engine = engine;
     }
 
-    private void whatif() {
+    private void makeComponent(URL url){
+        Component component = ComponentCreator.createComponent(url);
+        component.getController().setAppController(this);
+        component.getController().Init();
+        borderPaneApp.setCenter(component.getPane());
     }
-
-    private void findCircle() {
-
-    }
-
-    private void findPath() {
-        URL url = getClass().getResource(FINDPATHS_FXML_NAME);
-        Component findPathComponent = ComponentCreator.createComponent(url);
-        findPathComponent.getController().setAppController(this);
-        findPathComponent.getController().Init();
-        borderPaneApp.setCenter(findPathComponent.getPane());
-
-    }
-
-
 
     public TargetGraphDTO getGraphInfo() {
         return engine.getGraphInfo();
@@ -203,8 +195,21 @@ File selectedFile = new File("C:\\Users\\guysh\\Downloads\\ex2-big.xml");
         return engine.findPaths(src, dest, type);
     }
 
-    public Set<String> getTargetsListByName() {
+    private Set<String> getTargetsListByName() {
         return engine.getTargetsNamesList();
     }
 
+    public void fillComboBoxWithTargets(ComboBox<String> comboBox) {
+        Set<String> targets = getTargetsListByName();
+        ObservableList<String> list = comboBox.getItems();
+        for (String targetName : targets) { list.add(targetName); }
+    }
+
+    public CircuitDTO findCircuit(String target) {
+        return engine.findCircuit(target);
+    }
+
+    public List<TargetInfoDTO> getTarget (String targetName,TargetsRelationType relationType){
+        return engine.getTargetsByRelation(targetName,relationType);
+    }
 }

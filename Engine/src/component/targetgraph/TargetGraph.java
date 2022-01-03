@@ -2,7 +2,6 @@ package component.targetgraph;
 
 import component.serialset.SerialSet;
 import component.target.*;
-import component.target.*;
 import component.task.ProcessingType;
 import dto.SerialSetDTO;
 import dto.TargetDTO;
@@ -235,18 +234,18 @@ public class TargetGraph implements DirectableGraph, GraphActions {
         Map<Target, Boolean> isVisited = new HashMap<>();
         targetMap.forEach(((s, target) -> isVisited.put(target, false)));
         List<Target> skippedList = currentTarget.getSkippedList();
-        recDfsUpdateSkippedList(isVisited, skippedList, currentTarget);
+        recDfsUpdateDependentsList(isVisited, skippedList, currentTarget);
         skippedList.remove(currentTarget);
         skippedList.forEach((target -> target.setRunResult(RunResult.SKIPPED)));
     }
 
-    private void recDfsUpdateSkippedList(Map<Target, Boolean> isVisited, List<Target> skippedList, Target
+    private void recDfsUpdateDependentsList(Map<Target, Boolean> isVisited, List<Target> skippedList, Target
             currentTarget) {
         skippedList.add(currentTarget);
 
         for (Target t : gTranspose.get(currentTarget.getName())) {
             if (!isVisited.get(t)) {
-                recDfsUpdateSkippedList(isVisited, skippedList, t);
+                recDfsUpdateDependentsList(isVisited, skippedList, t);
             }
         }
         isVisited.replace(currentTarget, false, true);
@@ -334,6 +333,20 @@ public class TargetGraph implements DirectableGraph, GraphActions {
             list.add(new SerialSetDTO(serialSet));
         });
         return list;
+    }
+
+    public List<Target> getTargetsByRelation(String targetName, TargetsRelationType relationType){
+        Target t = targetMap.get(targetName);
+        List<Target> targetsList = new ArrayList<>();
+        switch (relationType){
+            case DependsOn:
+                targetsList =t.getDependsOnList();
+                break;
+            case RequiredFor:
+                targetsList =t.getRequiredForList();
+                break;
+        }
+        return targetsList;
     }
 }
 

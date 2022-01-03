@@ -229,4 +229,11 @@ public class GPUPEngine implements Engine {
     @Override
     public List<SerialSetDTO> getSerialSetInfo() {
 return targetGraph.getSerialSetInfo();    }
+
+    public List<TargetInfoDTO> getTargetsByRelation (String targetName, TargetsRelationType relationType){
+        List<Target> targetsList = targetGraph.getTargetsByRelation(targetName,relationType);
+        List<TargetInfoDTO> targetsDTOList = new ArrayList<>();
+        targetsList.forEach((target -> {targetsDTOList.add(new TargetInfoDTO(target));}));
+        return targetsDTOList;
+    }
 }

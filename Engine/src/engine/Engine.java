@@ -47,4 +47,6 @@ public interface Engine {
    Set<String> getTargetsNamesList();
 
     List<SerialSetDTO> getSerialSetInfo();
+
+    List<TargetInfoDTO> getTargetsByRelation(String target,TargetsRelationType relationType);
 }

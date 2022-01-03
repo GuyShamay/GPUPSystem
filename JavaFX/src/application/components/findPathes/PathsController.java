@@ -9,6 +9,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -35,13 +36,10 @@ public class PathsController implements Controller {
     private TextFlow textFlowPaths;
 
     @FXML
-    private Text textPaths;
+    private ComboBox<String> comboBoxFrom;;
 
     @FXML
-    private ChoiceBox<String> choiseBoxFrom;
-
-    @FXML
-    private ChoiceBox<String> choiseBoxTo;
+    private ComboBox<String> comboBoxTo;
 
     @FXML
     void checkBoxDependsOnChoosen(ActionEvent event) {checkBoxRequiredFor.setSelected(false); }
@@ -52,31 +50,47 @@ public class PathsController implements Controller {
     @FXML
     void onFindPathClicked(ActionEvent event) {
         textFlowPaths.getChildren().clear();
+        String msg="";
+        if(allDetailsIn()) {
+            msg = getPathsToShow();
+        } else{
+            msg= "Missing Details";
+        }
+        textFlowPaths.getChildren().add(new Text(msg));
+    }
+
+    private String getPathsToShow() {
         TargetsRelationType relationType = checkBoxDependsOn.isSelected() == true ? TargetsRelationType.DependsOn : TargetsRelationType.RequiredFor;
-        PathsDTO paths = appController.getFoundPaths(choiseBoxFrom.getValue(),choiseBoxTo.getValue(),relationType);
-        textFlowPaths.getChildren().add(new Text(paths.toString().substring(paths.toString().indexOf(":")+1)));
+        PathsDTO paths = appController.getFoundPaths(comboBoxFrom.getValue(), comboBoxTo.getValue(), relationType);
+        return paths.toString().substring(paths.toString().indexOf(":")+1);
+    }
+
+
+    private boolean allDetailsIn() {
+        return (!comboBoxFrom.getSelectionModel().isEmpty() &&
+                !comboBoxTo.getSelectionModel().isEmpty()&&
+                (checkBoxDependsOn.isSelected()|| checkBoxRequiredFor.isSelected()));
     }
 
     public void Init(){
-        initTargetsButtons();
+        initTargetsToChoose();
         labelFrom.setStyle("-fx-font-weight: bold");
-        choiseBoxFrom.setOnAction((event -> {
+        comboBoxFrom.setOnAction((event -> {
             labelTo.setStyle("-fx-font-weight: bold");
             labelFrom.setStyle("-fx-font-weight: regular");
         }));
-        choiseBoxTo.setOnAction(event -> {
+        comboBoxTo.setOnAction(event -> {
             labelFrom.setStyle("-fx-font-weight: bold");
             labelTo.setStyle("-fx-font-weight: regular");
         });
     }
 
-    private void initTargetsButtons() {
-        Set<String> targets = appController.getTargetsListByName();
-        ObservableList<String> fromList = choiseBoxFrom.getItems();
-        for (String targetName : targets) { fromList.add(targetName); }
-        choiseBoxTo.getItems().addAll(fromList);
+    private void initTargetsToChoose() {
+        appController.fillComboBoxWithTargets(comboBoxTo);
+        appController.fillComboBoxWithTargets(comboBoxFrom);
     }
 
+    @Override
     public void setAppController(Controller c){
         appController = (AppController)c;
     }
