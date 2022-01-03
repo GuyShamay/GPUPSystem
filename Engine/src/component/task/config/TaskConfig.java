@@ -1,7 +1,6 @@
 package component.task.config;
 
 import component.target.TargetsRelationType;
-import component.task.ProcessingType;
 
 import java.util.List;
 
@@ -13,6 +12,7 @@ public class TaskConfig {
     private TargetsRelationType whatIfRelation;
     private int threadsParallelism;
     private Config specificConfig;
+
 
     public boolean isAllTargets() {
         return isAllTargets;

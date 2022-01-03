@@ -26,6 +26,8 @@ public interface Engine {
 
     void initTask(int targetProcessingTimeMs, int taskProcessingTimeType, float successProb, float successWithWarningsProb, ProcessingType status);
 
+    void initTaskGPUP1(int targetProcessingTimeMs, int taskProcessingTimeType, float successProb, float successWithWarningsProb, ProcessingType status);
+
     void setProcessingType(ProcessingType processingStartStatus);
 
     void runTask(Consumer<GPUPConsumerDTO> consumer) throws InterruptedException, IOException;

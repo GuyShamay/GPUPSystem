@@ -176,7 +176,7 @@ public class GPUPApp {
             procStartStatus = ProcessingType.FromScratch;
         }
 
-        engine.initTask(targetProcessingTime, taskProcessingTimeType, successProb, successWithWarningsProb, procStartStatus);
+        engine.initTaskGPUP1(targetProcessingTime, taskProcessingTimeType, successProb, successWithWarningsProb, procStartStatus);
         engine.setProcessingType(procStartStatus);
 
         try {

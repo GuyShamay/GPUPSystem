@@ -4,6 +4,7 @@ import component.target.*;
 import component.targetgraph.TargetGraph;
 import component.task.ProcessingType;
 import component.task.Task;
+import component.task.config.TaskConfig;
 import dto.*;
 import exception.TargetExistException;
 import component.task.simulation.ProcessingTimeType;
@@ -33,6 +34,7 @@ public class GPUPEngine implements Engine {
     private Task task; // can it run several tasks?
     private ProcessingType processingType;
     private int maxParallelism;
+    private TargetGraph subTargetGraph;
 
     private void loadXmlToTargetGraph(String path) throws FileNotFoundException, JAXBException, TargetExistException {
         final String PACKAGE_NAME = "jaxb.generated";
@@ -41,7 +43,6 @@ public class GPUPEngine implements Engine {
         JAXBContext jc = JAXBContext.newInstance(PACKAGE_NAME);
         Unmarshaller u = jc.createUnmarshaller();
         gpupDescriptor = (GPUPDescriptor) u.unmarshal(inputStream);
-
         targetGraph = GPUPParser.parseTargetGraph(gpupDescriptor);
     }
 
@@ -94,15 +95,58 @@ public class GPUPEngine implements Engine {
     }
 
     @Override
-    public void initTask(int targetProcessingTimeMs, int taskProcessingTimeType, float successProb, float successWithWarningsProb, ProcessingType status) {
+    public void initTaskGPUP1(int targetProcessingTimeMs, int taskProcessingTimeType, float successProb, float successWithWarningsProb, ProcessingType status) {
         ProcessingTimeType procTimeType = taskProcessingTimeType == 1 ? ProcessingTimeType.Random : ProcessingTimeType.Permanent;
         task = new SimulationTask(targetGraph.getName(), procTimeType, successProb, successWithWarningsProb, targetProcessingTimeMs);
         targetGraph.buildTransposeGraph();
     }
 
+    public void initTask(TaskConfig taskConfig){
+        subTargetGraph = createSubTargetGraph(taskConfig);
+        subTargetGraph.updateTargetsTypes();
+        subTargetGraph.buildTransposeGraph();
+        processingType = taskConfig.getProcessingType();
+        maxParallelism=taskConfig.getThreadsParallelism();
+
+        switch (taskConfig.getTaskType()){
+            case Simulation:
+                task = new SimulationTask(taskConfig.getSpecificConfig());
+                break;
+            case Compilation:
+                break;
+        }
+    }
+
+    private TargetGraph createSubTargetGraph(TaskConfig taskConfig) {
+        if(taskConfig.isAllTargets()) subTargetGraph = targetGraph;
+        else if (taskConfig.getCustomTargets().size()!=0) {
+            subTargetGraph=targetGraph.buildSubGraph(taskConfig.getCustomTargets());
+        } else {
+            List<String> res= getWhatIfSubTargetsList(taskConfig.getWhatIfTarget(),taskConfig.getWhatIfRelation());
+            subTargetGraph = targetGraph.buildSubGraph(res);
+        }
+        return subTargetGraph;
+    }
+
+    private List<String> getWhatIfSubTargetsList(String whatIfTarget, TargetsRelationType whatIfRelation) {
+        List<String> res= new ArrayList<>();
+         targetGraph.getTargetsByRelation(whatIfTarget,whatIfRelation).forEach(target -> {
+        res.add(target.getName());
+         });
+        return res;
+    }
+
     @Override
     public void setProcessingType(ProcessingType status) {
         this.processingType = status;
+    }
+
+
+    public void runTaskGPUP2(){
+        Instant totalStart, totalEnd, start, end;
+        List<Target> waitingList;
+        subTargetGraph.prepareGraphFromProcType(processingType);
+
     }
 
     @Override
