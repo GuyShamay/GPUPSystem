@@ -58,7 +58,7 @@ public class PathsController implements Controller {
     }
 
     public void Init(){
-        initTargetsButtons();
+        initTargetsToChoose();
         labelFrom.setStyle("-fx-font-weight: bold");
         choiseBoxFrom.setOnAction((event -> {
             labelTo.setStyle("-fx-font-weight: bold");
@@ -70,10 +70,10 @@ public class PathsController implements Controller {
         });
     }
 
-    private void initTargetsButtons() {
+    private void initTargetsToChoose() {
         Set<String> targets = appController.getTargetsListByName();
         ObservableList<String> fromList = choiseBoxFrom.getItems();
-        for (String targetName : targets) { fromList.add(targetName); }
+        fromList.addAll(targets);
         choiseBoxTo.getItems().addAll(fromList);
     }
 

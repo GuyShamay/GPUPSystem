@@ -2,6 +2,8 @@ package application.components.app;
 
 
 import application.components.findPathes.PathsController;
+import application.components.task.config.TaskConfigController;
+import application.components.welcome.WelcomeController;
 import application.general.Component;
 import application.general.ComponentCreator;
 import application.general.Controller;
@@ -17,10 +19,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.stage.FileChooser;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -31,6 +33,7 @@ import java.net.URL;
 import java.util.Set;
 
 import javafx.scene.control.ComboBox;
+import javafx.stage.Stage;
 
 public class AppController implements Controller {
     //--------------------------------------------------------------------------
@@ -41,9 +44,11 @@ public class AppController implements Controller {
 
     //--------------------------------------------------------------------------
     //Vars & Const:
-    private GridPane welcomePage;
-    private static final String FINDPATHS_FXML_NAME = "../findPathes/pathes.fxml";
+    private AnchorPane welcomePage;
+    private WelcomeController welcomeController;
+    private static final String FIND_PATHS_FXML_NAME = "../findPathes/pathes.fxml";
     private static final String INFO_FXML_NAME = "../graphinfo/graph-info.fxml";
+    private static final String TASK_CONFIG_FXML_NAME = "../task/config/task-config.fxml";
 
     //--------------------------------------------------------------------------
     //FXML Controls:
@@ -74,6 +79,17 @@ public class AppController implements Controller {
         comboBoxActions.setDisable(true);
     }
 
+    public void setWelcomePage(AnchorPane welcomePage) {
+        this.welcomePage = welcomePage;
+    }
+
+    public void setModel(Engine engine) {
+        this.engine = engine;
+    }
+
+    public void setWelcomeController(WelcomeController welcomeController) {
+        this.welcomeController = welcomeController;
+    }
     //--------------------------------------------------------------------------
     //Show Information
 
@@ -97,7 +113,6 @@ public class AppController implements Controller {
         List<TargetInfoDTO> list = engine.getTargetsInfo();
         return FXCollections.observableArrayList(list);
     }
-
     //--------------------------------------------------------------------------
     //Load File
 
@@ -110,7 +125,7 @@ public class AppController implements Controller {
             buttonInfo.setDisable(false);
             buttonTask.setDisable(false);
             comboBoxActions.setDisable(false);
-            // Add text : loaded successfully
+            welcomeController.loadSuccess();
         } else { // there is a loaded file
             if (AppTools.confirmationAlert("File Loading", "There is a loaded file in the system.", "Are you sure you want to load a new file, and overwrite the existing one?")) {
                 loadFile(btn);
@@ -125,7 +140,7 @@ public class AppController implements Controller {
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Xml Files", "*.xml"));
         File selectedFile = fileChooser.showOpenDialog(btn.getScene().getWindow());*/
-File selectedFile = new File("C:\\Users\\guysh\\Downloads\\ex2-big.xml");
+        File selectedFile = new File("C:\\Users\\guysh\\Downloads\\ex2-big.xml");
         if (selectedFile != null) {
             try {
                 engine.buildGraphFromXml(selectedFile);
@@ -136,15 +151,22 @@ File selectedFile = new File("C:\\Users\\guysh\\Downloads\\ex2-big.xml");
             }
         }
     }
-
     //--------------------------------------------------------------------------
     // Run Task
 
     @FXML
     void buttonTaskClicked(ActionEvent event) {
+        Stage stage = new Stage();
 
+        URL url = getClass().getResource(TASK_CONFIG_FXML_NAME);
+        Component taskConfigComponent = ComponentCreator.createComponent(url);
+        TaskConfigController t = (TaskConfigController) taskConfigComponent.getController();
+        t.setAppController(this);
+        t.fetchData();
+        Scene scene = new Scene(taskConfigComponent.getPane(), 404,504);
+        stage.setScene(scene);
+        stage.show();
     }
-
     //--------------------------------------------------------------------------
     // Actions: paths, circle, what-if
 
@@ -169,14 +191,6 @@ File selectedFile = new File("C:\\Users\\guysh\\Downloads\\ex2-big.xml");
 //        comboBoxActions.getSelectionModel().clearSelection();
     }
 
-    public void setWelcomePage(GridPane welcomePage) {
-        this.welcomePage = welcomePage;
-    }
-
-    public void setModel(Engine engine) {
-        this.engine = engine;
-    }
-
     private void whatif() {
     }
 
@@ -184,12 +198,11 @@ File selectedFile = new File("C:\\Users\\guysh\\Downloads\\ex2-big.xml");
     }
 
     private void findPath() {
-        URL url = getClass().getResource(FINDPATHS_FXML_NAME);
+        URL url = getClass().getResource(FIND_PATHS_FXML_NAME);
         Component findPathComponent = ComponentCreator.createComponent(url);
         findPathComponent.getController().setAppController(this);
         findPathComponent.getController().Init();
         borderPaneApp.setCenter(findPathComponent.getPane());
-
     }
 
     public TargetGraphDTO getGraphInfo() {
