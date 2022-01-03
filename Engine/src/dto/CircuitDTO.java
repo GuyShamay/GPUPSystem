@@ -17,7 +17,7 @@ public class CircuitDTO {
             str = str.substring(0,str.length()-4);
         }
         else
-            str=" No Circle Includes Your Target";
+            str=null;
 
         return str;
     }

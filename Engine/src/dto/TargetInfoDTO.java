@@ -6,7 +6,6 @@ import javafx.beans.property.SimpleStringProperty;
 
 public class TargetInfoDTO {
 
-
     private final SimpleIntegerProperty dependsOn;
     private final SimpleIntegerProperty requiredFor;
     private final SimpleIntegerProperty serialSets;
