@@ -91,7 +91,7 @@ public class PathsController implements Controller {
     }
 
     @Override
-    public void setAppController(Controller c){
+    public void setParentController(Controller c){
         appController = (AppController)c;
     }
 }

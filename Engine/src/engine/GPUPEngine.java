@@ -110,7 +110,7 @@ public class GPUPEngine implements Engine {
 
         switch (taskConfig.getTaskType()){
             case Simulation:
-                task = new SimulationTask(taskConfig.getSpecificConfig());
+                task = new SimulationTask(taskConfig.getConfig());
                 break;
             case Compilation:
                 break;

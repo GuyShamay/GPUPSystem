@@ -1,6 +1,6 @@
 package application.components.task.config;
 
-import application.components.app.AppController;
+import application.components.task.TaskController;
 import application.components.task.config.compile.CompileConfigController;
 import application.components.task.config.simulation.SimulationConfigController;
 import application.general.Component;
@@ -11,12 +11,16 @@ import component.task.ProcessingType;
 import component.task.config.Config;
 import component.task.config.Selections;
 import component.task.config.TaskConfig;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -26,16 +30,18 @@ import java.util.Set;
 
 public class TaskConfigController implements Controller {
 
-    public void setAppController(Controller appController) {
-        this.appController = (AppController) appController;
+    public void setParentController(Controller taskController) {
+        this.taskController = (TaskController) taskController;
     }
 
-    private AppController appController;
+    private TaskController taskController;
     private SimulationConfigController simulationController;
     private CompileConfigController compileController;
 
     private TaskConfig taskConfig;
     private Config typeConfig;
+
+    private BooleanProperty isSubmitted;
 
     private Selections.TargetSelect targetSelect = Selections.TargetSelect.non;
     private Selections.SettingsSelect settingsSelect = Selections.SettingsSelect.non;
@@ -43,11 +49,14 @@ public class TaskConfigController implements Controller {
     private boolean targetSubmit;
     private boolean settingsSubmit;
     private boolean typeSubmit;
-
     private final String SIMULATION_CONFIG_FXML_NAME = "simulation/simulation-config.fxml";
-    private final String COMPILE_CONFIG_FXML_NAME = "compile/compile-config.fxml";
 
+    private final String COMPILE_CONFIG_FXML_NAME = "compile/compile-config.fxml";
     ObservableList<String> targets;
+
+    public BooleanProperty submittedProperty() {
+        return isSubmitted;
+    }
 
     @FXML
     private CheckBox allTargetCheckBox;
@@ -113,6 +122,8 @@ public class TaskConfigController implements Controller {
         targetSubmit = false;
         settingsSubmit = false;
         typeSubmit = false;
+        finalSubmitButton.setVisible(false);
+        isSubmitted = new SimpleBooleanProperty(false);
     }
 
     public void fetchData() {
@@ -121,12 +132,12 @@ public class TaskConfigController implements Controller {
     }
 
     private void fillThreadsSpinner() {
-        SpinnerValueFactory<Integer> factory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, appController.getMaxParallelism());
+        SpinnerValueFactory<Integer> factory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, taskController.getMaxParallelism());
         threadSpinner.setValueFactory(factory);
     }
 
     private void fillTargetsInView() {
-        Set<String> targetsNames = appController.getTargetsListByName();
+        Set<String> targetsNames = taskController.getTargetsListByName();
         targets = FXCollections.observableArrayList(targetsNames);
         targetListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         targetListView.setItems(targets);
@@ -250,7 +261,6 @@ public class TaskConfigController implements Controller {
         wayChoice.setDisable(bool);
     }
 
-
     // -------------------------------------------------------------------
     // Settings
 
@@ -290,8 +300,8 @@ public class TaskConfigController implements Controller {
                 break;
         }
         if (settingsSelect != Selections.SettingsSelect.non) {
-            fromScratchCheckBox.setDisable(true);
-            incrementalCheckBox.setDisable(true);
+            // fromScratchCheckBox.setDisable(true);
+            //incrementalCheckBox.setDisable(true);
             taskConfig.setThreadsParallelism(threadSpinner.getValue());
             warningSettingsLabel.setText("Settings submitted!");
             settingsSubmit = true;
@@ -308,7 +318,7 @@ public class TaskConfigController implements Controller {
             URL url = getClass().getResource(SIMULATION_CONFIG_FXML_NAME);
             Component simulationComp = ComponentCreator.createComponent(url);
             simulationController = (SimulationConfigController) simulationComp.getController();
-            simulationController.setAppController(this);
+            simulationController.setParentController(this);
             taskParamBorderPane.setCenter(simulationComp.getPane());
         } else {
             typeSelect = Selections.TypeSelect.non;
@@ -325,7 +335,7 @@ public class TaskConfigController implements Controller {
             URL url = getClass().getResource(COMPILE_CONFIG_FXML_NAME);
             Component compileComp = ComponentCreator.createComponent(url);
             compileController = (CompileConfigController) compileComp.getController();
-            compileController.setAppController(this);
+            compileController.setParentController(this);
             taskParamBorderPane.setCenter(compileComp.getPane());
         } else {
             typeSelect = Selections.TypeSelect.non;
@@ -347,6 +357,10 @@ public class TaskConfigController implements Controller {
             if (targetSubmit) {
                 if (settingsSubmit) {
                     //appController.setTaskConfig(taskConfig);
+                    isSubmitted.set(true);
+                    Node node = (Node) event.getSource();
+                    Stage stage = (Stage) node.getScene().getWindow();
+                    stage.close();
                 } else {
                     warningTaskTypeLabel.setText("Please complete step 2");
 
@@ -359,5 +373,9 @@ public class TaskConfigController implements Controller {
 
     public void updateConfig(Config config) {
         this.taskConfig.setConfig(config);
+    }
+
+    public void showFinalSubmit() {
+        finalSubmitButton.setVisible(true);
     }
 }

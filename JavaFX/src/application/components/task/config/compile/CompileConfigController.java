@@ -7,6 +7,7 @@ import component.task.config.SimulationConfig;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.DirectoryChooser;
 
@@ -23,7 +24,8 @@ public class CompileConfigController implements Controller {
 
     @FXML
     private Label destLabel;
-
+    @FXML
+    private Button submitButton;
     @FXML
     void buttonDestClicked(ActionEvent event) {
         validDest = chooseDir(event, destLabel);
@@ -59,9 +61,15 @@ public class CompileConfigController implements Controller {
     void buttonSubmitClicked(ActionEvent event) {
         if (validDest && validSrc) {
             taskController.updateConfig(compileConfig);
+            submitButton.setDisable(true);
+            taskController.showFinalSubmit();
         } else {
-            srcLabel.setText("Please select folders");
-            destLabel.setText("Please select folders");
+            if (!validDest) {
+                destLabel.setText("Please select folders");
+            }
+            if (!validSrc) {
+                srcLabel.setText("Please select folders");
+            }
         }
     }
 
@@ -71,7 +79,7 @@ public class CompileConfigController implements Controller {
     }
 
     @Override
-    public void setAppController(Controller c) {
+    public void setParentController(Controller c) {
         this.taskController = (TaskConfigController) c;
     }
 }
