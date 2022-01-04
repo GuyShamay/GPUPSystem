@@ -16,7 +16,7 @@ public class WhatIfController implements Controller {
     private AppController appController;
 
     @Override
-    public void setAppController(Controller c) {
+    public void setParentController(Controller c) {
         appController=(AppController)c;
     }
 

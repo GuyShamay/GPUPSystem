@@ -22,7 +22,7 @@ public class findCircuitController implements Controller {
         private Label labelCircuit;
 
         @Override
-        public void setAppController(Controller c) {
+        public void setParentController(Controller c) {
                appController = (AppController) c;
         }
 

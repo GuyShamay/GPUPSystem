@@ -40,6 +40,8 @@ public class SimulationConfigController implements Controller {
                 simulationConfig.setSuccessWithWarningsProb(warningSpinner.getValue());
                 warningLabel.setText("Success!");
                 taskController.updateConfig(simulationConfig);
+                submitButton.setDisable(true);
+                taskController.showFinalSubmit();
             }
         } catch (NumberFormatException ex) {
             warningLabel.setText("Processing Time must be Integer Number");
@@ -68,7 +70,7 @@ public class SimulationConfigController implements Controller {
     }
 
     @Override
-    public void setAppController(Controller c) {
+    public void setParentController(Controller c) {
         this.taskController = (TaskConfigController) c;
     }
 }
