@@ -358,16 +358,13 @@ public class TaskConfigController implements Controller {
         if (typeSelect != Selections.TypeSelect.non) {
             if (targetSubmit) {
                 if (settingsSubmit) {
-                    //appController.setTaskConfig(taskConfig);
                     isSubmitted.set(true);
                     Node node = (Node) event.getSource();
                     Stage stage = (Stage) node.getScene().getWindow();
                     stage.close();
-                    //appController.initTask(taskConfig);
-                    //appController.StartTask();
+                    taskController.setTasConfig(taskConfig);
                 } else {
                     warningTaskTypeLabel.setText("Please complete step 2");
-
                 }
             } else {
                 warningTaskTypeLabel.setText("Please complete step 1");

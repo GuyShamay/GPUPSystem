@@ -5,6 +5,7 @@ import application.components.task.config.TaskConfigController;
 import application.general.Component;
 import application.general.ComponentCreator;
 import application.general.Controller;
+import component.task.config.TaskConfig;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -20,6 +21,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Set;
 
@@ -59,6 +61,7 @@ public class TaskController implements Controller {
 
     private AppController appController;
     private TaskConfigController taskConfigController;
+    private TaskConfig taskConfig;
     private BooleanProperty isRunning;
     private BooleanProperty isFinished;
 
@@ -82,7 +85,18 @@ public class TaskController implements Controller {
 
     @FXML
     void runTaskButtonClicked(ActionEvent event) {
-
+        if (taskConfig != null) {
+            try {
+                appController.initTask(taskConfig);
+                appController.startTask();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }else{
+            taskMessageLabel.setText("Please define task's Settings");
+        }
     }
 
     @FXML
@@ -103,7 +117,6 @@ public class TaskController implements Controller {
         stage.setAlwaysOnTop(true);
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.showAndWait();
-
     }
 
 
@@ -119,7 +132,7 @@ public class TaskController implements Controller {
         this.appController = appController;
     }
 
-    public void settingsResultDialog(boolean b) {
-
+    public void setTasConfig(TaskConfig taskConfig) {
+        this.taskConfig = taskConfig;
     }
 }

@@ -13,18 +13,14 @@ import component.target.TargetsRelationType;
 import component.task.config.TaskConfig;
 import dto.*;
 import engine.Engine;
-import engine.GPUPEngine;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -33,9 +29,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Set;
-
-import javafx.scene.control.ComboBox;
-import javafx.stage.Stage;
 
 public class AppController implements Controller {
     //--------------------------------------------------------------------------
@@ -246,7 +239,7 @@ public class AppController implements Controller {
        engine.initTask(taskConfig);
     }
 
-    public void StartTask() throws IOException, InterruptedException {
+    public void startTask() throws IOException, InterruptedException {
         engine.runTaskGPUP2();
     }
 }
