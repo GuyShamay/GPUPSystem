@@ -81,8 +81,27 @@ public class TargetGraph implements DirectableGraph, GraphActions {
             });
         });
 
+        subTargetGraph.setSubGraphSerialSets(serialSets);
         return subTargetGraph;
     }
+
+    private void setSubGraphSerialSets(Map<String, SerialSet> fullSerialSets) {
+        serialSets = new HashMap<>();
+        fullSerialSets.forEach(((s, serialSet) -> {
+            SerialSet serialSetCopy = new SerialSet(serialSet.getName(),serialSet.getTargetAsString());
+            List<Target> newTargets = new ArrayList<>();
+            for (Target t : serialSet.getTargets()){
+                if(targetMap.containsKey(t.getName()))
+                    newTargets.add(t);
+                }
+            if(!newTargets.isEmpty()){
+                serialSetCopy.setTargets(newTargets);
+                serialSets.put(s,serialSetCopy);
+            }
+        }));
+    }
+
+
 
     private void setTargetMap(Map<String, Target> subTargetMap) {
         targetMap=subTargetMap;
@@ -246,21 +265,35 @@ public class TargetGraph implements DirectableGraph, GraphActions {
 
     public void updateTargetAdjAfterFinishWithoutFailure(List<Target> waitingList, Target currentTarget) {
         gTranspose.get(currentTarget.getName()).forEach(target -> {
-            if (target.isAllAdjFinished())
-                currentTarget.addToJustOpenedList(target);
-            if (target.isAllAdjFinishedWithoutFailure()) {
-                target.setRunResult(RunResult.WAITING);
-                if (!waitingList.contains(target)) {
-                    waitingList.add(target);
+            if(target.getRunResult()!=RunResult.FINISHED) {
+                if (isAllAdjOfTargetFinished(target))
+                    currentTarget.addToJustOpenedList(target);
+                if (isAllAdjOfTargetFinishedWithoutFailure(target)) {
+                    target.setRunResult(RunResult.WAITING);
+                    if (!waitingList.contains(target)) {
+                        waitingList.add(target);
+                    }
                 }
             }
         });
     }
 
+    public boolean isAllAdjOfTargetFinished(Target target) {
+        return dependsOnGraph.get(target.getName()).stream().allMatch(t -> (t.getRunResult().equals(RunResult.FINISHED)));
+    }
+
+    public boolean isAllAdjOfTargetFinishedWithoutFailure(Target target) {
+        if (isAllAdjOfTargetFinished(target)) {
+            return dependsOnGraph.get(target.getName()).stream().allMatch(t -> (t.getFinishResult().equals(FinishResult.SUCCESS) || t.getFinishResult().equals(FinishResult.WARNING)));
+        } else {
+            return false;
+        }
+    }
+
     public void updateTargetAdjAfterFinishWithFailure(Target currentTarget) {
         gTranspose.get(currentTarget.getName()).forEach(target -> {
             // target.setRunResult(RunResult.SKIPPED);
-            if (target.isAllAdjFinished()) {
+            if (isAllAdjOfTargetFinished(target)) {
                 currentTarget.addToJustOpenedList(target);
             }
         });
@@ -299,8 +332,10 @@ public class TargetGraph implements DirectableGraph, GraphActions {
         targetMap.forEach(((s, target) -> {
             if (target.getRunResult().equals(RunResult.FINISHED)) {
                 if (target.getFinishResult().equals(FinishResult.FAILURE)) {
-                    target.setFinishResult(null);
-                    target.setRunResult(RunResult.WAITING);
+                    if(isAllAdjOfTargetFinishedWithoutFailure(target)) {
+                        target.setFinishResult(null);
+                        target.setRunResult(RunResult.WAITING);
+                    }
                 }
             }
             if (target.getRunResult().equals(RunResult.SKIPPED))
@@ -318,6 +353,17 @@ public class TargetGraph implements DirectableGraph, GraphActions {
                 updateTargetIncremental();
                 break;
         }
+    }
+
+    public boolean allTargetsHaveRunResult() {
+        boolean res = true;
+        for (Target t : targetMap.values()){
+            if(t.getRunResult()== RunResult.FROZEN) {
+                res = false;
+                break;
+            }
+        }
+      return res;
     }
 
     public void clearJustOpenAndSkippedLists() {
@@ -388,26 +434,49 @@ public class TargetGraph implements DirectableGraph, GraphActions {
 
     public void updateTargetsTypes(){
         dependsOnGraph.forEach((s, targets) -> {
-            if(targets.isEmpty() && !isTargetRequiredForSomeone(s))
+            boolean isRequiredFor = isTargetRequiredForSomeone(s);
+            if(targets.isEmpty() && !isRequiredFor)
                 targetMap.get(s).setType(TargetType.Independent);
-            else if(!targets.isEmpty() && isTargetRequiredForSomeone(s))
+            else if(!targets.isEmpty() && isRequiredFor)
                 targetMap.get(s).setType(TargetType.Middle);
-            else if (isTargetRequiredForSomeone(s))
-                targetMap.get(s).setType(TargetType.Root);
-            else
+            else if (targets.isEmpty())
                 targetMap.get(s).setType(TargetType.Leaf);
+            else
+                targetMap.get(s).setType(TargetType.Root);
         });
     }
 
     private boolean isTargetRequiredForSomeone(String s) {
-        boolean res=true;
+        boolean res=false;
         for (List<Target> adjList : dependsOnGraph.values()) {
             if (adjList.contains(targetMap.get(s))){
-                res = false;
+                res = true;
                 break;
             }
         }
         return res;
+    }
+
+    public void lockSerialSetOf(Target currentTarget) {
+        if(serialSets!=null) {
+            serialSets.values().forEach(serialSet -> {
+                if (serialSet.contains(currentTarget))
+                    serialSet.lockAll(currentTarget);
+            });
+        }
+    }
+
+    public void unlockSerialSetOf(Target currentTarget) {
+        if(serialSets!=null) {
+            serialSets.values().forEach(serialSet -> {
+                if (serialSet.contains(currentTarget))
+                    serialSet.unlockAll();
+            });
+        }
+    }
+
+    public boolean allTargetsFinished() {
+        return targetMap.values().stream().allMatch(t -> (t.getRunResult().equals(RunResult.FINISHED)));
     }
 }
 

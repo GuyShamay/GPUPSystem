@@ -1,6 +1,5 @@
 package application.components.app;
 
-
 import application.components.findPathes.PathsController;
 import application.components.task.config.TaskConfigController;
 import application.components.welcome.WelcomeController;
@@ -10,6 +9,7 @@ import application.general.ComponentCreator;
 import application.general.Controller;
 import application.tools.AppTools;
 import component.target.TargetsRelationType;
+import component.task.config.TaskConfig;
 import dto.*;
 import engine.Engine;
 import engine.GPUPEngine;
@@ -29,6 +29,7 @@ import javafx.scene.layout.GridPane;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Set;
@@ -144,7 +145,7 @@ public class AppController implements Controller {
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Xml Files", "*.xml"));
         File selectedFile = fileChooser.showOpenDialog(btn.getScene().getWindow());*/
-        File selectedFile = new File("C:\\Users\\guysh\\Downloads\\ex2-big.xml");
+        File selectedFile = new File("C:\\Users\\Noam\\Downloads\\ex2-small.xml");
         if (selectedFile != null) {
             try {
                 engine.buildGraphFromXml(selectedFile);
@@ -210,12 +211,6 @@ public class AppController implements Controller {
         borderPaneApp.setCenter(component.getPane());
     }
 
-
-
-
-
-
-
     public TargetGraphDTO getGraphInfo() {
         return engine.getGraphInfo();
     }
@@ -242,5 +237,11 @@ public class AppController implements Controller {
         return engine.getTargetsByRelation(targetName,relationType);
     }
 
+    public void initTask(TaskConfig taskConfig) {
+       engine.initTask(taskConfig);
+    }
 
+    public void StartTask() throws IOException, InterruptedException {
+        engine.runTaskGPUP2();
+    }
 }

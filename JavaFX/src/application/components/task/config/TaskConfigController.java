@@ -18,6 +18,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -333,7 +334,7 @@ public class TaskConfigController implements Controller {
     }
 
     @FXML
-    void buttonFinalSubmitClicked(ActionEvent event) {
+    void buttonFinalSubmitClicked(ActionEvent event) throws IOException, InterruptedException {
         switch (typeSelect) {
             case non:
                 warningTaskTypeLabel.setText("You have to select an option");
@@ -346,10 +347,10 @@ public class TaskConfigController implements Controller {
         if (typeSelect != Selections.TypeSelect.non) {
             if (targetSubmit) {
                 if (settingsSubmit) {
-                    //appController.setTaskConfig(taskConfig);
+                    appController.initTask(taskConfig);
+                    appController.StartTask();
                 } else {
                     warningTaskTypeLabel.setText("Please complete step 2");
-
                 }
             } else {
                 warningTaskTypeLabel.setText("Please complete step 1");

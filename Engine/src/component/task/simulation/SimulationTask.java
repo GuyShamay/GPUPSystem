@@ -32,13 +32,13 @@ public class SimulationTask implements Task {
         this.successWithWarningsProb = ifSucces_withWarningsProb;
     }
 
-    public SimulationTask(Config config){
-        this.random = null;
+    public SimulationTask(SimulationConfig config){
+        this.random = new Random();
         this.name = null;
-        this.processingTimeInMs = 0;
-        this.processingTimeType = ProcessingTimeType.Permanent;
-        this.successProb = 0;
-        this.successWithWarningsProb =0;
+        this.processingTimeInMs = config.getProcessingTime();
+        this.processingTimeType = config.getProcessingTimeType();
+        this.successProb = config.getSuccessProb();
+        this.successWithWarningsProb =config.getSuccessWithWarningsProb();
     }
 
     public FinishResult run() throws InterruptedException {
