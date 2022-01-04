@@ -1,5 +1,7 @@
 package component.target;
 
+import component.serialset.SerialSet;
+
 import java.time.Duration;
 import java.util.*;
 
@@ -77,11 +79,13 @@ public class Target {
         this.type = type;
     }
 
+    //GPUP1 func
     public boolean isAllAdjFinished() {
         return dependsOnList.stream().allMatch(target -> (target.getRunResult().equals(RunResult.FINISHED)));
         //||target.getRunResult().equals(RunResult.SKIPPED)));
     }
 
+    //GPUP1 func
     public boolean isAllAdjFinishedWithoutFailure() {
         if (isAllAdjFinished()) {
             return dependsOnList.stream().allMatch(target -> (target.getFinishResult().equals(FinishResult.SUCCESS) || target.getFinishResult().equals(FinishResult.WARNING)));
@@ -90,17 +94,20 @@ public class Target {
         }
     }
 
+    //GPUP1 func
     public void addDependOnTarget(Target target) {
         if (!dependsOnList.contains(target))
             dependsOnList.add(target);
     }
 
+    //GPUP1 func
     public void addRequiredForTarget(Target target) {
         if (!requiredForList.contains(target)) {
             requiredForList.add(target);
         }
     }
 
+    //GPUP1 func
     public boolean isDependency(Target target, String type) {
         if (type.equals("dependsOn")) {
             return dependsOnList.contains(target);

@@ -15,8 +15,7 @@ public interface Task {
 
     long getProcessingTime();
 
-    default void updateProcessingTime() {
-    }
+    default void updateProcessingTime() { }
 
     void updateRelevantTargets(List<Target> targets);
 

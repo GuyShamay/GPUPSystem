@@ -10,8 +10,10 @@ import application.general.ComponentCreator;
 import application.general.Controller;
 import application.tools.AppTools;
 import component.target.TargetsRelationType;
+import component.task.config.TaskConfig;
 import dto.*;
 import engine.Engine;
+import engine.GPUPEngine;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -22,13 +24,18 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Set;
+
+import javafx.scene.control.ComboBox;
+import javafx.stage.Stage;
 
 public class AppController implements Controller {
     //--------------------------------------------------------------------------
@@ -44,6 +51,7 @@ public class AppController implements Controller {
     private WelcomeController welcomeController;
     private static final String FIND_PATHS_FXML_NAME = "../findPathes/pathes.fxml";
     private static final String INFO_FXML_NAME = "../graphinfo/graph-info.fxml";
+    private static final String TASK_CONFIG_FXML_NAME = "../task/config/task-config.fxml";
     private static final String FINDCIRCUIT_FXML_NAME = "../findCircuit/findCircuit.fxml";
     private static final String WHATIF_FXML_NAME = "../whatIf/whatIf.fxml";
     private static final String TASK_FXML_NAME = "../task/task.fxml";
@@ -166,7 +174,6 @@ public class AppController implements Controller {
     public int getMaxParallelism() {
         return engine.getMaxParallelism();
     }
-
     //--------------------------------------------------------------------------
     // Actions: paths, circle, what-if
 
@@ -177,10 +184,10 @@ public class AppController implements Controller {
 
     @FXML
     void ActionChosen(ActionEvent event) {
-        String path = "";
+        String path="";
         switch (comboBoxActions.getSelectionModel().getSelectedItem()) {
             case "Find Path":
-                path = FIND_PATHS_FXML_NAME;
+                path=FIND_PATHS_FXML_NAME;
                 break;
             case "Find Circuit":
                 path = FINDCIRCUIT_FXML_NAME;
@@ -194,13 +201,17 @@ public class AppController implements Controller {
 
         comboBoxActions.getSelectionModel().clearAndSelect(-1);
     }
-
-    private void makeComponent(URL url) {
+    private void makeComponent(URL url){
         Component component = ComponentCreator.createComponent(url);
         component.getController().setParentController(this);
         component.getController().Init();
         borderPaneApp.setCenter(component.getPane());
     }
+
+
+
+
+
 
 
     public TargetGraphDTO getGraphInfo() {
@@ -231,5 +242,11 @@ public class AppController implements Controller {
         return engine.getTargetsByRelation(targetName, relationType);
     }
 
+    public void initTask(TaskConfig taskConfig) {
+       engine.initTask(taskConfig);
+    }
 
+    public void StartTask() throws IOException, InterruptedException {
+        engine.runTaskGPUP2();
+    }
 }

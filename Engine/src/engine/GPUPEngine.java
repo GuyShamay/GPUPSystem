@@ -4,6 +4,7 @@ import component.target.*;
 import component.targetgraph.TargetGraph;
 import component.task.ProcessingType;
 import component.task.Task;
+import component.task.config.SimulationConfig;
 import component.task.config.TaskConfig;
 import dto.*;
 import exception.TargetExistException;
@@ -110,16 +111,32 @@ public class GPUPEngine implements Engine {
 
         switch (taskConfig.getTaskType()){
             case Simulation:
-                task = new SimulationTask(taskConfig.getConfig());
+                task = new SimulationTask((SimulationConfig) taskConfig.getConfig());
                 break;
             case Compilation:
                 break;
+        }
+
+        initGraphForRun();
+    }
+
+    private void initGraphForRun() {
+        correctProcessingType();
+        subTargetGraph.prepareGraphFromProcType(processingType);
+        task.updateRelevantTargets(subTargetGraph.getWaitingAndFrozen());
+        subTargetGraph.clearJustOpenAndSkippedLists();
+    }
+
+    private void correctProcessingType() {
+        if((subTargetGraph.allTargetsFinished() || !subTargetGraph.allTargetsHaveRunResult()) && processingType==ProcessingType.Incremental) {
+            System.out.println("Task will run 'From Scrach'.");
+            processingType=ProcessingType.FromScratch;
         }
     }
 
     private TargetGraph createSubTargetGraph(TaskConfig taskConfig) {
         if(taskConfig.isAllTargets()) subTargetGraph = targetGraph;
-        else if (taskConfig.getCustomTargets().size()!=0) {
+        else if (taskConfig.getCustomTargets()!=null) {
             subTargetGraph=targetGraph.buildSubGraph(taskConfig.getCustomTargets());
         } else {
             List<String> res= getWhatIfSubTargetsList(taskConfig.getWhatIfTarget(),taskConfig.getWhatIfRelation());
@@ -142,11 +159,47 @@ public class GPUPEngine implements Engine {
     }
 
 
-    public void runTaskGPUP2(){
+    public void runTaskGPUP2() throws InterruptedException {
         Instant totalStart, totalEnd, start, end;
         List<Target> waitingList;
-        subTargetGraph.prepareGraphFromProcType(processingType);
+        waitingList = subTargetGraph.getAllWaitingTargets();
 
+        totalStart = Instant.now();
+        while (!waitingList.isEmpty()) {
+            start = Instant.now();
+            Target currentTarget = waitingList.remove(0);
+            if(!currentTarget.isLock()) {
+                currentTarget.setRunResult(RunResult.INPROCESS);
+                subTargetGraph.lockSerialSetOf(currentTarget);
+
+                task.updateProcessingTime();
+                currentTarget.setFinishResult(task.run());
+                currentTarget.setRunResult(RunResult.FINISHED);
+
+                if (currentTarget.getFinishResult() == FinishResult.FAILURE) {
+                    subTargetGraph.dfsTravelToUpdateSkippedList(currentTarget);
+                    subTargetGraph.updateTargetAdjAfterFinishWithFailure(currentTarget);
+                } else {
+                    subTargetGraph.updateTargetAdjAfterFinishWithoutFailure(waitingList, currentTarget);
+                }
+                end = Instant.now();
+                currentTarget.setTaskRunDuration(Duration.between(start, end));
+
+                //Temporary
+                GPUPConsumerDTO consumerDTO = new ProcessedTargetDTO(currentTarget);
+                consumerDTO.setTaskOutput(new SimulationOutputDTO(task.getProcessingTime()));
+                // Writing to console
+                System.out.println(consumerDTO);
+                subTargetGraph.unlockSerialSetOf(currentTarget);
+            }else{
+                System.out.println("Target lock because SerialSet");
+            }
+        }
+
+        totalEnd = Instant.now();
+        Duration totalRunDuration = Duration.between(totalStart, totalEnd);
+        StatisticsDTO statisticsDTO = calcStatistics(totalRunDuration);
+        System.out.println(statisticsDTO);
     }
 
     @Override

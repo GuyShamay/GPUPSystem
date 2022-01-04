@@ -22,6 +22,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -261,6 +262,7 @@ public class TaskConfigController implements Controller {
         wayChoice.setDisable(bool);
     }
 
+
     // -------------------------------------------------------------------
     // Settings
 
@@ -361,6 +363,8 @@ public class TaskConfigController implements Controller {
                     Node node = (Node) event.getSource();
                     Stage stage = (Stage) node.getScene().getWindow();
                     stage.close();
+                    //appController.initTask(taskConfig);
+                    //appController.StartTask();
                 } else {
                     warningTaskTypeLabel.setText("Please complete step 2");
 

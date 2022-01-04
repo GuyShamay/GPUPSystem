@@ -16,7 +16,6 @@ public class TaskConfig {
     private Config specificConfig;
     private TaskType taskType;
 
-
     public boolean isAllTargets() {
         return isAllTargets;
     }
@@ -71,10 +70,8 @@ public class TaskConfig {
 
     public void setConfig(Config config) {
         this.specificConfig = config;
-        taskType =  specificConfig instanceof CompileConfig ? TaskType.Compilation : TaskType.Simulation;
-    }
-    public TaskType getTaskType(){
-        return taskType;
+        taskType = specificConfig instanceof CompileConfig ? TaskType.Compilation : TaskType.Simulation;
     }
 
+    public TaskType getTaskType() { return taskType; }
 }

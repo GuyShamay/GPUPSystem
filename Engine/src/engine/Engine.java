@@ -2,6 +2,7 @@ package engine;
 
 import component.target.TargetsRelationType;
 import component.task.ProcessingType;
+import component.task.config.TaskConfig;
 import dto.*;
 import exception.TargetExistException;
 import dto.*;
@@ -24,7 +25,7 @@ public interface Engine {
 
     boolean isInitialized();
 
-    //void initTask(int targetProcessingTimeMs, int taskProcessingTimeType, float successProb, float successWithWarningsProb, ProcessingType status);
+    void initTask(TaskConfig taskConfig);
 
     void initTaskGPUP1(int targetProcessingTimeMs, int taskProcessingTimeType, float successProb, float successWithWarningsProb, ProcessingType status);
 
@@ -47,4 +48,6 @@ public interface Engine {
     List<TargetInfoDTO> getTargetsByRelation(String target,TargetsRelationType relationType);
 
     int getMaxParallelism();
+
+    void runTaskGPUP2() throws InterruptedException;
 }
