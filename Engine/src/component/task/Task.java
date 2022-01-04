@@ -20,4 +20,6 @@ public interface Task {
     void updateRelevantTargets(List<Target> targets);
 
     List<StatisticsDTO.TargetRunDTO> getTargetsRunInfo();
+
+    int getParallelism();
 }

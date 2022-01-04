@@ -140,7 +140,7 @@ public class AppController implements Controller {
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Xml Files", "*.xml"));
         File selectedFile = fileChooser.showOpenDialog(btn.getScene().getWindow());*/
-        File selectedFile = new File("C:\\Users\\guysh\\Downloads\\ex2-big.xml");
+        File selectedFile = new File("C:\\Users\\Noam\\Downloads\\ex2-big.xml");
         if (selectedFile != null) {
             try {
                 engine.buildGraphFromXml(selectedFile);

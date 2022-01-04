@@ -56,7 +56,7 @@ public class StatisticsDTO implements GPUPConsumerDTO {
 
         @Override
         public String toString() {
-            String runResult = finishResult==null? "-NOT- Finished , SKIPPED" : "FINISHED with "+ finishResult;
+            String runResult = finishResult==null? "-NOT- Finished , SKIPPED (finishresultnull)" : "FINISHED with "+ finishResult;
             String runTime = runTimeDuration==null ? "" : "Procceced In " + String.format("%d:%02d:%02d",
                     runTimeDuration.toHours(),
                     runTimeDuration.toMinutes(),

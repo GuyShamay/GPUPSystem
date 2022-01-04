@@ -299,6 +299,10 @@ public class TargetGraph implements DirectableGraph, GraphActions {
         });
     }
 
+    public Map<String,Target> getTargetsMap(){
+        return targetMap;
+    }
+
     public void dfsTravelToUpdateSkippedList(Target currentTarget) {
 
         Map<Target, Boolean> isVisited = new HashMap<>();

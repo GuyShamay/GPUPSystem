@@ -4,7 +4,6 @@ package component.task.simulation;
 import component.target.FinishResult;
 import component.target.Target;
 import component.task.Task;
-import component.task.config.Config;
 import component.task.config.SimulationConfig;
 import dto.StatisticsDTO;
 
@@ -22,6 +21,11 @@ public class SimulationTask implements Task {
     private long sleepingTime;
     private Random random;
     private List<Target> targets;
+    private int parallelism;
+
+    public int getParallelism() {
+        return parallelism;
+    }
 
     public SimulationTask(String name, ProcessingTimeType processingTime, float succesProb, float ifSucces_withWarningsProb, int processingTimeInMs) {
         this.random = new Random();
@@ -32,13 +36,14 @@ public class SimulationTask implements Task {
         this.successWithWarningsProb = ifSucces_withWarningsProb;
     }
 
-    public SimulationTask(SimulationConfig config){
+    public SimulationTask(SimulationConfig config, int parallelism) {
         this.random = new Random();
         this.name = null;
         this.processingTimeInMs = config.getProcessingTime();
         this.processingTimeType = config.getProcessingTimeType();
         this.successProb = config.getSuccessProb();
-        this.successWithWarningsProb =config.getSuccessWithWarningsProb();
+        this.successWithWarningsProb = config.getSuccessWithWarningsProb();
+        this.parallelism = parallelism;
     }
 
     public FinishResult run() throws InterruptedException {
@@ -64,7 +69,7 @@ public class SimulationTask implements Task {
     }
 
     @Override
-    public void updateProcessingTime(){
+    public void updateProcessingTime() {
         calcSingleTargetProcessingTimeInMs();
     }
 
@@ -88,12 +93,12 @@ public class SimulationTask implements Task {
     }
 
     @Override
-    public void updateRelevantTargets(List<Target> targets){
-        this.targets=targets;
+    public void updateRelevantTargets(List<Target> targets) {
+        this.targets = targets;
     }
 
     @Override
-    public List<StatisticsDTO.TargetRunDTO> getTargetsRunInfo(){
+    public List<StatisticsDTO.TargetRunDTO> getTargetsRunInfo() {
 
         List<StatisticsDTO.TargetRunDTO> targetsRunInfoList = new ArrayList<>();
 
