@@ -29,6 +29,10 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 
@@ -39,6 +43,12 @@ public class GPUPEngine implements Engine {
     private ProcessingType processingType;
     private int maxParallelism;
     private TargetGraph subTargetGraph;
+   private Map<String, Lock> locks;
+    private Map<String, Condition> condList;
+    ExecutorService threadExecutor;
+    private boolean runPaused;
+    private final Object condition = new ReentrantLock();
+    private boolean doneRunning = false;
 
     private void loadXmlToTargetGraph(String path) throws FileNotFoundException, JAXBException, TargetExistException {
         final String PACKAGE_NAME = "jaxb.generated";
@@ -118,7 +128,8 @@ public class GPUPEngine implements Engine {
             case Compilation:
                 break;
         }
-
+        runPaused=false;
+        doneRunning=false;
         initGraphForRun();
     }
 
@@ -160,21 +171,38 @@ public class GPUPEngine implements Engine {
         this.processingType = status;
     }
 
-
     public void runTaskGPUP2() throws InterruptedException {
         Instant totalStart, totalEnd, start, end;
-        List<Target> waitingList;
-        waitingList = subTargetGraph.getAllWaitingTargets();
-        List<Future<?>> futures = new ArrayList<Future<?>>();
-        ExecutorService threadExecutor = Executors.newFixedThreadPool(task.getParallelism());
-
+//        Thread runThread = new Thread(()->{
+//            try {
+//                run();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        });
         totalStart = Instant.now();
+        run();
+//        runThread.start();
+//        runThread.join();
+        totalEnd = Instant.now();
+        Duration totalRunDuration = Duration.between(totalStart, totalEnd);
+        StatisticsDTO statisticsDTO = calcStatistics(totalRunDuration);
+        System.out.println(statisticsDTO);
+    }
+
+    private void run() throws InterruptedException {
+        List<Target> waitingList = subTargetGraph.getAllWaitingTargets();
+        List<Future<?>> futures = new ArrayList<Future<?>>();
+        threadExecutor = Executors.newFixedThreadPool(task.getParallelism());
+
         do {
             while (!waitingList.isEmpty()) {
-                System.out.println(waitingList.toString());
+                while(runPaused){
+                    handlePause(futures,waitingList);
+                }
                 Target currentTarget = waitingList.remove(0);
-                while (currentTarget.isLock()) {
-                    //Thread.sleep(3000);
+                while(currentTarget.isLock()){
+                    Thread.yield();
                 }
                 if (!currentTarget.isLock()) {
                     subTargetGraph.lockSerialSetOf(currentTarget);
@@ -191,14 +219,61 @@ public class GPUPEngine implements Engine {
             }
         } while (!AllThreadsDone(futures));
 
+        doneRunning=true;
         threadExecutor.shutdownNow();
-
-        totalEnd = Instant.now();
-        Duration totalRunDuration = Duration.between(totalStart, totalEnd);
-        StatisticsDTO statisticsDTO = calcStatistics(totalRunDuration);
-        System.out.println(statisticsDTO);
     }
 
+    @Override
+    public void resume(){
+        if(!doneRunning){
+            runPaused = false;
+            synchronized (condition){
+                System.out.println("im waking run");
+                condition.notify();
+            }
+        }
+    }
+
+    @Override
+    public void pause() {
+        if(!doneRunning)
+             runPaused=true;
+    }
+
+    @Override
+    public boolean isRunPaused() {
+        return runPaused;
+    }
+
+    private void handlePause(List<Future<?>> futures, List<Target> waitingList) throws InterruptedException {
+        cancelAllFutures(futures);
+        ((ThreadPoolExecutor)threadExecutor).setCorePoolSize(task.getParallelism());
+        updateWaitingList(waitingList);
+            try{
+            synchronized (condition){
+                System.out.println("im going to sleep");
+                condition.wait();
+            }}catch (Exception e){
+                System.out.println("wait or syncronised failled");
+            }
+            System.out.println("i waked up");
+    }
+
+    private void updateWaitingList(List<Target> waitingList) {
+        subTargetGraph.getTargetsMap().forEach(((s, target) -> {
+            if (target.getRunResult().equals(RunResult.WAITING) && !waitingList.contains(target)) {
+                waitingList.add(target);
+            }
+        }));
+    }
+
+
+    private void cancelAllFutures(List<Future<?>> futures) {
+        futures.forEach(future -> {
+            future.cancel(false);
+        });
+    }
+    
     private boolean AllThreadsDone(List<Future<?>> futures) {
         boolean allDone = true;
         for (Future<?> future : futures) {
@@ -223,9 +298,13 @@ public class GPUPEngine implements Engine {
         GPUPConsumerDTO consumerDTO = new ProcessedTargetDTO(currentTarget);
         consumerDTO.setTaskOutput(new SimulationOutputDTO(task.getProcessingTime()));
         // Writing to console
-        print(consumerDTO);
 
+        print(consumerDTO);
         subTargetGraph.unlockSerialSetOf(currentTarget);
+    }
+
+    private synchronized void printLock(Target c) {
+        System.out.println(c.getName() + " release The Lock");
     }
 
     private synchronized void print(GPUPConsumerDTO consumerDTO) {

@@ -33,6 +33,8 @@ public class TargetGraph implements DirectableGraph, GraphActions {
         return serialSets.get(name);
     }
 
+    public Map<String, SerialSet> getSerialSets(){ return serialSets;}
+
     public void setSerialSets(Map<String, SerialSet> serialSets) {
         this.serialSets = serialSets;
         serialSets.forEach((s, serialSet) -> {
