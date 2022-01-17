@@ -5,7 +5,7 @@ import component.target.Target;
 
 import java.util.List;
 
-public class ProcessedTargetDTO implements GPUPConsumerDTO {
+public class ProcessedTargetDTO implements GPUPConsumer {
     private final String name;
     private final String userData;
     private final FinishResult finishResult;

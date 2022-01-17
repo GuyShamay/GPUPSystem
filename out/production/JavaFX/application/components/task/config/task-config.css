@@ -1,0 +1,58 @@
+.titled-pane {
+    -fx-text-fill: -fx-text-base-color;
+}
+
+.titled-pane:focused > .title {
+    -fx-font-weight: bold;
+}
+
+.titled-pane > .title {
+    -fx-background-color: #5a5a5d,
+    linear-gradient(#c4c4d0, rgb(133, 174, 211));
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 2;
+}
+
+.titled-pane > .title > .arrow-button .arrow {
+    -fx-background-color: -fx-mark-color;
+    -fx-background-insets: 1 0 -1 0, 0;
+}
+
+.titled-pane:collapsed > .title > .arrow-button .arrow {
+    -fx-rotate: -90;
+}
+
+.titled-pane > *.content {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0, 0 1 1 1;
+    -fx-padding: 0.167em;
+}
+
+.titled-pane:focused > .title > .arrow-button .arrow {
+    -fx-background-color: white;
+}
+
+.spinner {
+    -fx-border-color: rgba(86, 85, 85, 0.61);
+    -fx-border-radius: 4;
+
+
+}
+
+.spinner .increment-arrow-button,
+.spinner .decrement-arrow-button {
+    -fx-body-color:#c4c4d0, rgb(133, 174, 211);
+    -fx-border-color: rgba(86, 85, 85, 0.61);
+}
+
+.spinner .increment-arrow-button:hover,
+.spinner .decrement-arrow-button:hover {
+    -fx-body-color: rgb(133, 174, 211);
+}
+
+.spinner .increment-arrow-button:hover:pressed,
+.spinner .decrement-arrow-button:hover:pressed,
+.spinner .increment-arrow-button:pressed,
+.spinner .decrement-arrow-button:pressed {
+    -fx-body-color: rgb(118, 155, 189);
+}

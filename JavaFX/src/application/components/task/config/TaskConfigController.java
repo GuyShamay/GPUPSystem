@@ -30,10 +30,8 @@ import java.util.Set;
 
 
 public class TaskConfigController implements Controller {
-
-    public void setParentController(Controller taskController) {
-        this.taskController = (TaskController) taskController;
-    }
+    private final String SIMULATION_CONFIG_FXML_NAME = "simulation/simulation-config.fxml";
+    private final String COMPILE_CONFIG_FXML_NAME = "compile/compile-config.fxml";
 
     private TaskController taskController;
     private SimulationConfigController simulationController;
@@ -43,17 +41,17 @@ public class TaskConfigController implements Controller {
     private Config typeConfig;
 
     private BooleanProperty isSubmitted;
+    private boolean targetSubmit;
+    private boolean settingsSubmit;
 
     private Selections.TargetSelect targetSelect = Selections.TargetSelect.non;
     private Selections.SettingsSelect settingsSelect = Selections.SettingsSelect.non;
     private Selections.TypeSelect typeSelect = Selections.TypeSelect.non;
-    private boolean targetSubmit;
-    private boolean settingsSubmit;
-    private boolean typeSubmit;
-    private final String SIMULATION_CONFIG_FXML_NAME = "simulation/simulation-config.fxml";
-
-    private final String COMPILE_CONFIG_FXML_NAME = "compile/compile-config.fxml";
     ObservableList<String> targets;
+
+    public void setParentController(Controller taskController) {
+        this.taskController = (TaskController) taskController;
+    }
 
     public BooleanProperty submittedProperty() {
         return isSubmitted;
@@ -61,60 +59,48 @@ public class TaskConfigController implements Controller {
 
     @FXML
     private CheckBox allTargetCheckBox;
-
     @FXML
     private ListView<String> targetListView;
-
     @FXML
     private CheckBox customTargetCheckBox;
-
     @FXML
     private CheckBox whatIfCheckBox;
-
     @FXML
     private ChoiceBox<String> wayChoice;
-
     @FXML
     private Button submitTargetButton;
-
     @FXML
     private ComboBox<String> targetChoice;
-
     @FXML
     private Label warningTargetsLabel;
-
     @FXML
     private Label warningTaskTypeLabel;
-
     @FXML
     private CheckBox fromScratchCheckBox;
-
     @FXML
     private CheckBox incrementalCheckBox;
-
     @FXML
     private Spinner<Integer> threadSpinner;
-
     @FXML
     private Button submitSettingsButton;
-
     @FXML
     private Label warningSettingsLabel;
-
     @FXML
     private Label incLabel;
-
     @FXML
     private CheckBox simulationCheckBox;
-
     @FXML
     private CheckBox compileCheckBox;
-
     @FXML
     private BorderPane taskParamBorderPane;
-
     @FXML
     private Button finalSubmitButton;
+    @FXML
+    private TitledPane titledPaneStep1;
+    @FXML
+    private TitledPane titledPaneStep2;
+    @FXML
+    private TitledPane titledPaneStep3;
 
     @FXML
     public void initialize() {
@@ -122,9 +108,9 @@ public class TaskConfigController implements Controller {
         wayChoice.getItems().addAll("Depends On", "Required For");
         targetSubmit = false;
         settingsSubmit = false;
-        typeSubmit = false;
         finalSubmitButton.setVisible(false);
         isSubmitted = new SimpleBooleanProperty(false);
+        titledPaneStep1.setExpanded(true);
     }
 
     public void fetchData() {
@@ -222,6 +208,8 @@ public class TaskConfigController implements Controller {
             submitTargetButton.setDisable(true);
             disableAllTargets();
             targetSubmit = true;
+            titledPaneStep1.setExpanded(false);
+            titledPaneStep2.setExpanded(true);
         }
     }
 
@@ -307,6 +295,8 @@ public class TaskConfigController implements Controller {
             taskConfig.setThreadsParallelism(threadSpinner.getValue());
             warningSettingsLabel.setText("Settings submitted!");
             settingsSubmit = true;
+            titledPaneStep2.setExpanded(false);
+            titledPaneStep3.setExpanded(true);
         }
     }
     // -------------------------------------------------------------------

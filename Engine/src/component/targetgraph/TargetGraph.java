@@ -478,6 +478,10 @@ public class TargetGraph implements DirectableGraph, GraphActions {
     public boolean allTargetsFinished() {
         return targetMap.values().stream().allMatch(t -> (t.getRunResult().equals(RunResult.FINISHED)));
     }
+
+    public Map<String,Target> getTargetsMap(){
+        return targetMap;
+    }
 }
 
 

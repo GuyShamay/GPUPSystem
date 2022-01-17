@@ -1,6 +1,6 @@
 package dto;
 
-public interface GPUPConsumerDTO {
+public interface GPUPConsumer {
     default void setTaskOutput(TaskOutputDTO taskOutput) {};
 
     default String getName() {

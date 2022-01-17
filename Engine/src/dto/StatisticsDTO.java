@@ -1,87 +1,112 @@
 package dto;
-
-import component.target.FinishResult;
-
+import component.target.Target;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 
-public class StatisticsDTO implements GPUPConsumerDTO {
+public class StatisticsDTO implements GPUPConsumer {
 
-    public StatisticsDTO() {
+    List<TargetDTO> targets;
+    private final String name;
+    private int successTargets;
+    private int warningsTargets;
+    private int failureTargets;
+    private int skippedTargets;
+
+    private Duration duration;
+    private String taskStatus;
+
+
+    public StatisticsDTO(String taskName) {
+        name = taskName;
+        successTargets = 0;
+        warningsTargets = 0;
+        failureTargets = 0;
+        skippedTargets = 0;
     }
 
-    public StatisticsDTO(Duration totalRunDuration, List<TargetRunDTO> targets) {
-        this.totalRunDuration = totalRunDuration;
-        this.targets = targets;
-        calcTargetsRunResultStatistics();
+    public String getName() {
+        return name;
     }
 
-    private void calcTargetsRunResultStatistics() {
-        targets.forEach((targetRunDTO -> {
-            if(targetRunDTO.finishResult!=null) {
-                switch (targetRunDTO.finishResult) {
+    public int getSuccessTargets() {
+        return successTargets;
+    }
+
+    public int getWarningsTargets() {
+        return warningsTargets;
+    }
+
+    public int getFailureTargets() {
+        return failureTargets;
+    }
+
+    public int getSkippedTargets() {
+        return skippedTargets;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public String getTaskStatus() {
+        return taskStatus;
+    }
+
+    // will be called by the engine when task is done
+    public void updateTaskResults(List<Target> targets, Duration totalDuration) {
+        this.targets = new ArrayList<>();
+        targets.forEach(((target) -> {
+            this.targets.add(new TargetDTO(target));
+        }));
+        this.duration = totalDuration;
+        calsRunResults();
+    }
+
+    private void calsRunResults() {
+
+        targets.forEach((target -> {
+            if (target.getFinishResult() != null) {
+                switch (target.getFinishResult()) {
                     case SUCCESS:
-                        successTargetsNum++;
+                        successTargets++;
                         break;
                     case WARNING:
-                        warningsTargetsNum++;
+                        warningsTargets++;
                         break;
                     case FAILURE:
-                        failureTargetsNum++;
+                        failureTargets++;
                         break;
                 }
-            }
-        else
-            skippedTargetsNum++;
+            } else
+                skippedTargets++;
         }));
-    }
 
-    private Duration totalRunDuration;
-    private List<TargetRunDTO> targets;
-    private int successTargetsNum = 0;
-    private int warningsTargetsNum = 0;
-    private int failureTargetsNum = 0;
-    private int skippedTargetsNum = 0;
-
-    public class TargetRunDTO{
-        private String name;
-        private FinishResult finishResult;
-        private Duration runTimeDuration;
-
-        public TargetRunDTO(String name,FinishResult runResult,Duration runTimeDuration ){
-            this.name=name;
-            this.finishResult =runResult;
-            this.runTimeDuration=runTimeDuration;
-        }
-
-        @Override
-        public String toString() {
-            String runResult = finishResult==null? "-NOT- Finished , SKIPPED" : "FINISHED with "+ finishResult;
-            String runTime = runTimeDuration==null ? "" : "Procceced In " + String.format("%d:%02d:%02d",
-                    runTimeDuration.toHours(),
-                    runTimeDuration.toMinutes(),
-                    runTimeDuration.getSeconds());
-        return "\n    Target " + name + "\n "+ runResult+ "\n "+ runTime;
+        if(skippedTargets!= 0)
+        {
+            taskStatus = "Task Failed";
+        }else{
+            taskStatus = "Task Succeeded";
         }
     }
 
     @Override
-    public String toString(){
+    public String toString() {
 
-        String res ="~~~~~~~~~~~~~~ RUN SUMMARY ~~~~~~~~~~~~~~"+
+        String res = "~~~~~~~~~~~~~~ RUN SUMMARY ~~~~~~~~~~~~~~" +
                 "\nTotal Task Run Duration : " + String.format("%d:%02d:%02d",
-                totalRunDuration.toHours(),
-                totalRunDuration.toMinutes(),
-                totalRunDuration.getSeconds()) +
-                "\n                STATISTICS                  "+
-                "\n SUCCES TARGETS........." + successTargetsNum +
-                "\n WARNING TARGETS........" + warningsTargetsNum+
-                "\n FAILURE TARGETS........" + failureTargetsNum+
-                "\n SKIPPED TARGETS........" + skippedTargetsNum+
-                "\n\n                 TARGETS                   " ;
+                duration.toHours(),
+                duration.toMinutes(),
+                duration.getSeconds()) +
+                "\n                STATISTICS                  " +
+                "\n SUCCES TARGETS........." + successTargets +
+                "\n WARNING TARGETS........" + warningsTargets +
+                "\n FAILURE TARGETS........" + failureTargets +
+                "\n SKIPPED TARGETS........" + skippedTargets +
+                "\n\n                 TARGETS                   ";
 
-        for (TargetRunDTO targetRunDTO:targets) {
-            res+=targetRunDTO.toString();
+        for (TargetDTO t : targets) {
+            res += t.toString();
         }
         return res;
     }

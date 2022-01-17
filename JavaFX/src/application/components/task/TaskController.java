@@ -7,16 +7,14 @@ import application.general.ComponentCreator;
 import application.general.Controller;
 import component.task.config.TaskConfig;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -24,79 +22,201 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TaskController implements Controller {
     private static final String TASK_CONFIG_FXML_NAME = "config/task-config.fxml";
 
     @FXML
-    private Button settingsButton;
+    private Button buttonSettings;
     @FXML
-    private Button runTaskButton;
+    private Button buttonRunTask;
     @FXML
-    private Button pauseAndResumeButton;
+    private Button buttonPauseAndResume;
     @FXML
-    private Label selectedTNameLabel;
+    private Button buttonTargetPick;
     @FXML
-    private Label selectedTTypeLabel;
+    private ComboBox<String> comboBoxTargetPick;
     @FXML
     private FlowPane selectedTargetFlowPanel;
     @FXML
     private ProgressBar progressBar;
     @FXML
-    private Label taskMessageLabel;
+    private Label labelRunTaskStatus;
     @FXML
-    private TableView<?> runResultTable;
+    private Label labelPickedName;
     @FXML
-    private TableColumn<?, ?> frozenCol;
+    private Label labelPickedType;
     @FXML
-    private TableColumn<?, ?> waitingCol;
+    private Label labelSkipped;
     @FXML
-    private TableColumn<?, ?> skippedCol;
+    private Label labelSuccess;
     @FXML
-    private TableColumn<?, ?> successCol;
+    private Label labelWarnings;
     @FXML
-    private TableColumn<?, ?> warningsCol;
+    private Label labelFailure;
     @FXML
-    private TableColumn<?, ?> failureCol;
+    private Label labelTaskStatus;
+    @FXML
+    private Label labelTaskMessage;
+    @FXML
+    private ListView<String> frozenCol;
+    @FXML
+    private ListView<String> waitingCol;
+    @FXML
+    private ListView<String> skippedCol;
+    @FXML
+    private ListView<String> failureCol;
+    @FXML
+    private ListView<String> warningsCol;
+    @FXML
+    private ListView<String> successCol;
+    @FXML
+    private ListView<String> progressCol;
+
 
     private AppController appController;
     private TaskConfigController taskConfigController;
     private TaskConfig taskConfig;
-    private BooleanProperty isRunning;
-    private BooleanProperty isFinished;
+
+    private SimpleBooleanProperty isRunning;
+    private SimpleBooleanProperty isFinished;
+    EngineTT e;
 
     @FXML
     public void initialize() {
         isRunning = new SimpleBooleanProperty(false);
-        runTaskButton.setDisable(true);
-        pauseAndResumeButton.setDisable(true);
-        pauseAndResumeButton.textProperty().bind(
+        isFinished = new SimpleBooleanProperty(true);
+        buttonRunTask.setDisable(true);
+        buttonPauseAndResume.disableProperty().bind(
+                Bindings.when(isFinished)
+                        .then(true)
+                        .otherwise(false));
+        buttonSettings.disableProperty().bind(
+                Bindings.when(isFinished)
+                        .then(false)
+                        .otherwise(true));
+
+        buttonPauseAndResume.textProperty().bind(
                 Bindings.when(isRunning)
                         .then("Pause")
                         .otherwise("Resume"));
+        // TEST
+        e = new EngineTT();
     }
 
 
     @FXML
     void pauseAndResumeButtonClicked(ActionEvent event) {
         isRunning.set(!isRunning.get());
+        if (!isRunning.get()) {
+            // need to pause
+            appController.pauseTask();
+        } else {
+            // need to resume
+            appController.resumeTask();
+        }
 
     }
 
     @FXML
     void runTaskButtonClicked(ActionEvent event) {
-        if (taskConfig != null) {
-            try {
-                appController.initTask(taskConfig);
-                appController.startTask();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        if (isFinished.get()) {
+            labelRunTaskStatus.setText("");
+            cleanData();
+            isRunning.set(true);
+            isFinished.set(false);
+
+
+            // Invoke task in engine
+            if (taskConfig != null) {
+                try {
+                    appController.initTask(taskConfig);
+                    appController.startTask();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                labelTaskMessage.setText("Please define task's Settings");
             }
-        }else{
-            taskMessageLabel.setText("Please define task's Settings");
+
+            // TEST
+            e.initTask();
+            labelTaskMessage.textProperty().bind(e.getCurrTask().messageProperty());
+            progressBar.progressProperty().bind(e.getCurrTask().progressProperty());
+            successCol.setItems(e.getList("success"));
+            frozenCol.setItems(e.getList("frozen"));
+            waitingCol.setItems(e.getList("waiting"));
+
+            // Binding Task Result:
+//            TaskResults TR = (TaskResults) ((TaskTT) e.getCurrTask()).getTaskResults();
+//            labelTaskStatus.textProperty().bind(TR.messageProperty());
+//            labelSuccess.textProperty().bind(TR.successTargetsProperty().asString());
+//            labelWarnings.textProperty().bind(TR.warningsTargetsProperty().asString());
+//            labelFailure.textProperty().bind(TR.failureTargetsProperty().asString());
+//            labelSkipped.textProperty().bind(TR.skippedTargetsProperty().asString());
+//            TR.valueProperty().addListener((observable, oldValue, newValue) -> {
+//                onTaskResultFinished();
+//            });
+
+            e.getCurrTask().valueProperty().addListener((observable, oldValue, newValue) -> {
+                onTaskFinished();
+            });
+            // run task
+
+            e.runTaskEngine();
+
+
+        } else { // The task isn't over (could be in pause or running)
+            if (!isRunning.get()) { // The task is in pause
+                labelRunTaskStatus.setText("The task isn't over yet, resume it.");
+            } else { // The task is running at the moment
+                labelRunTaskStatus.setText("The task isn't over yet, still running.");
+            }
         }
+    }
+
+    private void onTaskFinished() {
+        isFinished.set(true);
+        isRunning.set(false);
+        labelTaskMessage.textProperty().unbind();
+        progressBar.progressProperty().unbind();
+    }
+
+    public void onTaskResultFinished() {
+        labelTaskStatus.textProperty().unbind();
+        labelSuccess.textProperty().unbind();
+        labelWarnings.textProperty().unbind();
+        labelFailure.textProperty().unbind();
+        labelSkipped.textProperty().unbind();
+
+    }
+//        if (taskConfig != null) {
+//            try {
+//                appController.initTask(taskConfig);
+//                appController.startTask();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        } else {
+//            taskMessageLabel.setText("Please define task's Settings");
+//        }
+
+    private void cleanData() {
+        successCol.getItems().clear();
+        frozenCol.getItems().clear();
+        waitingCol.getItems().clear();
+        progressBar.setPadding(Insets.EMPTY);
+        labelTaskMessage.setText("");
+        labelSkipped.setText("-");
+        labelFailure.setText("-");
+        labelWarnings.setText("-");
+        labelSuccess.setText("-");
+        labelTaskStatus.setText("");
     }
 
     @FXML
@@ -109,16 +229,34 @@ public class TaskController implements Controller {
         taskConfigController.setParentController(this);
         taskConfigController.fetchData();
         taskConfigController.submittedProperty().addListener(((observable, oldValue, newValue) -> {
-            pauseAndResumeButton.setDisable(!newValue);
-            runTaskButton.setDisable(!newValue);
+            buttonRunTask.setDisable(!newValue);
         }));
         Scene scene = new Scene(taskConfigComponent.getPane(), 404, 504);
         stage.setScene(scene);
         stage.setAlwaysOnTop(true);
         stage.initModality(Modality.APPLICATION_MODAL);
+        AtomicBoolean isCancel = new AtomicBoolean(false);
+        stage.setOnCloseRequest(e -> {
+            isCancel.set(true);
+        });
         stage.showAndWait();
+        if (!isCancel.get()) {
+            updateTargetPick();
+        }
     }
 
+    private void updateTargetPick() {
+        if (taskConfig.isAllTargets()) {
+            ObservableList<String> all = FXCollections.observableArrayList(appController.getTargetsListByName());
+            comboBoxTargetPick.setItems(all);
+        } else if (taskConfig.getCustomTargets().size() != 0) {
+            ObservableList<String> custom = FXCollections.observableArrayList(taskConfig.getCustomTargets());
+
+            comboBoxTargetPick.setItems(custom);
+        } else {
+            /// NEED TO ADD
+        }
+    }
 
     public Set<String> getTargetsListByName() {
         return appController.getTargetsListByName();
@@ -134,5 +272,18 @@ public class TaskController implements Controller {
 
     public void setTasConfig(TaskConfig taskConfig) {
         this.taskConfig = taskConfig;
+    }
+
+    // Pick target while running ----------------------------------
+
+
+    @FXML
+    void buttonGetStatusClicked(ActionEvent event) {
+        if (!comboBoxTargetPick.getSelectionModel().isEmpty()) {
+            labelPickedName.setText(comboBoxTargetPick.getSelectionModel().getSelectedItem());
+        }
+
+
+        comboBoxTargetPick.getSelectionModel().clearSelection();
     }
 }

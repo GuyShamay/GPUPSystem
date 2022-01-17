@@ -6,26 +6,26 @@ import component.task.ProcessingType;
 import component.task.Task;
 import component.task.config.SimulationConfig;
 import component.task.config.TaskConfig;
-import dto.*;
-import exception.TargetExistException;
 import component.task.simulation.ProcessingTimeType;
 import component.task.simulation.SimulationTask;
+import dto.*;
+import exception.ElementExistException;
 import jaxb.generated.v2.GPUPDescriptor;
 import jaxb.parser.GPUPParser;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.NoSuchElementException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 
@@ -37,7 +37,12 @@ public class GPUPEngine implements Engine {
     private int maxParallelism;
     private TargetGraph subTargetGraph;
 
-    private void loadXmlToTargetGraph(String path) throws FileNotFoundException, JAXBException, TargetExistException {
+    ExecutorService threadExecutor;
+    private boolean runPaused;
+    private final Object condition = new ReentrantLock();
+    private boolean doneRunning = false;
+
+    private void loadXmlToTargetGraph(String path) throws FileNotFoundException, JAXBException, ElementExistException {
         final String PACKAGE_NAME = "jaxb.generated";
         GPUPDescriptor gpupDescriptor;
         InputStream inputStream = new FileInputStream(path);
@@ -48,12 +53,12 @@ public class GPUPEngine implements Engine {
     }
 
     @Override
-    public void buildGraphFromXml(String path) throws JAXBException, FileNotFoundException, TargetExistException {
+    public void buildGraphFromXml(String path) throws JAXBException, FileNotFoundException, ElementExistException {
         loadXmlToTargetGraph(path);
     }
 
     @Override
-    public void buildGraphFromXml(File file) throws JAXBException, FileNotFoundException, TargetExistException {
+    public void buildGraphFromXml(File file) throws JAXBException, FileNotFoundException, ElementExistException {
         loadFileToGraph(file);
     }
 
@@ -102,21 +107,21 @@ public class GPUPEngine implements Engine {
         targetGraph.buildTransposeGraph();
     }
 
-    public void initTask(TaskConfig taskConfig){
+    public void initTask(TaskConfig taskConfig) {
         subTargetGraph = createSubTargetGraph(taskConfig);
         subTargetGraph.updateTargetsTypes();
         subTargetGraph.buildTransposeGraph();
         processingType = taskConfig.getProcessingType();
-        maxParallelism=taskConfig.getThreadsParallelism();
 
-        switch (taskConfig.getTaskType()){
+        switch (taskConfig.getTaskType()) {
             case Simulation:
-                task = new SimulationTask((SimulationConfig) taskConfig.getConfig());
+                task = new SimulationTask((SimulationConfig) taskConfig.getConfig(), taskConfig.getThreadsParallelism());
                 break;
             case Compilation:
                 break;
         }
-
+        runPaused = false;
+        doneRunning = false;
         initGraphForRun();
     }
 
@@ -128,28 +133,28 @@ public class GPUPEngine implements Engine {
     }
 
     private void correctProcessingType() {
-        if((subTargetGraph.allTargetsFinished() || !subTargetGraph.allTargetsHaveRunResult()) && processingType==ProcessingType.Incremental) {
+        if ((subTargetGraph.allTargetsFinished() || !subTargetGraph.allTargetsHaveRunResult()) && processingType == ProcessingType.Incremental) {
             System.out.println("Task will run 'From Scrach'.");
-            processingType=ProcessingType.FromScratch;
+            processingType = ProcessingType.FromScratch;
         }
     }
 
     private TargetGraph createSubTargetGraph(TaskConfig taskConfig) {
-        if(taskConfig.isAllTargets()) subTargetGraph = targetGraph;
-        else if (taskConfig.getCustomTargets()!=null) {
-            subTargetGraph=targetGraph.buildSubGraph(taskConfig.getCustomTargets());
+        if (taskConfig.isAllTargets()) subTargetGraph = targetGraph;
+        else if (taskConfig.getCustomTargets() != null) {
+            subTargetGraph = targetGraph.buildSubGraph(taskConfig.getCustomTargets());
         } else {
-            List<String> res= getWhatIfSubTargetsList(taskConfig.getWhatIfTarget(),taskConfig.getWhatIfRelation());
+            List<String> res = getWhatIfSubTargetsList(taskConfig.getWhatIfTarget(), taskConfig.getWhatIfRelation());
             subTargetGraph = targetGraph.buildSubGraph(res);
         }
         return subTargetGraph;
     }
 
     private List<String> getWhatIfSubTargetsList(String whatIfTarget, TargetsRelationType whatIfRelation) {
-        List<String> res= new ArrayList<>();
-         targetGraph.getTargetsByRelation(whatIfTarget,whatIfRelation).forEach(target -> {
-        res.add(target.getName());
-         });
+        List<String> res = new ArrayList<>();
+        targetGraph.getTargetsByRelation(whatIfTarget, whatIfRelation).forEach(target -> {
+            res.add(target.getName());
+        });
         return res;
     }
 
@@ -160,50 +165,159 @@ public class GPUPEngine implements Engine {
 
 
     public void runTaskGPUP2() throws InterruptedException {
-        Instant totalStart, totalEnd, start, end;
-        List<Target> waitingList;
-        waitingList = subTargetGraph.getAllWaitingTargets();
-
+        Instant totalStart, totalEnd;
         totalStart = Instant.now();
-        while (!waitingList.isEmpty()) {
-            start = Instant.now();
-            Target currentTarget = waitingList.remove(0);
-            if(!currentTarget.isLock()) {
-                currentTarget.setRunResult(RunResult.INPROCESS);
-                subTargetGraph.lockSerialSetOf(currentTarget);
-
-                task.updateProcessingTime();
-                currentTarget.setFinishResult(task.run());
-                currentTarget.setRunResult(RunResult.FINISHED);
-
-                if (currentTarget.getFinishResult() == FinishResult.FAILURE) {
-                    subTargetGraph.dfsTravelToUpdateSkippedList(currentTarget);
-                    subTargetGraph.updateTargetAdjAfterFinishWithFailure(currentTarget);
-                } else {
-                    subTargetGraph.updateTargetAdjAfterFinishWithoutFailure(waitingList, currentTarget);
-                }
-                end = Instant.now();
-                currentTarget.setTaskRunDuration(Duration.between(start, end));
-
-                //Temporary
-                GPUPConsumerDTO consumerDTO = new ProcessedTargetDTO(currentTarget);
-                consumerDTO.setTaskOutput(new SimulationOutputDTO(task.getProcessingTime()));
-                // Writing to console
-                System.out.println(consumerDTO);
-                subTargetGraph.unlockSerialSetOf(currentTarget);
-            }else{
-                System.out.println("Target lock because SerialSet");
-            }
-        }
-
+        run();
         totalEnd = Instant.now();
         Duration totalRunDuration = Duration.between(totalStart, totalEnd);
-        StatisticsDTO statisticsDTO = calcStatistics(totalRunDuration);
-        System.out.println(statisticsDTO);
+        //StatisticsDTO statisticsDTO = calcStatistics(totalRunDuration);
+        //System.out.println(statisticsDTO);
+    }
+
+    private void run() throws InterruptedException {
+        List<Target> waitingList = subTargetGraph.getAllWaitingTargets();
+        List<Future<?>> futures = new ArrayList<Future<?>>();
+        threadExecutor = Executors.newFixedThreadPool(task.getParallelism());
+
+        do {
+            while (!waitingList.isEmpty()) {
+                while (runPaused) {
+                    handlePause(futures, waitingList);
+                    int size = ((ThreadPoolExecutor) threadExecutor).getQueue().size();
+                    Thread.sleep(1000);
+                    System.out.println("max parallism is " + task.getParallelism());
+                    System.out.println("POOL SIZE:" + ((ThreadPoolExecutor) threadExecutor).getPoolSize());
+                    System.out.println("Core POOL Size:" + ((ThreadPoolExecutor) threadExecutor).getCorePoolSize());
+                }
+                Target currentTarget = waitingList.remove(0);
+                while (currentTarget.isLock()) {
+                    Thread.yield();
+                }
+                if (!currentTarget.isLock()) {
+                    Runnable r = () -> {
+                        try {
+                            runTarget(waitingList, currentTarget);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    };
+                    Future<?> f = threadExecutor.submit(r);
+                    futures.add(f);
+                    // System.out.println("POOL SIZE:"+((ThreadPoolExecutor)threadExecutor).getPoolSize());
+                }
+            }
+        } while (!AllThreadsDone(futures));
+
+        doneRunning = true;
+        threadExecutor.shutdownNow();
+        System.out.println("FINISHED WITH POOL SIZE:" + ((ThreadPoolExecutor) threadExecutor).getPoolSize());
     }
 
     @Override
-    public void runTask(Consumer<GPUPConsumerDTO> consumer) throws InterruptedException, IOException {
+    public void resume() {
+        if (!doneRunning) {
+            runPaused = false;
+            synchronized (condition) {
+                System.out.println("thread number " + Thread.currentThread() + " im waking run");
+                Thread.getAllStackTraces().keySet();
+                condition.notify();
+            }
+        }
+    }
+
+    @Override
+    public void pause() {
+        if (!doneRunning)
+            runPaused = true;
+    }
+
+    @Override
+    public boolean isRunPaused() {
+        return runPaused;
+    }
+
+    @Override
+    public void increaseThreadsNum() {
+        task.incParallelism();
+    }
+
+    private void handlePause(List<Future<?>> futures, List<Target> waitingList) throws InterruptedException {
+        cancelAllFutures(futures);
+        try {
+            synchronized (condition) {
+                System.out.println("thread number " + Thread.currentThread() + "says: im going to sleep");
+                condition.wait();
+                ((ThreadPoolExecutor) threadExecutor).setCorePoolSize(task.getParallelism());
+                updateWaitingList(waitingList);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("thread number " + Thread.currentThread() + "i waked up");
+    }
+
+    private void updateWaitingList(List<Target> waitingList) {
+        subTargetGraph.getTargetsMap().forEach(((s, target) -> {
+            if (target.getRunResult().equals(RunResult.WAITING) && !waitingList.contains(target)) {
+                waitingList.add(target);
+            }
+        }));
+    }
+
+
+    private void cancelAllFutures(List<Future<?>> futures) {
+        futures.forEach(future -> {
+            future.cancel(false);
+        });
+    }
+
+    private boolean AllThreadsDone(List<Future<?>> futures) {
+        boolean allDone = true;
+        for (Future<?> future : futures) {
+            allDone &= future.isDone(); // check if future is done
+        }
+        return allDone;
+    }
+
+    private void runTarget(List<Target> waitingList, Target currentTarget) throws InterruptedException {
+        subTargetGraph.lockSerialSetOf(currentTarget);
+
+        Instant start, end;
+        start = Instant.now();
+        currentTarget.setRunResult(RunResult.INPROCESS);
+// prog.move(waiting, inprocess, cu.name);
+        task.updateProcessingTime();
+        currentTarget.setFinishResult(task.run());
+
+        updateGraphAfterTaskResult(waitingList, currentTarget);
+        end = Instant.now();
+        currentTarget.setTaskRunDuration(Duration.between(start, end));
+
+        //Temporary
+        GPUPConsumer consumerDTO = new ProcessedTargetDTO(currentTarget);
+        consumerDTO.setTaskOutput(new SimulationOutputDTO(task.getProcessingTime()));
+        // Writing to console
+
+        print(consumerDTO);
+        subTargetGraph.unlockSerialSetOf(currentTarget);
+    }
+
+    private synchronized void print(GPUPConsumer consumerDTO) {
+        System.out.println(consumerDTO);
+        System.out.println(Thread.currentThread().getId());
+    }
+
+    private synchronized void updateGraphAfterTaskResult(List<Target> waitingList, Target currentTarget) {
+        currentTarget.setRunResult(RunResult.FINISHED);
+        if (currentTarget.getFinishResult().equals(FinishResult.FAILURE)) {
+            subTargetGraph.dfsTravelToUpdateSkippedList(currentTarget);
+            subTargetGraph.updateTargetAdjAfterFinishWithFailure(currentTarget);
+        } else {
+            subTargetGraph.updateTargetAdjAfterFinishWithoutFailure(waitingList, currentTarget);
+        }
+    }
+
+    public void runTaskGPUP1(Consumer<GPUPConsumer> consumer) throws InterruptedException, IOException {
         Instant totalStart, totalEnd, start, end;
         List<Target> waitingList;
 
@@ -239,7 +353,7 @@ public class GPUPEngine implements Engine {
             end = Instant.now();
             currentTarget.setTaskRunDuration(Duration.between(start, end));
 
-            GPUPConsumerDTO consumerDTO = new ProcessedTargetDTO(currentTarget);
+            GPUPConsumer consumerDTO = new ProcessedTargetDTO(currentTarget);
             consumerDTO.setTaskOutput(new SimulationOutputDTO(task.getProcessingTime()));
             //Writing to file
             writeTargetToFile(start, end, consumerDTO, task.getDirectoryPath());
@@ -249,8 +363,8 @@ public class GPUPEngine implements Engine {
 
         totalEnd = Instant.now();
         Duration totalRunDuration = Duration.between(totalStart, totalEnd);
-        StatisticsDTO statisticsDTO = calcStatistics(totalRunDuration);
-        consumer.accept(statisticsDTO);
+        //StatisticsDTO statisticsDTO = calcStatistics(totalRunDuration);
+        //consumer.accept(statisticsDTO);
     }
 
     @Override
@@ -302,7 +416,7 @@ public class GPUPEngine implements Engine {
         return targetGraph.getTargetsInfo();
     }
 
-    private void writeTargetToFile(Instant start, Instant end, GPUPConsumerDTO target, String path) throws IOException {
+    private void writeTargetToFile(Instant start, Instant end, GPUPConsumer target, String path) throws IOException {
         String fileName = target.getName() + ".log";
         try (Writer out = new BufferedWriter(
                 new OutputStreamWriter(
@@ -315,22 +429,25 @@ public class GPUPEngine implements Engine {
         }
     }
 
-    private StatisticsDTO calcStatistics(Duration totalRunDuration) {
-        return new StatisticsDTO(totalRunDuration, task.getTargetsRunInfo());
-    }
+    /*private StatisticsDTO calcStatistics(Duration totalRunDuration) {
+        //return new StatisticsDTO(totalRunDuration, task.getTargetsRunInfo());
+    }*/
 
-    public Set<String> getTargetsNamesList(){
+    public Set<String> getTargetsNamesList() {
         return targetGraph.getTargetsNamesList();
     }
 
     @Override
     public List<SerialSetDTO> getSerialSetInfo() {
-return targetGraph.getSerialSetInfo();    }
+        return targetGraph.getSerialSetInfo();
+    }
 
-    public List<TargetInfoDTO> getTargetsByRelation (String targetName, TargetsRelationType relationType){
-        List<Target> targetsList = targetGraph.getTargetsByRelation(targetName,relationType);
+    public List<TargetInfoDTO> getTargetsByRelation(String targetName, TargetsRelationType relationType) {
+        List<Target> targetsList = targetGraph.getTargetsByRelation(targetName, relationType);
         List<TargetInfoDTO> targetsDTOList = new ArrayList<>();
-        targetsList.forEach((target -> {targetsDTOList.add(new TargetInfoDTO(target));}));
+        targetsList.forEach((target -> {
+            targetsDTOList.add(new TargetInfoDTO(target));
+        }));
         return targetsDTOList;
     }
 
