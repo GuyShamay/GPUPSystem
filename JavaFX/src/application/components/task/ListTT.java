@@ -8,7 +8,6 @@ import javafx.beans.property.SimpleIntegerProperty;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ListTT { // "target graph"
@@ -35,7 +34,7 @@ public class ListTT { // "target graph"
     }
 
     public void init() {
-        list.forEach(tt -> progressData.initOne(tt.getName())); // all in frozen
+        list.forEach(tt -> progressData.initToFrozen(tt.getName())); // all in frozen
     }
 
     public int countFinish() {

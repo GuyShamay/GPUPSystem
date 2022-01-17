@@ -2,15 +2,19 @@ package engine;
 
 import component.target.TargetsRelationType;
 import component.task.ProcessingType;
+import component.task.RunTask;
 import component.task.config.TaskConfig;
 import dto.*;
 import exception.ElementExistException;
+import javafx.collections.ObservableList;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public interface Engine {
     void buildGraphFromXml(String path) throws JAXBException, FileNotFoundException, ElementExistException;
@@ -45,14 +49,17 @@ public interface Engine {
 
     int getMaxParallelism();
 
-    void runTaskGPUP2() throws InterruptedException;
+    void runTask() throws InterruptedException;
 
     void resume();
 
     void pause();
 
+    RunTask getCurrTask();
+
     boolean isRunPaused();
 
+    ObservableList<String> getList(String runStatus);
     void increaseThreadsNum(Integer newVal);
 
     boolean isCircuit();

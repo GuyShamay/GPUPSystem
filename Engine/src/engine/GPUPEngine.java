@@ -3,6 +3,7 @@ package engine;
 import component.target.*;
 import component.targetgraph.TargetGraph;
 import component.task.ProcessingType;
+import component.task.RunTask;
 import component.task.Task;
 import component.task.config.SimulationConfig;
 import component.task.config.TaskConfig;
@@ -10,6 +11,7 @@ import component.task.simulation.ProcessingTimeType;
 import component.task.simulation.SimulationTask;
 import dto.*;
 import exception.ElementExistException;
+import javafx.collections.ObservableList;
 import jaxb.generated.v2.GPUPDescriptor;
 import jaxb.parser.GPUPParser;
 
@@ -21,13 +23,7 @@ import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
-
 
 // IMPLEMENT INTERFACE
 public class GPUPEngine implements Engine {
@@ -36,11 +32,7 @@ public class GPUPEngine implements Engine {
     private ProcessingType processingType;
     private int maxParallelism;
     private TargetGraph subTargetGraph;
-
-    ExecutorService threadExecutor;
-    private boolean runPaused;
-    private final Object condition = new ReentrantLock();
-    private boolean doneRunning = false;
+    private RunTask runTask;
 
     private void loadXmlToTargetGraph(String path) throws FileNotFoundException, JAXBException, ElementExistException {
         final String PACKAGE_NAME = "jaxb.generated";
@@ -92,13 +84,7 @@ public class GPUPEngine implements Engine {
         return targetGraph != null;
     }
 
-    public int getTargetsCount() {
-        return targetGraph.count();
-    }
-
-    public int getSpecificTypeOfTargetsNum(TargetType targetType) {
-        return targetGraph.getSpecificTypeOfTargetsNum(targetType);
-    }
+    //Before Task-run methods
 
     @Override
     public void initTaskGPUP1(int targetProcessingTimeMs, int taskProcessingTimeType, float successProb, float successWithWarningsProb, ProcessingType status) {
@@ -120,16 +106,64 @@ public class GPUPEngine implements Engine {
             case Compilation:
                 break;
         }
-        runPaused = false;
-        doneRunning = false;
+
+        runTask = new RunTask(subTargetGraph,task);
+        runTask.initProgressData(processingType);
+
         initGraphForRun();
     }
 
     private void initGraphForRun() {
         correctProcessingType();
-        subTargetGraph.prepareGraphFromProcType(processingType);
+        prepareGraphByProcType();
         task.updateRelevantTargets(subTargetGraph.getWaitingAndFrozen());
         subTargetGraph.clearJustOpenAndSkippedLists();
+    }
+
+    private void prepareGraphByProcType(){
+        switch (processingType) {
+            case FromScratch:
+                updateTargetsFromScratch();
+                updateLeavesAndIndependentsToWaiting();
+                break;
+            case Incremental:
+                updateTargetIncremental();
+                break;
+        }
+    }
+
+    public void updateLeavesAndIndependentsToWaiting() {
+        subTargetGraph.getTargetsMap().forEach(((s, target) -> {
+            if (target.getType() == TargetType.Leaf || target.getType() == TargetType.Independent) {
+                target.setRunResult(RunResult.WAITING);
+                runTask.getProgressData().move(RunResult.FROZEN,RunResult.WAITING,target.getName());
+            }
+        }));
+    }
+
+    private void updateTargetIncremental() {
+        subTargetGraph.getTargetsMap().forEach(((s, target) -> {
+            if (target.getRunResult().equals(RunResult.FINISHED)) {
+                if (target.getFinishResult().equals(FinishResult.FAILURE)) {
+                    if(subTargetGraph.isAllAdjOfTargetFinishedWithoutFailure(target)) {
+                        target.setFinishResult(null);
+                        target.setRunResult(RunResult.WAITING);
+                        runTask.getProgressData().move(RunResult.FROZEN,RunResult.WAITING,target.getName());
+                    }
+                }
+            }
+            if (target.getRunResult().equals(RunResult.SKIPPED))
+                target.setRunResult(RunResult.FROZEN);
+            //Already frozen in UI
+        }));
+    }
+
+    private void updateTargetsFromScratch() {
+        subTargetGraph.getTargetsMap().forEach(((s, target) -> {
+            target.setFinishResult(null);
+            target.setRunResult(RunResult.FROZEN);
+            //already frozen in UI
+        }));
     }
 
     private void correctProcessingType() {
@@ -147,6 +181,7 @@ public class GPUPEngine implements Engine {
             List<String> res = getWhatIfSubTargetsList(taskConfig.getWhatIfTarget(), taskConfig.getWhatIfRelation());
             subTargetGraph = targetGraph.buildSubGraph(res);
         }
+
         return subTargetGraph;
     }
 
@@ -163,217 +198,40 @@ public class GPUPEngine implements Engine {
         this.processingType = status;
     }
 
+    public RunTask getCurrTask() { return runTask;}
 
-    public void runTaskGPUP2() throws InterruptedException {
-        Instant totalStart, totalEnd;
-        totalStart = Instant.now();
-        run();
-        totalEnd = Instant.now();
-        Duration totalRunDuration = Duration.between(totalStart, totalEnd);
-        //StatisticsDTO statisticsDTO = calcStatistics(totalRunDuration);
-        //System.out.println(statisticsDTO);
-    }
-
-    private void run() throws InterruptedException {
-        List<Target> waitingList = subTargetGraph.getAllWaitingTargets();
-        List<Future<?>> futures = new ArrayList<Future<?>>();
-        threadExecutor = Executors.newFixedThreadPool(task.getParallelism());
-
-        do {
-            while (!waitingList.isEmpty()) {
-                while (runPaused) {
-                    handlePause(futures, waitingList);
-                    int size = ((ThreadPoolExecutor) threadExecutor).getQueue().size();
-                    Thread.sleep(1000);
-                    System.out.println("max parallism is " + task.getParallelism());
-                    System.out.println("POOL SIZE:" + ((ThreadPoolExecutor) threadExecutor).getPoolSize());
-                    System.out.println("Core POOL Size:" + ((ThreadPoolExecutor) threadExecutor).getCorePoolSize());
-                }
-                Target currentTarget = waitingList.remove(0);
-                while (currentTarget.isLock()) {
-                    Thread.yield();
-                }
-                if (!currentTarget.isLock()) {
-                    Runnable r = () -> {
-                        try {
-                            runTarget(waitingList, currentTarget);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    };
-                    Future<?> f = threadExecutor.submit(r);
-                    futures.add(f);
-                    // System.out.println("POOL SIZE:"+((ThreadPoolExecutor)threadExecutor).getPoolSize());
-                }
-            }
-        } while (!AllThreadsDone(futures));
-
-        doneRunning = true;
-        threadExecutor.shutdownNow();
-        System.out.println("FINISHED WITH POOL SIZE:" + ((ThreadPoolExecutor) threadExecutor).getPoolSize());
-    }
-
-    @Override
-    public void resume() {
-        if (!doneRunning) {
-            runPaused = false;
-            synchronized (condition) {
-                System.out.println("thread number " + Thread.currentThread() + " im waking run");
-                Thread.getAllStackTraces().keySet();
-                condition.notify();
-            }
+    public ObservableList<String> getList(String type) {
+        switch (type) {
+            case "frozen":
+                return runTask.getProgressData().getFrozen();
+            case "waiting":
+                return runTask.getProgressData().getWaiting();
+            case "inProcess":
+                return runTask.getProgressData().getInprocces();
+            case "skipped":
+                return runTask.getProgressData().getSkipped();
+            case "success":
+                return runTask.getProgressData().getSuccess();
+            case "warnings":
+                return runTask.getProgressData().getWarning();
+            case "failure":
+                return runTask.getProgressData().getFailure();
         }
+        return null;
     }
 
+    /////////////////////////////////////////////////////////////////////
+
     @Override
-    public void pause() {
-        if (!doneRunning)
-            runPaused = true;
-    }
+    public void resume() { runTask.resume(); }
+
+    @Override
+    public void pause() { runTask.pause(); }
 
     @Override
     public boolean isRunPaused() {
-        return runPaused;
+        return runTask.isRunPaused();
     }
-
-    @Override
-    public void increaseThreadsNum(Integer newVal) {
-        task.incParallelism(newVal);
-    }
-
-    @Override
-    public boolean isCircuit() {
-        if (subTargetGraph.count() != 0) {
-            return subTargetGraph.getTargetsMap().keySet().stream().anyMatch(s -> targetGraph.findCircuit(s) != null);
-        }
-        return false;
-    }
-
-    private void handlePause(List<Future<?>> futures, List<Target> waitingList) throws InterruptedException {
-        cancelAllFutures(futures);
-        try {
-            synchronized (condition) {
-                System.out.println("thread number " + Thread.currentThread() + "says: im going to sleep");
-                condition.wait();
-                ((ThreadPoolExecutor) threadExecutor).setCorePoolSize(task.getParallelism());
-                updateWaitingList(waitingList);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        System.out.println("thread number " + Thread.currentThread() + "i waked up");
-    }
-
-    private void updateWaitingList(List<Target> waitingList) {
-        subTargetGraph.getTargetsMap().forEach(((s, target) -> {
-            if (target.getRunResult().equals(RunResult.WAITING) && !waitingList.contains(target)) {
-                waitingList.add(target);
-            }
-        }));
-    }
-
-
-    private void cancelAllFutures(List<Future<?>> futures) {
-        futures.forEach(future -> {
-            future.cancel(false);
-        });
-    }
-
-    private boolean AllThreadsDone(List<Future<?>> futures) {
-        boolean allDone = true;
-        for (Future<?> future : futures) {
-            allDone &= future.isDone(); // check if future is done
-        }
-        return allDone;
-    }
-
-    private void runTarget(List<Target> waitingList, Target currentTarget) throws InterruptedException {
-        subTargetGraph.lockSerialSetOf(currentTarget);
-
-        Instant start, end;
-        start = Instant.now();
-        currentTarget.setRunResult(RunResult.INPROCESS);
-// prog.move(waiting, inprocess, cu.name);
-        task.updateProcessingTime();
-        currentTarget.setFinishResult(task.run());
-
-        updateGraphAfterTaskResult(waitingList, currentTarget);
-        end = Instant.now();
-        currentTarget.setTaskRunDuration(Duration.between(start, end));
-
-        //Temporary
-        GPUPConsumer consumerDTO = new ProcessedTargetDTO(currentTarget);
-        consumerDTO.setTaskOutput(new SimulationOutputDTO(task.getProcessingTime()));
-        // Writing to console
-
-        print(consumerDTO);
-        subTargetGraph.unlockSerialSetOf(currentTarget);
-    }
-
-    private synchronized void print(GPUPConsumer consumerDTO) {
-        System.out.println(consumerDTO);
-        System.out.println(Thread.currentThread().getId());
-    }
-
-    private synchronized void updateGraphAfterTaskResult(List<Target> waitingList, Target currentTarget) {
-        currentTarget.setRunResult(RunResult.FINISHED);
-        if (currentTarget.getFinishResult().equals(FinishResult.FAILURE)) {
-            subTargetGraph.dfsTravelToUpdateSkippedList(currentTarget);
-            subTargetGraph.updateTargetAdjAfterFinishWithFailure(currentTarget);
-        } else {
-            subTargetGraph.updateTargetAdjAfterFinishWithoutFailure(waitingList, currentTarget);
-        }
-    }
-
-    /*public void runTaskGPUP1(Consumer<GPUPConsumer> consumer) throws InterruptedException, IOException {
-        Instant totalStart, totalEnd, start, end;
-        List<Target> waitingList;
-
-        targetGraph.prepareGraphFromProcType(processingType);
-        task.updateRelevantTargets(targetGraph.getWaitingAndFrozen());
-        targetGraph.clearJustOpenAndSkippedLists();
-        waitingList = targetGraph.getAllWaitingTargets();
-
-        totalStart = Instant.now();
-        String dirPath = createDirectoryName();
-        createTaskDirectory(dirPath);
-        task.setDirectoryPath(dirPath);
-
-        if (waitingList.isEmpty() && processingType.equals(ProcessingType.Incremental)) {
-            throw new RuntimeException("The graph already had been processed completely, there is no need for 'Incremental' action");
-        }
-
-        while (!waitingList.isEmpty()) {
-            start = Instant.now();
-            Target currentTarget = waitingList.remove(0);
-            currentTarget.setRunResult(RunResult.INPROCESS);
-
-            task.updateProcessingTime();
-            currentTarget.setFinishResult(task.run());
-            currentTarget.setRunResult(RunResult.FINISHED);
-
-            if (currentTarget.getFinishResult() == FinishResult.FAILURE) {
-                targetGraph.dfsTravelToUpdateSkippedList(currentTarget);
-                targetGraph.updateTargetAdjAfterFinishWithFailure(currentTarget);
-            } else {
-                targetGraph.updateTargetAdjAfterFinishWithoutFailure(waitingList, currentTarget);
-            }
-            end = Instant.now();
-            currentTarget.setTaskRunDuration(Duration.between(start, end));
-
-            GPUPConsumer consumerDTO = new ProcessedTargetDTO(currentTarget);
-            consumerDTO.setTaskOutput(new SimulationOutputDTO(task.getProcessingTime()));
-            //Writing to file
-            writeTargetToFile(start, end, consumerDTO, task.getDirectoryPath());
-            // Writing to console
-            consumer.accept(consumerDTO);
-        }
-
-        totalEnd = Instant.now();
-        Duration totalRunDuration = Duration.between(totalStart, totalEnd);
-        //StatisticsDTO statisticsDTO = calcStatistics(totalRunDuration);
-        //consumer.accept(statisticsDTO);
-    }*/
 
     @Override
     public PathsDTO findPaths(String src, String dest, TargetsRelationType type) {
@@ -463,4 +321,67 @@ public class GPUPEngine implements Engine {
     public int getMaxParallelism() {
         return maxParallelism;
     }
+
+    //Not in use
+    @Override
+    public void runTask() throws InterruptedException {}
+
+    public void runTaskGPUP1(Consumer<GPUPConsumer> consumer) throws InterruptedException, IOException {
+        Instant totalStart, totalEnd, start, end;
+        List<Target> waitingList;
+
+        targetGraph.prepareGraphFromProcType(processingType);
+        task.updateRelevantTargets(targetGraph.getWaitingAndFrozen());
+        targetGraph.clearJustOpenAndSkippedLists();
+        waitingList = targetGraph.getAllWaitingTargets();
+
+        totalStart = Instant.now();
+        String dirPath = createDirectoryName();
+        createTaskDirectory(dirPath);
+        task.setDirectoryPath(dirPath);
+
+        if (waitingList.isEmpty() && processingType.equals(ProcessingType.Incremental)) {
+            throw new RuntimeException("The graph already had been processed completely, there is no need for 'Incremental' action");
+        }
+
+        while (!waitingList.isEmpty()) {
+            start = Instant.now();
+            Target currentTarget = waitingList.remove(0);
+            currentTarget.setRunResult(RunResult.INPROCESS);
+
+            task.updateProcessingTime();
+            currentTarget.setFinishResult(task.run());
+            currentTarget.setRunResult(RunResult.FINISHED);
+
+            if (currentTarget.getFinishResult() == FinishResult.FAILURE) {
+                targetGraph.dfsTravelToUpdateSkippedList(currentTarget);
+                targetGraph.updateTargetAdjAfterFinishWithFailure(currentTarget);
+            } else {
+               // targetGraph.updateTargetAdjAfterFinishWithoutFailure(progressData, waitingList, currentTarget);
+            }
+            end = Instant.now();
+            currentTarget.setTaskRunDuration(Duration.between(start, end));
+
+            GPUPConsumer consumerDTO = new ProcessedTargetDTO(currentTarget);
+            consumerDTO.setTaskOutput(new SimulationOutputDTO(task.getProcessingTime()));
+            //Writing to file
+            writeTargetToFile(start, end, consumerDTO, task.getDirectoryPath());
+            // Writing to console
+            consumer.accept(consumerDTO);
+        }
+
+        totalEnd = Instant.now();
+        Duration totalRunDuration = Duration.between(totalStart, totalEnd);
+        //StatisticsDTO statisticsDTO = calcStatistics(totalRunDuration);
+        //consumer.accept(statisticsDTO);
+    }
+
+    public int getTargetsCount() {
+        return targetGraph.count();
+    }
+
+    public int getSpecificTypeOfTargetsNum(TargetType targetType) {
+        return targetGraph.getSpecificTypeOfTargetsNum(targetType);
+    }
+
 }
