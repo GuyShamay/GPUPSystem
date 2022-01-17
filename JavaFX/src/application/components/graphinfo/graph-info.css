@@ -7,16 +7,18 @@
 }
 
 .table-view {
-    -fx-background-color: rgba(111, 140, 201, 0.79);
     -fx-border-color: #545454;
     -fx-border-radius: 0 0 6px 6px;
     -fx-background-radius: 0 0 6px 6px;
 }
 
+.table-row-cell {
+    -fx-background-color: rgba(133, 174, 211, 0.72);
+    -fx-border-color: #595959;
+}
+
 .table-row-cell:selected {
-    -fx-background-color: rgba(245, 245, 245, 0.74);
-
-
+    -fx-background-color: rgb(66, 98, 164);
 }
 
 /* scroll bar */
@@ -39,4 +41,32 @@
 .table-view .scroll-bar:vertical .thumb {
     -fx-background-color: derive(#4262a4, 90%);
 
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Labels*/
+
+#lblHeader {
+    -fx-font-weight: bold;
+    -fx-font-size: 20;
+}
+
+#lblType {
+}
+
+
+#lblTotal, #lblTotalVal {
+    -fx-font-weight: bold;
+    -fx-font-size: 17;
+}
+
+#lblTotalVal, #lblTypeVal {
+    -fx-text-fill: #110000;
 }

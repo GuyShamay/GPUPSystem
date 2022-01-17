@@ -24,7 +24,9 @@ public abstract class GPUPParser {
         targetGraph.setWorkingDirectory(workingDirectory);
         targetMap = parseTargetList(gpupDescriptor.getGPUPTargets());
         targetGraph.buildGraph(targetMap);
-        targetGraph.setSerialSets(parseSerialSets(gpupDescriptor, targetMap));
+        if (gpupDescriptor.getGPUPSerialSets() != null) {
+            targetGraph.setSerialSets(parseSerialSets(gpupDescriptor, targetMap));
+        }
         return targetGraph;
     }
 
@@ -32,16 +34,16 @@ public abstract class GPUPParser {
         Map<String, SerialSet> serialSetMap = new HashMap<>();
         List<GPUPDescriptor.GPUPSerialSets.GPUPSerialSet> gpupSerialSets = gpupDescriptor.getGPUPSerialSets().getGPUPSerialSet();
         gpupSerialSets.forEach(gpupSerialSet -> {
-            if(!serialSetMap.containsKey(gpupSerialSet.getName())){
-            String name = gpupSerialSet.getName();
-            SerialSet serialSet = parseSerialSet(gpupSerialSet, targetMap); // could throw exception
-            serialSetMap.put(name, serialSet);}
-            else
-            {
+            if (!serialSetMap.containsKey(gpupSerialSet.getName())) {
+                String name = gpupSerialSet.getName();
+                SerialSet serialSet = parseSerialSet(gpupSerialSet, targetMap); // could throw exception
+                serialSetMap.put(name, serialSet);
+            } else {
                 throw new ElementExistException("Serial Set", gpupSerialSet.getName());
             }
         });
-        return serialSetMap;
+
+        return null;
     }
 
     private static SerialSet parseSerialSet(GPUPDescriptor.GPUPSerialSets.GPUPSerialSet gpupSerialSet, Map<String, Target> targetMap) {

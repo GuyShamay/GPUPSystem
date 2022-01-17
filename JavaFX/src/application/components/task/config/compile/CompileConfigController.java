@@ -26,6 +26,7 @@ public class CompileConfigController implements Controller {
     private Label destLabel;
     @FXML
     private Button submitButton;
+
     @FXML
     void buttonDestClicked(ActionEvent event) {
         validDest = chooseDir(event, destLabel);
@@ -38,21 +39,21 @@ public class CompileConfigController implements Controller {
     void buttonSrcClicked(ActionEvent event) {
         validSrc = chooseDir(event, srcLabel);
         if (validSrc) {
-            compileConfig.setDestDir(srcLabel.getText());
+            compileConfig.setSrcDir(srcLabel.getText());
         }
     }
 
-    private boolean chooseDir(ActionEvent event, Label srcLabel) {
+    private boolean chooseDir(ActionEvent event, Label label) {
         Node node = (Node) event.getSource();
         DirectoryChooser directoryChooser = new DirectoryChooser();
         File selectedDir =
                 directoryChooser.showDialog(node.getScene().getWindow());
 
         if (selectedDir == null) {
-            srcLabel.setText("No Directory selected");
+            label.setText("No Directory selected");
             return false;
         } else {
-            srcLabel.setText(selectedDir.getAbsolutePath());
+            label.setText(selectedDir.getAbsolutePath());
             return true;
         }
     }

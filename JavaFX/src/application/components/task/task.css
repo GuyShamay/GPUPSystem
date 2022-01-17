@@ -1,0 +1,41 @@
+.lblRunTask {
+    -fx-font-weight: bold;
+    -fx-text-fill: #af0a0a;
+}
+
+.lblTaskMsg, #lblcol, #lblColFinish {
+    -fx-font-weight: bold;
+    -fx-text-fill: rgba(56, 56, 56, 0.89);
+}
+#lblColFinish, #lblTitle{
+    -fx-font-size: 18;
+    -fx-text-fill: black
+}
+
+.combo-box, .button{-fx-font-size: 14;}
+.task-header {
+    -fx-background-color: rgba(133, 174, 211, 0.66);
+    -fx-border-color: black;
+    -fx-background-radius: 0 0 4px 4px;
+    -fx-border-radius: 0 0 4px 4px;
+}
+
+#anchor {
+    -fx-border-color: black;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+.list-view{
+    -fx-background-color: rgba(245, 245, 245, 0.83);
+    -fx-border-color: #595959;
+}
+.root-pane {
+    -fx-background-color: #ffffff,
+    linear-gradient(#FFFFFF00, rgb(133, 174, 211));
+}

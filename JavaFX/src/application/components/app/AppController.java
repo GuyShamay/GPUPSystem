@@ -47,7 +47,6 @@ public class AppController implements Controller {
     private WelcomeController welcomeController;
     private static final String FIND_PATHS_FXML_NAME = "../findPathes/pathes.fxml";
     private static final String INFO_FXML_NAME = "../graphinfo/graph-info.fxml";
-    private static final String TASK_CONFIG_FXML_NAME = "../task/config/task-config.fxml";
     private static final String FINDCIRCUIT_FXML_NAME = "../findCircuit/findCircuit.fxml";
     private static final String WHATIF_FXML_NAME = "../whatIf/whatIf.fxml";
     private static final String TASK_FXML_NAME = "../task/task2.fxml";
@@ -106,8 +105,11 @@ public class AppController implements Controller {
     }
 
     public ObservableList<SerialSetDTO> getSerialSetInfo() {
-        List<SerialSetDTO> list = engine.getSerialSetInfo();
-        return FXCollections.observableArrayList(list);
+        if (engine.getSerialSetInfo() != null) {
+            List<SerialSetDTO> list = engine.getSerialSetInfo();
+            return FXCollections.observableArrayList(list);
+        }
+        return null;
     }
 
     public ObservableList<TargetInfoDTO> getTargetsInfo() {
@@ -142,7 +144,7 @@ public class AppController implements Controller {
                 new FileChooser.ExtensionFilter("Xml Files", "*.xml"));
         File selectedFile = fileChooser.showOpenDialog(btn.getScene().getWindow());
         */
-        File selectedFile = new File("C:\\Users\\guysh\\Downloads\\ex2-big.xml");
+        File selectedFile = new File("C:\\Users\\guysh\\Downloads\\ex2-cycle.xml");
         if (selectedFile != null) {
             try {
                 engine.buildGraphFromXml(selectedFile);
@@ -180,7 +182,39 @@ public class AppController implements Controller {
     public int getMaxParallelism() {
         return engine.getMaxParallelism();
     }
+
+    public void initTask(TaskConfig taskConfig) {
+        engine.initTask(taskConfig);
+    }
+
+    public void startTask() throws IOException, InterruptedException {
+        Thread engineThread = new Thread(() -> {
+            try {
+                engine.runTaskGPUP2();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        engineThread.start();
+    }
+
+    public void pauseTask() {
+        engine.pause();
+    }
+
+    public void resumeTask() {
+        engine.resume();
+    }
+
+    public void incParallelism(Integer newVal) {
+        engine.increaseThreadsNum(newVal);
+    }
+
+    public boolean isCircuit() {
+        return engine.isCircuit();
+    }
     //--------------------------------------------------------------------------
+
     // Actions: paths, circle, what-if
 
     @FXML
@@ -242,34 +276,13 @@ public class AppController implements Controller {
         return engine.getTargetsByRelation(targetName, relationType);
     }
 
-    public void initTask(TaskConfig taskConfig) {
-        engine.initTask(taskConfig);
-    }
-
-    public void startTask() throws IOException, InterruptedException {
-        Thread engineThread = new Thread(() -> {
-            try {
-                engine.runTaskGPUP2();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-        engineThread.start();
-    }
-
-    public void pauseTask() {
-        engine.pause();
-    }
-
-    public void resumeTask() {
-        engine.resume();
-    }
     //--------------------------------------------------------------------------
     // Animations
     @FXML
     void animationChecked(ActionEvent event) {
 
     }
+
     //--------------------------------------------------------------------------
 
     //Themes

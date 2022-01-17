@@ -179,16 +179,16 @@ public class GPUPApp {
         engine.initTaskGPUP1(targetProcessingTime, taskProcessingTimeType, successProb, successWithWarningsProb, procStartStatus);
         engine.setProcessingType(procStartStatus);
 
-        try {
-            engine.runTask(new ConsoleConsumer());
-
-        } catch (InterruptedException e) {
-            GPUPConsoleIO.printMsg("There have been a problem with 'Thread.sleep' function.");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (RuntimeException e) {
-            GPUPConsoleIO.printMsg(e.getMessage());
-        }
+//        try {
+//            engine.runTask(new ConsoleConsumer());
+//
+//        } catch (InterruptedException e) {
+//            GPUPConsoleIO.printMsg("There have been a problem with 'Thread.sleep' function.");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (RuntimeException e) {
+//            GPUPConsoleIO.printMsg(e.getMessage());
+//        }
     }
 }
 

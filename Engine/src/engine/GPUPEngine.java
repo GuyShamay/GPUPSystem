@@ -237,8 +237,16 @@ public class GPUPEngine implements Engine {
     }
 
     @Override
-    public void increaseThreadsNum() {
-        task.incParallelism();
+    public void increaseThreadsNum(Integer newVal) {
+        task.incParallelism(newVal);
+    }
+
+    @Override
+    public boolean isCircuit() {
+        if (subTargetGraph.count() != 0) {
+            return subTargetGraph.getTargetsMap().keySet().stream().anyMatch(s -> targetGraph.findCircuit(s) != null);
+        }
+        return false;
     }
 
     private void handlePause(List<Future<?>> futures, List<Target> waitingList) throws InterruptedException {
@@ -317,7 +325,7 @@ public class GPUPEngine implements Engine {
         }
     }
 
-    public void runTaskGPUP1(Consumer<GPUPConsumer> consumer) throws InterruptedException, IOException {
+    /*public void runTaskGPUP1(Consumer<GPUPConsumer> consumer) throws InterruptedException, IOException {
         Instant totalStart, totalEnd, start, end;
         List<Target> waitingList;
 
@@ -365,7 +373,7 @@ public class GPUPEngine implements Engine {
         Duration totalRunDuration = Duration.between(totalStart, totalEnd);
         //StatisticsDTO statisticsDTO = calcStatistics(totalRunDuration);
         //consumer.accept(statisticsDTO);
-    }
+    }*/
 
     @Override
     public PathsDTO findPaths(String src, String dest, TargetsRelationType type) {

@@ -73,7 +73,9 @@ public class InfoController implements Controller {
         serialSetData = appController.getSerialSetInfo();
         updateSumSection(appController.getGraphInfo());
         graphTable.setItems(targetsData);
-        serialSetTable.setItems(serialSetData);
+        if (serialSetData != null) {
+            serialSetTable.setItems(serialSetData);
+        }
     }
 
     private void updateSumSection(TargetGraphDTO graphInfo) {

@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CircuitDTO {
+    public List<String> getCircuit() {
+        return circuit;
+    }
+
     private List<String> circuit;
 
     @Override
