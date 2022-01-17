@@ -49,7 +49,7 @@
             <CheckBox fx:id="checkBoxAnimations" mnemonicParsing="false" onAction="#animationChecked" text="Animations" GridPane.columnIndex="13" GridPane.rowIndex="1" />
             <ImageView fitHeight="44.0" fitWidth="100.0" pickOnBounds="true" GridPane.columnIndex="1" GridPane.rowSpan="3">
                <image>
-                  <Image url="@../../../resources/LogoMakr-6r9eQE%20(1).png" />
+                  <Image url="@../../../resources/LogoMakr-6r9eQE (1).png" />
                </image>
             </ImageView>
          </children>

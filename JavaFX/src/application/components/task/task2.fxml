@@ -156,7 +156,7 @@
                         <Label text="Warnings" GridPane.columnIndex="11" GridPane.rowIndex="6" />
                         <Label text="Full Success" GridPane.columnIndex="13" GridPane.rowIndex="6" />
                         <Label fx:id="labelTaskStatus" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="8" />
-                        <Separator prefWidth="200.0" style="-fx-background-color: black;" GridPane.columnIndex="1" GridPane.columnSpan="13" GridPane.rowIndex="5" />
+                        <Separator prefWidth="200.0" style="-fx-border-color: black;" GridPane.columnIndex="1" GridPane.columnSpan="13" GridPane.rowIndex="5" />
                      </children>
                   </GridPane>
                </children>
