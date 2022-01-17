@@ -4,8 +4,7 @@ import component.target.TargetsRelationType;
 import component.task.ProcessingType;
 import component.task.config.TaskConfig;
 import dto.*;
-import exception.TargetExistException;
-import dto.*;
+import exception.ElementExistException;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -16,8 +15,9 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 public interface Engine {
-    void buildGraphFromXml(String path) throws JAXBException, FileNotFoundException, TargetExistException;
-    void buildGraphFromXml(File file) throws JAXBException, FileNotFoundException, TargetExistException;
+    void buildGraphFromXml(String path) throws JAXBException, FileNotFoundException, ElementExistException;
+
+    void buildGraphFromXml(File file) throws JAXBException, FileNotFoundException, ElementExistException;
 
     TargetDTO getTargetInfo(String name);
 
@@ -31,8 +31,6 @@ public interface Engine {
 
     void setProcessingType(ProcessingType processingStartStatus);
 
-    void runTask(Consumer<GPUPConsumerDTO> consumer) throws InterruptedException, IOException;
-
     PathsDTO findPaths(String src, String dest, TargetsRelationType type);
 
     boolean isFirstTaskRun();
@@ -41,13 +39,21 @@ public interface Engine {
 
     List<TargetInfoDTO> getTargetsInfo();
 
-   Set<String> getTargetsNamesList();
+    Set<String> getTargetsNamesList();
 
     List<SerialSetDTO> getSerialSetInfo();
 
-    List<TargetInfoDTO> getTargetsByRelation(String target,TargetsRelationType relationType);
+    List<TargetInfoDTO> getTargetsByRelation(String target, TargetsRelationType relationType);
 
     int getMaxParallelism();
 
     void runTaskGPUP2() throws InterruptedException;
+
+    void resume();
+
+    void pause();
+
+    boolean isRunPaused();
+
+    void increaseThreadsNum();
 }

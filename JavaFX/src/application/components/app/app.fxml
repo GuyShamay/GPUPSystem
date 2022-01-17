@@ -2,40 +2,56 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<BorderPane fx:id="borderPaneApp" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.components.app.AppController">
+<BorderPane fx:id="borderPaneApp" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="200.0" minWidth="300.0" prefHeight="400.0" prefWidth="824.0" styleClass="app" stylesheets="@app.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.components.app.AppController">
    <top>
-      <GridPane>
+      <GridPane styleClass="toolbar">
         <columnConstraints>
             <ColumnConstraints hgrow="NEVER" maxWidth="10.0" minWidth="10.0" prefWidth="10.0" />
+            <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="20.0" />
             <ColumnConstraints hgrow="NEVER" />
-            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="50.0" />
+            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="20.0" />
             <ColumnConstraints hgrow="NEVER" />
-            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="50.0" />
+            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="20.0" />
             <ColumnConstraints hgrow="NEVER" />
-            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="50.0" />
+            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="20.0" />
           <ColumnConstraints hgrow="NEVER" />
+            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="20.0" />
+            <ColumnConstraints hgrow="NEVER" />
+            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="20.0" />
+            <ColumnConstraints hgrow="NEVER" />
           <ColumnConstraints hgrow="NEVER" maxWidth="10.0" minWidth="10.0" prefWidth="10.0" />
         </columnConstraints>
         <rowConstraints>
           <RowConstraints maxHeight="5.0" minHeight="5.0" prefHeight="5.0" vgrow="NEVER" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="NEVER" />
           <RowConstraints maxHeight="5.0" minHeight="5.0" prefHeight="5.0" vgrow="NEVER" />
         </rowConstraints>
          <children>
-            <Button fx:id="buttonLoadFile" mnemonicParsing="false" onAction="#buttonLoadFileClicked" prefHeight="31.0" prefWidth="110.0" text="Load File" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Button fx:id="buttonInfo" mnemonicParsing="false" onAction="#buttonInfoClicked" prefHeight="31.0" prefWidth="129.0" text="Information" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-            <ComboBox fx:id="comboBoxActions" onAction="#ActionChosen" prefHeight="31.0" prefWidth="132.0" promptText="Actions" GridPane.columnIndex="5" GridPane.rowIndex="1">
+            <Button fx:id="buttonLoadFile" minWidth="80.0" mnemonicParsing="false" onAction="#buttonLoadFileClicked" prefHeight="31.0" prefWidth="110.0" text="Load File" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+            <Button fx:id="buttonInfo" minWidth="100.0" mnemonicParsing="false" onAction="#buttonInfoClicked" prefHeight="31.0" prefWidth="129.0" text="Information" GridPane.columnIndex="5" GridPane.rowIndex="1" />
+            <ComboBox fx:id="comboBoxActions" minWidth="100.0" onAction="#ActionChosen" prefHeight="31.0" prefWidth="132.0" promptText="Actions" GridPane.columnIndex="7" GridPane.rowIndex="1">
                <opaqueInsets>
                   <Insets />
                </opaqueInsets>
             </ComboBox>
-            <Button fx:id="buttonTask" mnemonicParsing="false" onAction="#buttonTaskClicked" prefHeight="25.0" prefWidth="98.0" text="Task" GridPane.columnIndex="7" GridPane.rowIndex="1" />
+            <Button fx:id="buttonTask" minWidth="80.0" mnemonicParsing="false" onAction="#buttonTaskClicked" prefHeight="25.0" prefWidth="98.0" text="Task" GridPane.columnIndex="9" GridPane.rowIndex="1" />
+            <ComboBox fx:id="comboBoxThemes" minWidth="100.0" onAction="#themeChosen" prefWidth="150.0" promptText="Themes" GridPane.columnIndex="11" GridPane.rowIndex="1" />
+            <CheckBox fx:id="checkBoxAnimations" mnemonicParsing="false" onAction="#animationChecked" text="Animations" GridPane.columnIndex="13" GridPane.rowIndex="1" />
+            <ImageView fitHeight="44.0" fitWidth="100.0" pickOnBounds="true" GridPane.columnIndex="1" GridPane.rowSpan="3">
+               <image>
+                  <Image url="@../../../resources/LogoMakr-6r9eQE%20(1).png" />
+               </image>
+            </ImageView>
          </children>
       </GridPane>
    </top>

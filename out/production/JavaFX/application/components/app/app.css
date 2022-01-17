@@ -1,0 +1,56 @@
+.root {
+    -fx-font-family: "Bahnschrift";
+    -fx-background-color: #ffffff,
+    linear-gradient(#FFFFFF00, rgb(133, 174, 211));
+}
+
+.button, .combo-box, .choice-box{
+    -fx-background-color: #5a5a5d,
+    linear-gradient(#c4c4d0, rgb(133, 174, 211));
+    -fx-background-radius: 5, 4, 3, 5;
+    -fx-background-insets: 0, 1, 2, 0;
+}
+
+
+.button:hover, .choice-box:hover, .combo-box:hover {
+    -fx-background-color: #5a5a5d,
+    linear-gradient(rgb(133, 174, 211), #c4c4d0);
+    -fx-background-insets: 0, 2, 2, 0;
+}
+
+.check-box, .button, .combo-box {
+    -fx-text-fill: linear-gradient(#645e5e, black);
+    -fx-font-size: 13px;
+}
+
+.check-box > .box {
+    -fx-background-radius: 3;
+    -fx-border-color: #5a5a5d;
+    -fx-border-radius: 2;
+    -fx-background-color: white;
+}
+
+.check-box > .box > .mark {
+    -fx-background-insets: -1 -1 1 0;
+}
+
+.check-box:selected > .box {
+    -fx-background-color: linear-gradient(#c4c4d0, rgb(133, 174, 211));
+}
+
+.check-box > .box:hover {
+    -fx-background-color: rgba(90, 90, 93, 0.1);
+}
+
+.combo-box-popup .list-view
+{
+    -fx-background-color: #5a5a5d,
+    linear-gradient(#ffffff, rgb(179, 207, 234));
+
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.4) , 8, 0.0 , 0 , 0 );
+}
+.combo-box-popup .list-view .list-cell:filled:hover
+{
+    -fx-background-color: white;
+    -fx-text-fill: -fx-text-inner-color;
+}
