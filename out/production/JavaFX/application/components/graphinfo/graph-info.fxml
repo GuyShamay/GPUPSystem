@@ -15,119 +15,116 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="200.0" minWidth="300.0" prefHeight="600.0" prefWidth="983.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.components.graphinfo.InfoController">
-   <center>
-      <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
-         <content>
-            <AnchorPane minHeight="300.0" minWidth="200.0">
-               <children>
-                  <GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="300.0" minWidth="200.0" prefHeight="600.0" prefWidth="1000.0" stylesheets="@../app/app.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                    <columnConstraints>
-                        <ColumnConstraints hgrow="NEVER" maxWidth="15.0" minWidth="15.0" prefWidth="15.0" />
-                        <ColumnConstraints hgrow="NEVER" maxWidth="10.0" minWidth="10.0" prefWidth="10.0" />
-                      <ColumnConstraints hgrow="NEVER" maxWidth="10.0" minWidth="10.0" prefWidth="10.0" />
-                        <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="600.0" />
-                        <ColumnConstraints hgrow="NEVER" maxWidth="15.0" minWidth="10.0" prefWidth="10.0" />
-                    </columnConstraints>
-                    <rowConstraints>
-                      <RowConstraints minHeight="15.0" prefHeight="15.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="NEVER" />
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
-                      <RowConstraints maxHeight="10.0" minHeight="10.0" prefHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints maxHeight="200.0" minHeight="200.0" prefHeight="200.0" vgrow="NEVER" />
-                        <RowConstraints maxHeight="10.0" minHeight="10.0" prefHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints maxHeight="1.7976931348623157E308" vgrow="ALWAYS" />
-                        <RowConstraints maxHeight="15.0" minHeight="15.0" prefHeight="15.0" vgrow="NEVER" />
-                    </rowConstraints>
+<ScrollPane fitToHeight="true" fitToWidth="true" minHeight="350.0" minWidth="400.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.components.graphinfo.InfoController">
+   <content>
+      <BorderPane minHeight="400.0" minWidth="520.0">
+         <center>
+            <ScrollPane fitToHeight="true" fitToWidth="true">
+               <content>
+                  <AnchorPane>
                      <children>
-                        <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="2" GridPane.rowSpan="5">
+                        <GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="200.0" minWidth="520.0" prefHeight="600.0" prefWidth="1000.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                          <columnConstraints>
+                              <ColumnConstraints hgrow="NEVER" maxWidth="15.0" minWidth="15.0" prefWidth="15.0" />
+                              <ColumnConstraints hgrow="NEVER" maxWidth="10.0" minWidth="10.0" prefWidth="10.0" />
+                            <ColumnConstraints hgrow="NEVER" maxWidth="10.0" minWidth="10.0" prefWidth="10.0" />
+                              <ColumnConstraints hgrow="ALWAYS" minWidth="100.0" />
+                              <ColumnConstraints hgrow="NEVER" maxWidth="15.0" minWidth="15.0" prefWidth="15.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                            <RowConstraints minHeight="15.0" prefHeight="15.0" vgrow="NEVER" />
+                              <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="NEVER" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                            <RowConstraints maxHeight="10.0" minHeight="10.0" prefHeight="10.0" vgrow="NEVER" />
+                              <RowConstraints maxHeight="200.0" minHeight="200.0" prefHeight="200.0" vgrow="NEVER" />
+                              <RowConstraints maxHeight="10.0" minHeight="10.0" prefHeight="10.0" vgrow="NEVER" />
+                              <RowConstraints vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="15.0" minHeight="15.0" prefHeight="15.0" vgrow="NEVER" />
+                          </rowConstraints>
+                           <children>
+                              <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="2" GridPane.rowSpan="5">
+                                 <content>
+                                    <TableView fx:id="graphTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="200.0" minWidth="400.0">
+                                       <columns>
+                                          <TableColumn fx:id="targetCol" minWidth="60.0" prefWidth="0.0" text="Target" />
+                                          <TableColumn fx:id="typeCol" minWidth="50.0" prefWidth="3.0" text="Type" />
+                                          <TableColumn fx:id="requiredForCol" minWidth="80.0" prefWidth="0.0" text="Required" />
+                                          <TableColumn fx:id="dependsOnCol" minWidth="70.0" prefWidth="0.0" text="Depend" />
+                                          <TableColumn fx:id="serialCountCol" minWidth="80.0" prefWidth="19.0" text="Serial Sets" />
+                                          <TableColumn fx:id="dataCol" minWidth="50.0" prefWidth="265.0" text="Data" />
+                                       </columns>
+                                       <columnResizePolicy>
+                                          <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                       </columnResizePolicy>
+                                    </TableView>
+                                 </content>
+                              </ScrollPane>
+                              <Label id="lblHeader" text="Target Graph Information" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                           </children>
+                        </GridPane>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </ScrollPane>
+         </center>
+         <right>
+            <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+              <content>
+                <AnchorPane prefHeight="600.0" prefWidth="259.0">
+                     <children>
+                        <HBox layoutY="266.0" prefHeight="182.0" prefWidth="198.0" AnchorPane.topAnchor="266.0">
+                           <children>
+                              <VBox minHeight="100.0" minWidth="111.0" prefHeight="182.0" prefWidth="133.0" spacing="10.0" HBox.hgrow="NEVER">
+                                 <children>
+                                    <Label id="lblTotal" text="Total Targets:" />
+                                    <Separator prefWidth="200.0" />
+                                    <Label id="lblType" text="Independent:" />
+                                    <Label id="lblType" text="Root:" />
+                                    <Label id="lblType" text="Middle:" />
+                                    <Label id="lblType" text="Leaf:" />
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                 </padding>
+                              </VBox>
+                              <VBox prefHeight="182.0" prefWidth="63.0" spacing="10.0" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <Label id="lblTotalVal" fx:id="totalTargetsLabel" text="tt" />
+                                    <Separator prefWidth="200.0" />
+                                    <Label id="lblTypeVal" fx:id="independentLabel" text="i" />
+                                    <Label id="lblTypeVal" fx:id="rootLabel" text="r" />
+                                    <Label id="lblTypeVal" fx:id="midLabel" text="m" />
+                                    <Label id="lblTypeVal" fx:id="leafLabel" text="l" />
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                 </padding>
+                              </VBox>
+                           </children>
+                        </HBox>
+                        <ScrollPane fitToHeight="true" fitToWidth="true" layoutX="1.0" layoutY="45.0" AnchorPane.topAnchor="45.0">
                            <content>
-                              <TableView fx:id="graphTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="200.0" minWidth="300.0">
-                                 <columns>
-                                    <TableColumn fx:id="targetCol" minWidth="30.0" prefWidth="180.0" text="Target" />
-                                    <TableColumn fx:id="typeCol" minWidth="50.0" prefWidth="292.0" text="Type" />
-                                    <TableColumn fx:id="requiredForCol" minWidth="40.0" prefWidth="0.0" text="Required" />
-                                    <TableColumn fx:id="dependsOnCol" minWidth="40.0" prefWidth="0.0" text="Depend" />
-                                    <TableColumn fx:id="serialCountCol" minWidth="40.0" prefWidth="19.0" text="Serial Sets" />
-                                    <TableColumn fx:id="dataCol" minWidth="40.0" prefWidth="265.0" text="Data" />
-                                 </columns>
+                              <TableView fx:id="serialSetTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="200.0" minWidth="195.0" prefHeight="200.0" prefWidth="195.0">
+                                <columns>
+                                  <TableColumn fx:id="serialNameCol" prefWidth="75.0" text="Name" />
+                                  <TableColumn fx:id="serialTargets" prefWidth="75.0" text="C2" />
+                                </columns>
                                  <columnResizePolicy>
                                     <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                                  </columnResizePolicy>
                               </TableView>
                            </content>
                         </ScrollPane>
-                        <Label styleClass="labelTitle" text="Target Graph Information" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                        <Label id="lblHeader" layoutX="51.0" layoutY="14.0" text="Serial Sets" AnchorPane.topAnchor="14.0" />
                      </children>
-                  </GridPane>
-               </children>
-            </AnchorPane>
-         </content>
-      </ScrollPane>
-   </center>
-   <right>
-      <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-         <content>
-            <VBox prefHeight="600.0" prefWidth="196.0">
-               <children>
-                  <Label styleClass="labelTitle" text="Serial Sets">
-                     <VBox.margin>
-                        <Insets bottom="4.0" left="54.0" top="20.0" />
-                     </VBox.margin>
-                  </Label>
-                  <ScrollPane fitToHeight="true" fitToWidth="true" minHeight="100.0" minWidth="100.0">
-                     <content>
-                        <TableView fx:id="serialSetTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="200.0" minWidth="163.0" prefHeight="200.0" prefWidth="163.0">
-                          <columns>
-                            <TableColumn fx:id="serialNameCol" prefWidth="75.0" text="Name" />
-                            <TableColumn fx:id="serialTargets" prefWidth="75.0" text="C2" />
-                          </columns>
-                           <columnResizePolicy>
-                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                           </columnResizePolicy>
-                        </TableView>
-                     </content>
-                  </ScrollPane>
-                  <HBox>
-                     <children>
-                        <VBox minHeight="100.0" minWidth="111.0" prefHeight="288.0" prefWidth="44.0" spacing="10.0" HBox.hgrow="NEVER">
-                           <children>
-                              <Label styleClass="lblTotal" text="Total Targets:" />
-                              <Separator prefWidth="200.0" />
-                              <Label styleClass="lblType" text="Independent:" />
-                              <Label styleClass="lblType" text="Root:" />
-                              <Label styleClass="lblType" text="Middle:" />
-                              <Label styleClass="lblType" text="Leaf:" />
-                           </children>
-                           <padding>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </padding>
-                        </VBox>
-                        <VBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="288.0" prefWidth="36.0" spacing="10.0" HBox.hgrow="ALWAYS">
-                           <children>
-                              <Label fx:id="totalTargetsLabel" styleClass="lblTotalVal" text="tt" />
-                              <Separator prefWidth="200.0" />
-                              <Label fx:id="independentLabel" styleClass="lblTypeVal" text="i" />
-                              <Label fx:id="rootLabel" styleClass="lblTypeVal" text="r" />
-                              <Label fx:id="midLabel" styleClass="lblTypeVal" text="m" />
-                              <Label fx:id="leafLabel" styleClass="lblTypeVal" text="l" />
-                           </children>
-                           <padding>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </padding>
-                        </VBox>
-                     </children>
-                  </HBox>
-               </children>
-               <padding>
-                  <Insets left="10.0" right="10.0" />
-               </padding>
-            </VBox>
-         </content>
-      </ScrollPane>
-   </right>
+                  </AnchorPane>
+              </content>
+            </ScrollPane>
+         </right>
+      </BorderPane>
+   </content>
    <stylesheets>
-      <URL value="@../app/app.css" />
       <URL value="@graph-info.css" />
+      <URL value="@../app/app.css" />
    </stylesheets>
-</BorderPane>
+</ScrollPane>

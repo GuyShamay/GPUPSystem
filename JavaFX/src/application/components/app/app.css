@@ -1,4 +1,4 @@
-.root {
+.root{
     -fx-font-family: "Bahnschrift";
     -fx-background-color: #ffffff,
     linear-gradient(#FFFFFF00, rgb(133, 174, 211));
@@ -53,4 +53,32 @@
 {
     -fx-background-color: white;
     -fx-text-fill: -fx-text-inner-color;
+}
+
+/* Spinner */
+
+
+.spinner {
+    -fx-border-color: rgba(86, 85, 85, 0.61);
+    -fx-border-radius: 4;
+
+
+}
+
+.spinner .increment-arrow-button,
+.spinner .decrement-arrow-button {
+    -fx-body-color:#c4c4d0, rgb(133, 174, 211);
+    -fx-border-color: rgba(86, 85, 85, 0.61);
+}
+
+.spinner .increment-arrow-button:hover,
+.spinner .decrement-arrow-button:hover {
+    -fx-body-color: rgb(133, 174, 211);
+}
+
+.spinner .increment-arrow-button:hover:pressed,
+.spinner .decrement-arrow-button:hover:pressed,
+.spinner .increment-arrow-button:pressed,
+.spinner .decrement-arrow-button:pressed {
+    -fx-body-color: rgb(118, 155, 189);
 }

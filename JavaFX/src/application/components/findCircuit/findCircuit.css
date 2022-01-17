@@ -1,0 +1,5 @@
+.lblItem{
+    -fx-font-size: 60;
+    -fx-text-fill: rgba(34, 34, 168, 0.89);
+    -fx-font-family: Century;
+}

@@ -4,11 +4,8 @@ package component.task.simulation;
 import component.target.FinishResult;
 import component.target.Target;
 import component.task.Task;
-import component.task.config.Config;
 import component.task.config.SimulationConfig;
-import dto.StatisticsDTO;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -18,9 +15,8 @@ public class SimulationTask implements Task {
     private final ProcessingTimeType processingTimeType;
     private final float successProb;
     private final float successWithWarningsProb;
-    private String dirPath;
     private long sleepingTime;
-    private Random random;
+    private final Random random;
     private List<Target> targets;
     private int parallelism;
 
@@ -53,16 +49,6 @@ public class SimulationTask implements Task {
         }
         Thread.sleep(sleepingTime);
         return res;
-    }
-
-    @Override
-    public String getDirectoryPath() {
-        return dirPath;
-    }
-
-    @Override
-    public void setDirectoryPath(String path) {
-        dirPath = path;
     }
 
     @Override
@@ -100,20 +86,7 @@ public class SimulationTask implements Task {
     }
 
     @Override
-    public void incParallelism() {
-        parallelism++;
+    public void incParallelism(Integer newVal) {
+        parallelism = newVal;
     }
-//    @Override
-//    public List<StatisticsDTO.TargetRunDTO> getTargetsRunInfo(){
-//        // need to remove? moved it to taskResult
-//
-//        List<StatisticsDTO.TargetRunDTO> targetsRunInfoList = new ArrayList<>();
-//
-//        targets.forEach(((target) -> {
-//            StatisticsDTO.TargetRunDTO targetRunDTO = new StatisticsDTO().new TargetRunDTO(target.getName(), target.getFinishResult(), target.getTaskRunDuration());
-//            targetsRunInfoList.add(targetRunDTO);
-//        }));
-//
-//        return targetsRunInfoList;
-//    }
 }

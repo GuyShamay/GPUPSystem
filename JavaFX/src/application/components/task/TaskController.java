@@ -5,6 +5,8 @@ import application.components.task.config.TaskConfigController;
 import application.general.Component;
 import application.general.ComponentCreator;
 import application.general.Controller;
+import component.task.compile.CompileTask;
+import component.task.config.CompileConfig;
 import component.task.config.TaskConfig;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -42,6 +44,10 @@ public class TaskController implements Controller {
     @FXML
     private ProgressBar progressBar;
     @FXML
+    private Spinner<Integer> spinnerIncThreads;
+    @FXML
+    private Label labelIncThreads;
+    @FXML
     private Label labelRunTaskStatus;
     @FXML
     private Label labelPickedName;
@@ -73,7 +79,8 @@ public class TaskController implements Controller {
     private ListView<String> successCol;
     @FXML
     private ListView<String> progressCol;
-
+    @FXML
+    private TextArea textAreaOutput;
 
     private AppController appController;
     private TaskConfigController taskConfigController;
@@ -87,7 +94,16 @@ public class TaskController implements Controller {
     public void initialize() {
         isRunning = new SimpleBooleanProperty(false);
         isFinished = new SimpleBooleanProperty(true);
+        bindingControls();
+        // TEST
+        e = new EngineTT();
+    }
+
+    private void bindingControls() {
         buttonRunTask.setDisable(true);
+        spinnerIncThreads.setVisible(false);
+        labelIncThreads.setVisible(false);
+
         buttonPauseAndResume.disableProperty().bind(
                 Bindings.when(isFinished)
                         .then(true)
@@ -101,8 +117,7 @@ public class TaskController implements Controller {
                 Bindings.when(isRunning)
                         .then("Pause")
                         .otherwise("Resume"));
-        // TEST
-        e = new EngineTT();
+
     }
 
 
@@ -111,9 +126,15 @@ public class TaskController implements Controller {
         isRunning.set(!isRunning.get());
         if (!isRunning.get()) {
             // need to pause
+            spinnerIncThreads.setVisible(true);
+            labelIncThreads.setVisible(true);
             appController.pauseTask();
         } else {
             // need to resume
+            spinnerIncThreads.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(spinnerIncThreads.getValue(), appController.getMaxParallelism()));
+            appController.incParallelism(spinnerIncThreads.getValue());
+            spinnerIncThreads.setVisible(false);
+            labelIncThreads.setVisible(false);
             appController.resumeTask();
         }
 
@@ -122,17 +143,34 @@ public class TaskController implements Controller {
     @FXML
     void runTaskButtonClicked(ActionEvent event) {
         if (isFinished.get()) {
+
             labelRunTaskStatus.setText("");
             cleanData();
             isRunning.set(true);
             isFinished.set(false);
 
-
             // Invoke task in engine
             if (taskConfig != null) {
+                //Test for compile
+                /*CompileConfig compileConfig = (CompileConfig) taskConfig.getConfig();
+                CompileTask task = new CompileTask(compileConfig.getSrcDir(), compileConfig.getDestDir(), 2);
+                task.setPathFromFQN("gpup.compilation.example.l2.Koo");
                 try {
+                    task.run();
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }*/
+                try {
+
                     appController.initTask(taskConfig);
-                    appController.startTask();
+                    if (!appController.isCircuit()) {
+                        appController.startTask();
+                        // onFinished!!!!!!
+                    } else {
+                        labelRunTaskStatus.setText("There is a cycle in the graph! can't run task.");
+                        isRunning.set(false);
+                        isFinished.set(true);
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
@@ -141,32 +179,31 @@ public class TaskController implements Controller {
             } else {
                 labelTaskMessage.setText("Please define task's Settings");
             }
-
             // TEST
-            e.initTask();
-            labelTaskMessage.textProperty().bind(e.getCurrTask().messageProperty());
-            progressBar.progressProperty().bind(e.getCurrTask().progressProperty());
-            successCol.setItems(e.getList("success"));
-            frozenCol.setItems(e.getList("frozen"));
-            waitingCol.setItems(e.getList("waiting"));
-
-            // Binding Task Result:
-//            TaskResults TR = (TaskResults) ((TaskTT) e.getCurrTask()).getTaskResults();
-//            labelTaskStatus.textProperty().bind(TR.messageProperty());
-//            labelSuccess.textProperty().bind(TR.successTargetsProperty().asString());
-//            labelWarnings.textProperty().bind(TR.warningsTargetsProperty().asString());
-//            labelFailure.textProperty().bind(TR.failureTargetsProperty().asString());
-//            labelSkipped.textProperty().bind(TR.skippedTargetsProperty().asString());
-//            TR.valueProperty().addListener((observable, oldValue, newValue) -> {
-//                onTaskResultFinished();
+//            e.initTask();
+//            labelTaskMessage.textProperty().bind(e.getCurrTask().messageProperty());
+//            progressBar.progressProperty().bind(e.getCurrTask().progressProperty());
+//            successCol.setItems(e.getList("success"));
+//            frozenCol.setItems(e.getList("frozen"));
+//            waitingCol.setItems(e.getList("waiting"));
+//
+//            // Binding Task Result:
+////            TaskResults TR = (TaskResults) ((TaskTT) e.getCurrTask()).getTaskResults();
+////            labelTaskStatus.textProperty().bind(TR.messageProperty());
+////            labelSuccess.textProperty().bind(TR.successTargetsProperty().asString());
+////            labelWarnings.textProperty().bind(TR.warningsTargetsProperty().asString());
+////            labelFailure.textProperty().bind(TR.failureTargetsProperty().asString());
+////            labelSkipped.textProperty().bind(TR.skippedTargetsProperty().asString());
+////            TR.valueProperty().addListener((observable, oldValue, newValue) -> {
+////                onTaskResultFinished();
+////            });
+//
+//            e.getCurrTask().valueProperty().addListener((observable, oldValue, newValue) -> {
+//                onTaskFinished();
 //            });
-
-            e.getCurrTask().valueProperty().addListener((observable, oldValue, newValue) -> {
-                onTaskFinished();
-            });
-            // run task
-
-            e.runTaskEngine();
+//            // run task
+//
+//            e.runTaskEngine();
 
 
         } else { // The task isn't over (could be in pause or running)
@@ -176,6 +213,7 @@ public class TaskController implements Controller {
                 labelRunTaskStatus.setText("The task isn't over yet, still running.");
             }
         }
+
     }
 
     private void onTaskFinished() {
@@ -193,18 +231,6 @@ public class TaskController implements Controller {
         labelSkipped.textProperty().unbind();
 
     }
-//        if (taskConfig != null) {
-//            try {
-//                appController.initTask(taskConfig);
-//                appController.startTask();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        } else {
-//            taskMessageLabel.setText("Please define task's Settings");
-//        }
 
     private void cleanData() {
         successCol.getItems().clear();
@@ -242,6 +268,7 @@ public class TaskController implements Controller {
         stage.showAndWait();
         if (!isCancel.get()) {
             updateTargetPick();
+            spinnerIncThreads.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(taskConfig.getThreadsParallelism(), appController.getMaxParallelism()));
         }
     }
 
