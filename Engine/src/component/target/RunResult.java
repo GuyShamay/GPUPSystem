@@ -1,6 +1,6 @@
 package component.target;
 
-public enum RunResult {
+public enum RunResult implements Result{
     FROZEN,
     SKIPPED,
     WAITING,

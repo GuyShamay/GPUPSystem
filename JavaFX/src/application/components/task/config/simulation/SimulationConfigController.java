@@ -67,6 +67,26 @@ public class SimulationConfigController implements Controller {
         warningSpinner.setValueFactory(factory2);
         successSpinner.getValueFactory().setValue(50);
         warningSpinner.getValueFactory().setValue(50);
+        setSpinnerOnEdit(warningSpinner);
+        setSpinnerOnEdit(successSpinner);
+    }
+
+    private void setSpinnerOnEdit(Spinner<Integer> spinner) {
+        spinner.setEditable(true);
+        spinner.getEditor().textProperty().addListener((obs, oldval, newval) -> {
+            try {
+                Integer val = Integer.parseInt(newval);
+                if (val >= 1 && val <= 100) {
+                    spinner.getValueFactory().setValue(val);
+                } else if (val > 100) {
+                    spinner.getValueFactory().setValue(100);
+                } else {
+                    spinner.getValueFactory().setValue(1);
+                }
+            } catch (NumberFormatException ex) {
+                spinner.getValueFactory().setValue(2);
+            }
+        });
     }
 
     @Override

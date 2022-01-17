@@ -1,6 +1,6 @@
 package component.target;
 
-public enum FinishResult {
+public enum FinishResult implements Result{
     SUCCESS,
     WARNING,
     FAILURE

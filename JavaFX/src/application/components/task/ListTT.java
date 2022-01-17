@@ -1,7 +1,9 @@
 package application.components.task;
 
+import component.progressdata.ProgressData;
+import component.target.FinishResult;
 import component.target.RunResult;
-import component.task.Task;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
 
 import java.util.ArrayList;
@@ -9,13 +11,14 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ListTT {
+public class ListTT { // "target graph"
     public List<TT> getList() {
         return list;
     }
 
     List<TT> list;
     private SimpleIntegerProperty counterFinish;
+    private ProgressData progressData;
 
     public ListTT() {
         list = new ArrayList<>();
@@ -26,8 +29,13 @@ public class ListTT {
         list.add(new TT("E"));
         list.add(new TT("F"));
         list.add(new TT("G"));
+        progressData = new ProgressData();
 
         counterFinish = new SimpleIntegerProperty();
+    }
+
+    public void init() {
+        list.forEach(tt -> progressData.initOne(tt.getName())); // all in frozen
     }
 
     public int countFinish() {
@@ -45,26 +53,20 @@ public class ListTT {
     }
 
 
-    public static void RUN() {
-        ListTT listTT = new ListTT();
-
-        listTT.runTask();
-    }
-
-    public void runTask() {
-        Random random = new Random();
-        list.forEach(tt -> {
-            Task(tt, random.nextFloat());
-            if (tt.getRunResult().equals(RunResult.FINISHED)) {
-                counterFinish.set(counterFinish.getValue() + 1);
-            }
-        });
-    }
-
-    public static void Task(TT tt, float p) {
+    public void doSomething(TT tt, float p) {
         try {
-            Thread.sleep(2000);
-            tt.setRunResult(p);
+            Thread.sleep(3000);
+            if (p < 0.2) {
+                tt.setRunResult(RunResult.WAITING);
+                Platform.runLater(() -> progressData.move(RunResult.FROZEN, RunResult.WAITING, tt.getName()));
+
+                System.out.println(tt.getName() + "Waiting");
+            } else {
+                tt.setRunResult(RunResult.FINISHED);
+
+                Platform.runLater(() -> progressData.move(RunResult.FROZEN, FinishResult.SUCCESS, tt.getName()));
+                System.out.println(tt.getName() + "Finish");
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -80,5 +82,9 @@ public class ListTT {
 
     public void setCounterFinish(int counterFinish) {
         this.counterFinish.set(counterFinish);
+    }
+
+    public ProgressData getProgressData() {
+        return progressData;
     }
 }

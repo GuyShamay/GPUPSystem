@@ -33,16 +33,10 @@ public class TT {
         return runResult;
     }
 
-    public void setRunResult(float p) {
-        /*if (p < 0.5) {
-            this.runResult.set(RunResult.SKIPPED);
-        } else if (p < 0.8) {
-            this.runResult.set(RunResult.WAITING);
-        } else {*/
-            this.runResult.set(RunResult.FINISHED);
-
+    public void setRunResult(RunResult runResult) {
+        this.runResult.setValue(runResult);
     }
-
-
-
 }
+
+
+

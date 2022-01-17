@@ -7,7 +7,7 @@ public class WelcomeController {
 
     public void loadSuccess() {
         this.labelLoadingStatus.setText("File loaded successfully!");
-        this.labelLoadingStatus.setStyle("-fx-fill: green");
+        this.labelLoadingStatus.setStyle("-fx-text-fill: green");
     }
 
     public void resetLabel() {

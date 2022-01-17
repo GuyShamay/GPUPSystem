@@ -4,8 +4,7 @@ import component.serialset.SerialSet;
 import component.target.Target;
 import component.target.TargetType;
 import component.targetgraph.TargetGraph;
-import exception.TargetExistException;
-import jaxb.generated.v2.*;
+import exception.ElementExistException;
 import jaxb.generated.v2.GPUPDescriptor;
 import jaxb.generated.v2.GPUPTarget;
 import jaxb.generated.v2.GPUPTargetDependencies;
@@ -15,7 +14,7 @@ import jaxb.generated.v2.GPUPTargets;
 import java.util.*;
 
 public abstract class GPUPParser {
-    public static TargetGraph parseTargetGraph(GPUPDescriptor gpupDescriptor) throws TargetExistException, NoSuchElementException {
+    public static TargetGraph parseTargetGraph(GPUPDescriptor gpupDescriptor) throws ElementExistException, NoSuchElementException {
         TargetGraph targetGraph = null;
         Map<String, Target> targetMap = null;
         String name = gpupDescriptor.getGPUPConfiguration().getGPUPGraphName();
@@ -33,9 +32,14 @@ public abstract class GPUPParser {
         Map<String, SerialSet> serialSetMap = new HashMap<>();
         List<GPUPDescriptor.GPUPSerialSets.GPUPSerialSet> gpupSerialSets = gpupDescriptor.getGPUPSerialSets().getGPUPSerialSet();
         gpupSerialSets.forEach(gpupSerialSet -> {
+            if(!serialSetMap.containsKey(gpupSerialSet.getName())){
             String name = gpupSerialSet.getName();
             SerialSet serialSet = parseSerialSet(gpupSerialSet, targetMap); // could throw exception
-            serialSetMap.put(name, serialSet);
+            serialSetMap.put(name, serialSet);}
+            else
+            {
+                throw new ElementExistException("Serial Set", gpupSerialSet.getName());
+            }
         });
         return serialSetMap;
     }
@@ -89,7 +93,7 @@ public abstract class GPUPParser {
                 Target target = createTarget(gt);
                 targets.put(target.getName(), target);
             } else {
-                throw new TargetExistException(gt.getName());
+                throw new ElementExistException("Target", gt.getName());
             }
         }
         // update the dependencies of each target:

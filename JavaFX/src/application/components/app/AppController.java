@@ -13,11 +13,13 @@ import component.target.TargetsRelationType;
 import component.task.config.TaskConfig;
 import dto.*;
 import engine.Engine;
+import exception.ElementExistException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -28,6 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class AppController implements Controller {
@@ -47,25 +50,25 @@ public class AppController implements Controller {
     private static final String TASK_CONFIG_FXML_NAME = "../task/config/task-config.fxml";
     private static final String FINDCIRCUIT_FXML_NAME = "../findCircuit/findCircuit.fxml";
     private static final String WHATIF_FXML_NAME = "../whatIf/whatIf.fxml";
-    private static final String TASK_FXML_NAME = "../task/task.fxml";
+    private static final String TASK_FXML_NAME = "../task/task2.fxml";
 
     //--------------------------------------------------------------------------
     //FXML Controls:
 
     @FXML
     private BorderPane borderPaneApp;
-
     @FXML
     private Button buttonLoadFile;
-
     @FXML
     private Button buttonInfo;
-
     @FXML
     private Button buttonTask;
-
     @FXML
     private ComboBox<String> comboBoxActions;
+    @FXML
+    private ComboBox<?> comboBoxThemes;
+    @FXML
+    private CheckBox checkBoxAnimations;
 
     @FXML
     public void initialize() {
@@ -73,9 +76,8 @@ public class AppController implements Controller {
         comboBoxActions.getItems().addAll("Find Path", "Find Circuit", "What-if?");
 
         // Disable all buttons except Load
-        buttonInfo.setDisable(true);
-        buttonTask.setDisable(true);
-        comboBoxActions.setDisable(true);
+        setDisableControls(true);
+
     }
 
     public void setWelcomePage(AnchorPane welcomePage) {
@@ -120,12 +122,10 @@ public class AppController implements Controller {
     void buttonLoadFileClicked(ActionEvent event) {
         Button btn = (Button) event.getSource();
         if (!engine.isInitialized()) {
-            loadFile(btn);
-
-            buttonInfo.setDisable(false);
-            buttonTask.setDisable(false);
-            comboBoxActions.setDisable(false);
-            welcomeController.loadSuccess();
+            if (loadFile(btn)) {
+                setDisableControls(false);
+                welcomeController.loadSuccess();
+            }
         } else { // there is a loaded file
             if (AppTools.confirmationAlert("File Loading", "There is a loaded file in the system.", "Are you sure you want to load a new file, and overwrite the existing one?")) {
                 loadFile(btn);
@@ -134,24 +134,37 @@ public class AppController implements Controller {
         }
     }
 
-    private void loadFile(Button btn) {
-        /*FileChooser fileChooser = new FileChooser();
+    private boolean loadFile(Button btn) {
+        /*
+        FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open XML File");
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Xml Files", "*.xml"));
-        File selectedFile = fileChooser.showOpenDialog(btn.getScene().getWindow());*/
+        File selectedFile = fileChooser.showOpenDialog(btn.getScene().getWindow());
+        */
         File selectedFile = new File("C:\\Users\\guysh\\Downloads\\ex2-big.xml");
         if (selectedFile != null) {
             try {
                 engine.buildGraphFromXml(selectedFile);
+                return true;
             } catch (JAXBException e) {
                 AppTools.warningAlert("File loading", "Something went wrong", "Probably with laoding the XML Schema");
             } catch (FileNotFoundException e) {
                 AppTools.warningAlert("File loading", "The file isn't exist", "In order to continue please load again");
+            } catch (ElementExistException | NoSuchElementException e) {
+                AppTools.warningAlert("File loading", e.getMessage(), "In order to continue please load again");
             }
         }
+        return false;
     }
 
+    private void setDisableControls(boolean isDisable) {
+        buttonInfo.setDisable(isDisable);
+        buttonTask.setDisable(isDisable);
+        comboBoxActions.setDisable(isDisable);
+        comboBoxThemes.setDisable(isDisable);
+        checkBoxAnimations.setDisable(isDisable);
+    }
     //--------------------------------------------------------------------------
     // Run Task
 
@@ -177,10 +190,10 @@ public class AppController implements Controller {
 
     @FXML
     void ActionChosen(ActionEvent event) {
-        String path="";
+        String path = "";
         switch (comboBoxActions.getSelectionModel().getSelectedItem()) {
             case "Find Path":
-                path=FIND_PATHS_FXML_NAME;
+                path = FIND_PATHS_FXML_NAME;
                 break;
             case "Find Circuit":
                 path = FINDCIRCUIT_FXML_NAME;
@@ -194,17 +207,13 @@ public class AppController implements Controller {
 
         comboBoxActions.getSelectionModel().clearAndSelect(-1);
     }
-    private void makeComponent(URL url){
+
+    private void makeComponent(URL url) {
         Component component = ComponentCreator.createComponent(url);
         component.getController().setParentController(this);
         component.getController().Init();
         borderPaneApp.setCenter(component.getPane());
     }
-
-
-
-
-
 
 
     public TargetGraphDTO getGraphInfo() {
@@ -222,9 +231,7 @@ public class AppController implements Controller {
     public void fillComboBoxWithTargets(ComboBox<String> comboBox) {
         Set<String> targets = getTargetsListByName();
         ObservableList<String> list = comboBox.getItems();
-        for (String targetName : targets) {
-            list.add(targetName);
-        }
+        list.addAll(targets);
     }
 
     public CircuitDTO findCircuit(String target) {
@@ -236,10 +243,39 @@ public class AppController implements Controller {
     }
 
     public void initTask(TaskConfig taskConfig) {
-       engine.initTask(taskConfig);
+        engine.initTask(taskConfig);
     }
 
     public void startTask() throws IOException, InterruptedException {
-        engine.runTaskGPUP2();
+        Thread engineThread = new Thread(() -> {
+            try {
+                engine.runTaskGPUP2();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        engineThread.start();
+    }
+
+    public void pauseTask() {
+        engine.pause();
+    }
+
+    public void resumeTask() {
+        engine.resume();
+    }
+    //--------------------------------------------------------------------------
+    // Animations
+    @FXML
+    void animationChecked(ActionEvent event) {
+
+    }
+    //--------------------------------------------------------------------------
+
+    //Themes
+
+    @FXML
+    void themeChosen(ActionEvent event) {
+
     }
 }
