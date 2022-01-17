@@ -144,7 +144,7 @@
                         <Label text="Full Success" GridPane.columnIndex="13" GridPane.rowIndex="2" />
                         <Label text="Finished" GridPane.columnIndex="11" />
                         <Separator prefWidth="200.0" GridPane.columnIndex="9" GridPane.columnSpan="5" GridPane.rowIndex="1" />
-                        <ListView fx:id="progressCol" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="3" GridPane.rowSpan="2" />
+                        <ListView fx:id="inProcessCol" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="3" GridPane.rowSpan="2" />
                         <Label text="Inprocess" GridPane.columnIndex="3" GridPane.rowIndex="2" />
                         <Label text="Task's Run Results" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="6" />
                         <Label fx:id="labelSkipped" GridPane.columnIndex="7" GridPane.rowIndex="8" />

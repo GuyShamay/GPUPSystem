@@ -4,11 +4,8 @@ package component.task.simulation;
 import component.target.FinishResult;
 import component.target.Target;
 import component.task.Task;
-import component.task.config.Config;
 import component.task.config.SimulationConfig;
-import dto.StatisticsDTO;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 

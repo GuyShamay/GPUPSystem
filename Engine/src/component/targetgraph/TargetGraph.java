@@ -1,11 +1,14 @@
 package component.targetgraph;
 
+import component.progressdata.ProgressData;
 import component.serialset.SerialSet;
 import component.target.*;
 import component.task.ProcessingType;
 import dto.SerialSetDTO;
 import dto.TargetDTO;
 import dto.TargetInfoDTO;
+import javafx.application.Platform;
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -263,13 +266,16 @@ public class TargetGraph implements DirectableGraph, GraphActions {
         }));
     }
 
-    public void updateTargetAdjAfterFinishWithoutFailure(List<Target> waitingList, Target currentTarget) {
+    public void updateTargetAdjAfterFinishWithoutFailure(ProgressData progressData, List<Target> waitingList, Target currentTarget) {
         gTranspose.get(currentTarget.getName()).forEach(target -> {
             if(target.getRunResult()!=RunResult.FINISHED) {
                 if (isAllAdjOfTargetFinished(target))
                     currentTarget.addToJustOpenedList(target);
                 if (isAllAdjOfTargetFinishedWithoutFailure(target)) {
-                    target.setRunResult(RunResult.WAITING);
+                     target.setRunResult(RunResult.WAITING);
+                    Platform.runLater(()->{
+                        progressData.move(RunResult.FROZEN,RunResult.WAITING,target.getName());
+                    });
                     if (!waitingList.contains(target)) {
                         waitingList.add(target);
                     }
@@ -292,7 +298,6 @@ public class TargetGraph implements DirectableGraph, GraphActions {
 
     public void updateTargetAdjAfterFinishWithFailure(Target currentTarget) {
         gTranspose.get(currentTarget.getName()).forEach(target -> {
-            // target.setRunResult(RunResult.SKIPPED);
             if (isAllAdjOfTargetFinished(target)) {
                 currentTarget.addToJustOpenedList(target);
             }
@@ -300,13 +305,12 @@ public class TargetGraph implements DirectableGraph, GraphActions {
     }
 
     public void dfsTravelToUpdateSkippedList(Target currentTarget) {
-
         Map<Target, Boolean> isVisited = new HashMap<>();
         targetMap.forEach(((s, target) -> isVisited.put(target, false)));
         List<Target> skippedList = currentTarget.getSkippedList();
         recDfsUpdateDependentsList(isVisited, skippedList, currentTarget);
         skippedList.remove(currentTarget);
-        skippedList.forEach((target -> target.setRunResult(RunResult.SKIPPED)));
+      //  skippedList.forEach((target -> target.setRunResult(RunResult.SKIPPED)));
     }
 
     private void recDfsUpdateDependentsList(Map<Target, Boolean> isVisited, List<Target> skippedList, Target

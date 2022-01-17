@@ -2,9 +2,11 @@ package engine;
 
 import component.target.TargetsRelationType;
 import component.task.ProcessingType;
+import component.task.RunTask;
 import component.task.config.TaskConfig;
 import dto.*;
 import exception.ElementExistException;
+import javafx.collections.ObservableList;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -47,13 +49,15 @@ public interface Engine {
 
     int getMaxParallelism();
 
-    void runTaskGPUP2() throws InterruptedException;
+    void runTask() throws InterruptedException;
 
     void resume();
 
     void pause();
 
+    RunTask getCurrTask();
+
     boolean isRunPaused();
 
-    void increaseThreadsNum();
+    ObservableList<String> getList(String runStatus);
 }

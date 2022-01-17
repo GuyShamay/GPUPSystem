@@ -72,7 +72,7 @@ public class TaskController implements Controller {
     @FXML
     private ListView<String> successCol;
     @FXML
-    private ListView<String> progressCol;
+    private ListView<String> inProcessCol;
 
 
     private AppController appController;
@@ -116,7 +116,6 @@ public class TaskController implements Controller {
             // need to resume
             appController.resumeTask();
         }
-
     }
 
     @FXML
@@ -127,11 +126,11 @@ public class TaskController implements Controller {
             isRunning.set(true);
             isFinished.set(false);
 
-
             // Invoke task in engine
             if (taskConfig != null) {
                 try {
                     appController.initTask(taskConfig);
+                    bindTaskToUI();
                     appController.startTask();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -141,14 +140,13 @@ public class TaskController implements Controller {
             } else {
                 labelTaskMessage.setText("Please define task's Settings");
             }
-
             // TEST
-            e.initTask();
-            labelTaskMessage.textProperty().bind(e.getCurrTask().messageProperty());
-            progressBar.progressProperty().bind(e.getCurrTask().progressProperty());
-            successCol.setItems(e.getList("success"));
-            frozenCol.setItems(e.getList("frozen"));
-            waitingCol.setItems(e.getList("waiting"));
+            //e.initTask();
+           // labelTaskMessage.textProperty().bind(e.getCurrTask().messageProperty());
+         //   progressBar.progressProperty().bind(e.getCurrTask().progressProperty());
+           // successCol.setItems(e.getList("success"));
+          //  frozenCol.setItems(e.getList("frozen"));
+           // waitingCol.setItems(e.getList("waiting"));
 
             // Binding Task Result:
 //            TaskResults TR = (TaskResults) ((TaskTT) e.getCurrTask()).getTaskResults();
@@ -161,14 +159,12 @@ public class TaskController implements Controller {
 //                onTaskResultFinished();
 //            });
 
-            e.getCurrTask().valueProperty().addListener((observable, oldValue, newValue) -> {
-                onTaskFinished();
-            });
+//            e.getCurrTask().valueProperty().addListener((observable, oldValue, newValue) -> {
+//                onTaskFinished();
+//            });
             // run task
 
-            e.runTaskEngine();
-
-
+          //  e.runTaskEngine();
         } else { // The task isn't over (could be in pause or running)
             if (!isRunning.get()) { // The task is in pause
                 labelRunTaskStatus.setText("The task isn't over yet, resume it.");
@@ -176,6 +172,21 @@ public class TaskController implements Controller {
                 labelRunTaskStatus.setText("The task isn't over yet, still running.");
             }
         }
+    }
+
+    private void bindTaskToUI() {
+        labelTaskMessage.textProperty().bind(appController.getCurrTask().messageProperty());
+        progressBar.progressProperty().bind(appController.getCurrTask().progressProperty());
+        frozenCol.setItems(appController.getList("frozen"));
+        waitingCol.setItems(appController.getList("waiting"));
+        inProcessCol.setItems(appController.getList("inProcess"));
+        skippedCol.setItems(appController.getList("skipped"));
+        successCol.setItems(appController.getList("success"));
+        warningsCol.setItems(appController.getList("warnings"));
+        failureCol.setItems(appController.getList("failure"));
+        appController.getCurrTask().valueProperty().addListener(((observable, oldValue, newValue) -> {
+            onTaskFinished();
+        }));
     }
 
     private void onTaskFinished() {
@@ -191,7 +202,6 @@ public class TaskController implements Controller {
         labelWarnings.textProperty().unbind();
         labelFailure.textProperty().unbind();
         labelSkipped.textProperty().unbind();
-
     }
 //        if (taskConfig != null) {
 //            try {
@@ -210,6 +220,10 @@ public class TaskController implements Controller {
         successCol.getItems().clear();
         frozenCol.getItems().clear();
         waitingCol.getItems().clear();
+        failureCol.getItems().clear();
+        skippedCol.getItems().clear();
+        inProcessCol.getItems().clear();
+        warningsCol.getItems().clear();
         progressBar.setPadding(Insets.EMPTY);
         labelTaskMessage.setText("");
         labelSkipped.setText("-");

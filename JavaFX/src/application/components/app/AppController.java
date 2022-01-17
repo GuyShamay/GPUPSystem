@@ -10,12 +10,14 @@ import application.general.ComponentCreator;
 import application.general.Controller;
 import application.tools.AppTools;
 import component.target.TargetsRelationType;
+import component.task.RunTask;
 import component.task.config.TaskConfig;
 import dto.*;
 import engine.Engine;
 import exception.ElementExistException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -142,7 +144,7 @@ public class AppController implements Controller {
                 new FileChooser.ExtensionFilter("Xml Files", "*.xml"));
         File selectedFile = fileChooser.showOpenDialog(btn.getScene().getWindow());
         */
-        File selectedFile = new File("C:\\Users\\guysh\\Downloads\\ex2-big.xml");
+        File selectedFile = new File("C:\\Users\\Noam\\Downloads\\ex2-big.xml");
         if (selectedFile != null) {
             try {
                 engine.buildGraphFromXml(selectedFile);
@@ -247,14 +249,15 @@ public class AppController implements Controller {
     }
 
     public void startTask() throws IOException, InterruptedException {
-        Thread engineThread = new Thread(() -> {
-            try {
-                engine.runTaskGPUP2();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-        engineThread.start();
+        new Thread(engine.getCurrTask()).start();
+//        Thread engineThread = new Thread(() -> {
+//            try {
+//                engine.runTask();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        });
+//        engineThread.start();
     }
 
     public void pauseTask() {
@@ -277,5 +280,13 @@ public class AppController implements Controller {
     @FXML
     void themeChosen(ActionEvent event) {
 
+    }
+
+    public RunTask getCurrTask() {
+        return engine.getCurrTask();
+    }
+
+    public ObservableList<String> getList(String runStatus) {
+        return engine.getList(runStatus);
     }
 }
