@@ -9,10 +9,8 @@ import exception.ElementExistException;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 
 public interface Engine {
     void buildGraphFromXml(String path) throws JAXBException, FileNotFoundException, ElementExistException;
@@ -55,5 +53,7 @@ public interface Engine {
 
     boolean isRunPaused();
 
-    void increaseThreadsNum();
+    void increaseThreadsNum(Integer newVal);
+
+    boolean isCircuit();
 }

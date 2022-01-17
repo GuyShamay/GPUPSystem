@@ -2,16 +2,12 @@ package component.task;
 
 import component.target.FinishResult;
 import component.target.Target;
-import dto.StatisticsDTO;
 
 import java.util.List;
 
 public interface Task {
+
     FinishResult run() throws InterruptedException;
-
-    String getDirectoryPath();
-
-    void setDirectoryPath(String path);
 
     long getProcessingTime();
 
@@ -22,6 +18,5 @@ public interface Task {
 
     int getParallelism();
 
-    void incParallelism();
-//    List<StatisticsDTO.TargetRunDTO> getTargetsRunInfo();
+    void incParallelism(Integer newVal);
 }
