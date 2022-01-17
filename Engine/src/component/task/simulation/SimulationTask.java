@@ -109,4 +109,9 @@ public class SimulationTask implements Task {
 
         return targetsRunInfoList;
     }
+
+    @Override
+    public void incParallelism(){
+        parallelism++;
+    }
 }

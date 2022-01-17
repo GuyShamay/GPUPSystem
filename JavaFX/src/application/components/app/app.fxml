@@ -36,6 +36,8 @@
                </opaqueInsets>
             </ComboBox>
             <Button fx:id="buttonTask" mnemonicParsing="false" onAction="#buttonTaskClicked" prefHeight="25.0" prefWidth="98.0" text="Task" GridPane.columnIndex="7" GridPane.rowIndex="1" />
+            <Button fx:id="pause" mnemonicParsing="false" onAction="#pause" prefHeight="25.0" prefWidth="29.0" text="b" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+            <Button fx:id="plus" mnemonicParsing="false" onAction="#plus" text="+" GridPane.columnIndex="4" GridPane.rowIndex="1" />
          </children>
       </GridPane>
    </top>

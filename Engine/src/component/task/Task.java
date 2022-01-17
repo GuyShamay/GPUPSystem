@@ -22,4 +22,6 @@ public interface Task {
     List<StatisticsDTO.TargetRunDTO> getTargetsRunInfo();
 
     int getParallelism();
+
+    void incParallelism();
 }

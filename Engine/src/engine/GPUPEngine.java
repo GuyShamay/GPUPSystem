@@ -172,18 +172,9 @@ public class GPUPEngine implements Engine {
     }
 
     public void runTaskGPUP2() throws InterruptedException {
-        Instant totalStart, totalEnd, start, end;
-//        Thread runThread = new Thread(()->{
-//            try {
-//                run();
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        });
+        Instant totalStart, totalEnd;
         totalStart = Instant.now();
         run();
-//        runThread.start();
-//        runThread.join();
         totalEnd = Instant.now();
         Duration totalRunDuration = Duration.between(totalStart, totalEnd);
         StatisticsDTO statisticsDTO = calcStatistics(totalRunDuration);
@@ -199,13 +190,17 @@ public class GPUPEngine implements Engine {
             while (!waitingList.isEmpty()) {
                 while(runPaused){
                     handlePause(futures,waitingList);
+                    int size=((ThreadPoolExecutor)threadExecutor).getQueue().size();
+                    Thread.sleep(1000);
+                    System.out.println("max parallism is "+ task.getParallelism());
+                    System.out.println("POOL SIZE:"+((ThreadPoolExecutor)threadExecutor).getPoolSize());
+                    System.out.println("Core POOL Size:"+((ThreadPoolExecutor)threadExecutor).getCorePoolSize());
                 }
                 Target currentTarget = waitingList.remove(0);
                 while(currentTarget.isLock()){
                     Thread.yield();
                 }
                 if (!currentTarget.isLock()) {
-                    subTargetGraph.lockSerialSetOf(currentTarget);
                     Runnable r = () -> {
                         try {
                             runTarget(waitingList, currentTarget);
@@ -215,12 +210,14 @@ public class GPUPEngine implements Engine {
                     };
                     Future<?> f = threadExecutor.submit(r);
                     futures.add(f);
+                   // System.out.println("POOL SIZE:"+((ThreadPoolExecutor)threadExecutor).getPoolSize());
                 }
             }
         } while (!AllThreadsDone(futures));
 
         doneRunning=true;
         threadExecutor.shutdownNow();
+        System.out.println("FINISHED WITH POOL SIZE:"+((ThreadPoolExecutor)threadExecutor).getPoolSize());
     }
 
     @Override
@@ -228,7 +225,8 @@ public class GPUPEngine implements Engine {
         if(!doneRunning){
             runPaused = false;
             synchronized (condition){
-                System.out.println("im waking run");
+                System.out.println("thread number "+ Thread.currentThread() +" im waking run");
+                Thread.getAllStackTraces().keySet();
                 condition.notify();
             }
         }
@@ -245,18 +243,23 @@ public class GPUPEngine implements Engine {
         return runPaused;
     }
 
+    @Override
+    public void increaseThreadsNum() {
+        task.incParallelism();
+    }
+
     private void handlePause(List<Future<?>> futures, List<Target> waitingList) throws InterruptedException {
         cancelAllFutures(futures);
-        ((ThreadPoolExecutor)threadExecutor).setCorePoolSize(task.getParallelism());
-        updateWaitingList(waitingList);
             try{
             synchronized (condition){
-                System.out.println("im going to sleep");
+                System.out.println("thread number "+ Thread.currentThread() + "says: im going to sleep");
                 condition.wait();
+                ((ThreadPoolExecutor)threadExecutor).setCorePoolSize(task.getParallelism());
+                updateWaitingList(waitingList);
             }}catch (Exception e){
-                System.out.println("wait or syncronised failled");
+                e.printStackTrace();
             }
-            System.out.println("i waked up");
+            System.out.println("thread number "+ Thread.currentThread() +"i waked up");
     }
 
     private void updateWaitingList(List<Target> waitingList) {
@@ -283,6 +286,8 @@ public class GPUPEngine implements Engine {
     }
 
     private void runTarget(List<Target> waitingList, Target currentTarget) throws InterruptedException {
+        subTargetGraph.lockSerialSetOf(currentTarget);
+
         Instant start, end;
         start = Instant.now();
         currentTarget.setRunResult(RunResult.INPROCESS);

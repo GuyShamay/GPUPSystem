@@ -207,6 +207,7 @@ public class AppController implements Controller {
 
 
 
+
     public TargetGraphDTO getGraphInfo() {
         return engine.getGraphInfo();
     }
@@ -240,6 +241,35 @@ public class AppController implements Controller {
     }
 
     public void startTask() throws IOException, InterruptedException {
-        engine.runTaskGPUP2();
+        Thread engineThread = new Thread(()->{
+            try {
+                engine.runTaskGPUP2();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        engineThread.start();
+    }
+
+
+
+    @FXML
+    private Button pause;
+
+
+    @FXML
+    void pause(ActionEvent event) {
+        if(engine.isRunPaused())
+            engine.resume();
+        else
+            engine.pause();
+    }
+
+    @FXML
+    private Button plus;
+
+    @FXML
+    void plus(ActionEvent event) {
+        if(engine.isRunPaused()){ engine.increaseThreadsNum();}
     }
 }

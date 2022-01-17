@@ -50,4 +50,11 @@ public interface Engine {
     int getMaxParallelism();
 
     void runTaskGPUP2() throws InterruptedException;
+
+    void resume();
+    void pause();
+
+    boolean isRunPaused();
+
+    void increaseThreadsNum();
 }
