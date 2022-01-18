@@ -43,7 +43,7 @@ public abstract class GPUPParser {
             }
         });
 
-        return null;
+        return serialSetMap;
     }
 
     private static SerialSet parseSerialSet(GPUPDescriptor.GPUPSerialSets.GPUPSerialSet gpupSerialSet, Map<String, Target> targetMap) {

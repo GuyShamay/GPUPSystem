@@ -33,7 +33,7 @@ public class findCircuitController implements Controller {
         if (allDetailsIn()) {
             CircuitDTO circuitDTO = appController.findCircuit(comboBoxTargets.getValue());
             List<String> list = circuitDTO.getCircuit();
-            if (list!=null) {
+            if (list == null) {
                 labelMessage.setText("Target " + comboBoxTargets.getSelectionModel().getSelectedItem() + " isn't part of a circuit.");
             } else {
                 for (int i = 0; i < list.size(); i++) {
