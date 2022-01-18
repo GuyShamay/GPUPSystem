@@ -42,6 +42,8 @@ public class TaskController implements Controller {
     @FXML
     private Label labelIncThreads;
     @FXML
+    private Label labelPickInfo;
+    @FXML
     private Label labelRunTaskStatus;
     @FXML
     private Label labelPickedName;
@@ -84,7 +86,6 @@ public class TaskController implements Controller {
 
     private SimpleBooleanProperty isRunning;
     private SimpleBooleanProperty isFinished;
-    EngineTT e;
 
     @FXML
     public void initialize() {
