@@ -5,6 +5,8 @@ import component.targetgraph.TargetGraph;
 import component.task.ProcessingType;
 import component.task.RunTask;
 import component.task.Task;
+import component.task.compile.CompileTask;
+import component.task.config.CompileConfig;
 import component.task.config.SimulationConfig;
 import component.task.config.TaskConfig;
 import component.task.simulation.ProcessingTimeType;
@@ -52,6 +54,8 @@ public class GPUPEngine implements Engine {
     @Override
     public void buildGraphFromXml(File file) throws JAXBException, FileNotFoundException, ElementExistException {
         loadFileToGraph(file);
+        targetGraph.buildTransposeGraph();
+        targetGraph.updateEachTargetDepListRecList();
     }
 
     private void loadFileToGraph(File file) throws FileNotFoundException, JAXBException {
@@ -95,12 +99,12 @@ public class GPUPEngine implements Engine {
 
     public void initTask(TaskConfig taskConfig) {
         processingType = taskConfig.getProcessingType();
-
         switch (taskConfig.getTaskType()) {
             case Simulation:
                 task = new SimulationTask((SimulationConfig) taskConfig.getConfig(), taskConfig.getThreadsParallelism());
                 break;
             case Compilation:
+                task = new CompileTask((CompileConfig) taskConfig.getConfig(), taskConfig.getThreadsParallelism());
                 break;
         }
 
@@ -110,19 +114,22 @@ public class GPUPEngine implements Engine {
 
     private void initGraphForRun(TaskConfig taskConfig) {
         subTargetGraph = createSubTargetGraph(taskConfig);
-        runTask.setSubTargetGraph(subTargetGraph);
-        runTask.initProgressData(processingType);
-        subTargetGraph.updateTargetsTypes();
-        subTargetGraph.buildTransposeGraph();
-        //NEEDED??
-        task.updateRelevantTargets(subTargetGraph.getWaitingAndFrozen());
-        ///
-        subTargetGraph.clearJustOpenAndSkippedLists();
-        updateRunAndFinishResults();
+        if (!isCircuit()) {
+            runTask.setSubTargetGraph(subTargetGraph);
+            runTask.initProgressData(processingType);
+            subTargetGraph.updateTargetsTypes();
+            subTargetGraph.buildTransposeGraph();
+            subTargetGraph.updateEachTargetDepListRecList();
+            //NEEDED??
+            task.updateRelevantTargets(subTargetGraph.getWaitingAndFrozen());
+            ///
+            subTargetGraph.clearJustOpenAndSkippedLists();
+            updateRunAndFinishResults();
+        }
     }
 
     //NOT IN USE
-    private void updateRunAndFinishResults(){
+    private void updateRunAndFinishResults() {
         resetEveryOne();
         updateLeavesAndIndependentsToWaiting();
     }
@@ -131,7 +138,7 @@ public class GPUPEngine implements Engine {
         subTargetGraph.getTargetsMap().forEach(((s, target) -> {
             if (target.getType() == TargetType.Leaf || target.getType() == TargetType.Independent) {
                 target.setRunResult(RunResult.WAITING);
-                runTask.getProgressData().move(RunResult.FROZEN,RunResult.WAITING,target.getName());
+                runTask.getProgressData().move(RunResult.FROZEN, RunResult.WAITING, target.getName());
             }
         }));
     }
@@ -175,8 +182,8 @@ public class GPUPEngine implements Engine {
     }
 
     private boolean allTargetsFinished(List<String> choosenTargets) {
-        for (String s:choosenTargets) {
-            if(!hasGoodRunResult(s))
+        for (String s : choosenTargets) {
+            if (!hasGoodRunResult(s))
                 return false;
         }
         return true;
@@ -195,14 +202,14 @@ public class GPUPEngine implements Engine {
     }
 
     private void correctListByProcType(List<String> choosenTargets) {
-          if(processingType.equals(ProcessingType.Incremental)){
-              choosenTargets.removeIf(s -> hasGoodRunResult(s));
-            }
+        if (processingType.equals(ProcessingType.Incremental)) {
+            choosenTargets.removeIf(s -> hasGoodRunResult(s));
+        }
     }
 
     private boolean hasGoodRunResult(String s) {
         Target t = targetGraph.getTargetsMap().get(s);
-        if(t.getRunResult()==RunResult.FINISHED && (t.getFinishResult()==FinishResult.SUCCESS || t.getFinishResult() == FinishResult.WARNING)){
+        if (t.getRunResult() == RunResult.FINISHED && (t.getFinishResult() == FinishResult.SUCCESS || t.getFinishResult() == FinishResult.WARNING)) {
             return true;
         }
         return false;
@@ -211,12 +218,11 @@ public class GPUPEngine implements Engine {
     private List<String> getChoosenTargets(TaskConfig taskConfig) {
         List<String> choosenTargets = new ArrayList<>();
 
-        if (taskConfig.isAllTargets()){
+        if (taskConfig.isAllTargets()) {
             for (String t : targetGraph.getTargetsMap().keySet()) {
                 choosenTargets.add(t);
             }
-        }
-        else if (taskConfig.getCustomTargets() != null) {
+        } else if (taskConfig.getCustomTargets() != null) {
             choosenTargets = taskConfig.getCustomTargets();
         } else {
             choosenTargets = getWhatIfSubTargetsList(taskConfig.getWhatIfTarget(), taskConfig.getWhatIfRelation());
@@ -238,7 +244,9 @@ public class GPUPEngine implements Engine {
         this.processingType = status;
     }
 
-    public RunTask getCurrTask() { return runTask;}
+    public RunTask getCurrTask() {
+        return runTask;
+    }
 
     public ObservableList<String> getList(String type) {
         switch (type) {
@@ -263,10 +271,14 @@ public class GPUPEngine implements Engine {
     /////////////////////////////////////////////////////////////////////
 
     @Override
-    public void resume() { runTask.resume(); }
+    public void resume() {
+        runTask.resume();
+    }
 
     @Override
-    public void pause() { runTask.pause(); }
+    public void pause() {
+        runTask.pause();
+    }
 
     @Override
     public boolean isRunPaused() {
@@ -364,7 +376,8 @@ public class GPUPEngine implements Engine {
 
     //Not in use
     @Override
-    public void runTask() throws InterruptedException {}
+    public void runTask() throws InterruptedException {
+    }
 
     public void runTaskGPUP1(Consumer<GPUPConsumer> consumer) throws InterruptedException, IOException {
         Instant totalStart, totalEnd, start, end;
@@ -378,7 +391,7 @@ public class GPUPEngine implements Engine {
         totalStart = Instant.now();
         String dirPath = createDirectoryName();
         createTaskDirectory(dirPath);
-      //  task.setDirectoryPath(dirPath);
+        //  task.setDirectoryPath(dirPath);
 
         if (waitingList.isEmpty() && processingType.equals(ProcessingType.Incremental)) {
             throw new RuntimeException("The graph already had been processed completely, there is no need for 'Incremental' action");
@@ -389,15 +402,14 @@ public class GPUPEngine implements Engine {
             Target currentTarget = waitingList.remove(0);
             currentTarget.setRunResult(RunResult.INPROCESS);
 
-            task.updateProcessingTime();
-            currentTarget.setFinishResult(task.run());
+            currentTarget.setFinishResult(task.run(currentTarget.getName(), currentTarget.getUserData()));
             currentTarget.setRunResult(RunResult.FINISHED);
 
             if (currentTarget.getFinishResult() == FinishResult.FAILURE) {
                 targetGraph.dfsTravelToUpdateSkippedList(currentTarget);
                 targetGraph.updateTargetAdjAfterFinishWithFailure(currentTarget);
             } else {
-               // targetGraph.updateTargetAdjAfterFinishWithoutFailure(progressData, waitingList, currentTarget);
+                // targetGraph.updateTargetAdjAfterFinishWithoutFailure(progressData, waitingList, currentTarget);
             }
             end = Instant.now();
             currentTarget.setTaskRunDuration(Duration.between(start, end));
@@ -405,7 +417,7 @@ public class GPUPEngine implements Engine {
             GPUPConsumer consumerDTO = new ProcessedTargetDTO(currentTarget);
             consumerDTO.setTaskOutput(new SimulationOutputDTO(task.getProcessingTime()));
             //Writing to file
-          //  writeTargetToFile(start, end, consumerDTO, task.getDirectoryPath());
+            //  writeTargetToFile(start, end, consumerDTO, task.getDirectoryPath());
             // Writing to console
             consumer.accept(consumerDTO);
         }

@@ -107,7 +107,10 @@ public class AppController implements Controller {
 
     public ObservableList<SerialSetDTO> getSerialSetInfo() {
         List<SerialSetDTO> list = engine.getSerialSetInfo();
-        return FXCollections.observableArrayList(list);
+        if (list != null) {
+            return FXCollections.observableArrayList(list);
+        }
+        return null;
     }
 
     public ObservableList<TargetInfoDTO> getTargetsInfo() {
@@ -142,7 +145,7 @@ public class AppController implements Controller {
                 new FileChooser.ExtensionFilter("Xml Files", "*.xml"));
         File selectedFile = fileChooser.showOpenDialog(btn.getScene().getWindow());
         */
-        File selectedFile = new File("C:\\Users\\Noam\\Downloads\\ex2-big.xml");
+        File selectedFile = new File("C:\\Users\\guysh\\Downloads\\ex2-compilation.xml");
         if (selectedFile != null) {
             try {
                 engine.buildGraphFromXml(selectedFile);
@@ -252,7 +255,6 @@ public class AppController implements Controller {
     public Set<String> getCurrentTaskTargetByName() {
         return engine.getCurrentTaskTargetByName();
     }
-
 
     public void fillComboBoxWithTargets(ComboBox<String> comboBox) {
         Set<String> targets = getAllTargetsByName();

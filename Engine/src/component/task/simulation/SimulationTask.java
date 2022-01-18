@@ -5,12 +5,13 @@ import component.target.FinishResult;
 import component.target.Target;
 import component.task.Task;
 import component.task.config.SimulationConfig;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 
 import java.util.List;
 import java.util.Random;
 
 public class SimulationTask implements Task {
-    private final String name;
     private final int processingTimeInMs;
     private final ProcessingTimeType processingTimeType;
     private final float successProb;
@@ -19,10 +20,10 @@ public class SimulationTask implements Task {
     private final Random random;
     private List<Target> targets;
     private int parallelism;
+    private SimpleStringProperty taskOutput;
 
     public SimulationTask(String name, ProcessingTimeType processingTime, float succesProb, float ifSucces_withWarningsProb, int processingTimeInMs) {
         this.random = new Random();
-        this.name = name;
         this.processingTimeInMs = processingTimeInMs;
         this.processingTimeType = processingTime;
         this.successProb = succesProb;
@@ -31,29 +32,35 @@ public class SimulationTask implements Task {
 
     public SimulationTask(SimulationConfig config, int parallelism) {
         this.random = new Random();
-        this.name = null;
         this.processingTimeInMs = config.getProcessingTime();
         this.processingTimeType = config.getProcessingTimeType();
         this.successProb = config.getSuccessProb();
         this.successWithWarningsProb = config.getSuccessWithWarningsProb();
         this.parallelism = parallelism;
+        taskOutput = new SimpleStringProperty();
+
     }
 
-    public FinishResult run() throws InterruptedException {
+    public FinishResult run(String targetName, String userData) throws InterruptedException {
         float LuckyNumber = (float) Math.random();
+        calcSingleTargetProcessingTimeInMs();
+        Platform.runLater(() -> {
+            taskOutput.setValue(targetName + ": Sleeping Time - " + sleepingTime + "\n");
+        });
         FinishResult res = LuckyNumber < successProb ? FinishResult.SUCCESS : FinishResult.FAILURE;
 
         if (res == FinishResult.SUCCESS) {
             LuckyNumber = (float) Math.random();
             res = LuckyNumber < successWithWarningsProb ? FinishResult.WARNING : FinishResult.SUCCESS;
         }
+        Platform.runLater(() -> {
+            taskOutput.setValue(targetName + " going to sleep\n");
+        });
         Thread.sleep(sleepingTime);
+        Platform.runLater(() -> {
+            taskOutput.setValue(targetName + " woke up\n");
+        });
         return res;
-    }
-
-    @Override
-    public void updateProcessingTime() {
-        calcSingleTargetProcessingTimeInMs();
     }
 
     @Override
@@ -88,5 +95,10 @@ public class SimulationTask implements Task {
     @Override
     public void incParallelism(Integer newVal) {
         parallelism = newVal;
+    }
+
+    @Override
+    public SimpleStringProperty getTaskOutput() {
+        return taskOutput;
     }
 }

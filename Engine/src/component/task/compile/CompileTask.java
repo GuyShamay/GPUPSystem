@@ -3,6 +3,10 @@ package component.task.compile;
 import component.target.FinishResult;
 import component.target.Target;
 import component.task.Task;
+import component.task.config.CompileConfig;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,53 +21,75 @@ public class CompileTask implements Task {
     private String filePath;
     private int parallelism;
     private Duration processingTime;
+    private final SimpleStringProperty taskOutput;
 
-    public CompileTask(String srcDirectory, String destDirectory, int parallelism) {
-        this.srcDirectory = srcDirectory;
-        this.destDirectory = destDirectory;
+    public CompileTask(CompileConfig config, int parallelism) {
+        this.srcDirectory = config.getSrcDir();
+        this.destDirectory = config.getDestDir();
         this.parallelism = parallelism;
+        taskOutput = new SimpleStringProperty();
     }
 
-    public void setPathFromFQN(String fqn) {
+    private void setPathFromFQN(String fqn) {
         filePath = srcDirectory + "\\" +
                 fqn.replace(".", "\\") +
                 ".java";
     }
 
     @Override
-    public FinishResult run() throws InterruptedException {
+    public FinishResult run(String targetName, String userData) throws InterruptedException {
         Instant start = Instant.now();
+        Platform.runLater(() -> {
+            taskOutput.setValue("File " + targetName + " is about to compile\n");
+        });
+        setPathFromFQN(userData);
         FinishResult result = null;
+        int exitCode = -1;
         try {
             String[] command = {"javac", "-d", destDirectory, "-cp", srcDirectory, filePath};
+
+            Platform.runLater(() -> taskOutput.setValue(getFullCommand(command).toString()));
             Process pb = new ProcessBuilder(command).start();
 
-            // Need to send to UI
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(pb.getInputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(pb.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
+                String finalLine = line;
+                Platform.runLater(() -> taskOutput.setValue(finalLine));
             }
-
-            int exitCode = pb.waitFor();
-            System.out.println("Exit: "+ exitCode);
-            result = exitCode == 0 ? FinishResult.SUCCESS : FinishResult.FAILURE;
+            exitCode = pb.waitFor();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
 
-
         Instant end = Instant.now();
         processingTime = Duration.between(start, end);
-        System.out.println("Ran for: " + processingTime.toString());
+        if (exitCode == 0) {
+            result = FinishResult.SUCCESS;
+            Platform.runLater(() -> {
+                taskOutput.setValue("File " + targetName + " Compiled in " + processingTime.toMillis() + "ms\n");
+            });
+        } else {
+            result = FinishResult.FAILURE;
+            Platform.runLater(() -> {
+                taskOutput.setValue("File " + targetName + " Failed to compile\n");
+            });
+        }
         return result;
     }
 
+    private StringBuilder getFullCommand(String[] command) {
+        StringBuilder compilerFullCommand = new StringBuilder();
+        for (String c : command) {
+            compilerFullCommand.append(c).append(" ");
+        }
+        compilerFullCommand.append("\n");
+        return compilerFullCommand;
+    }
 
     @Override
     public long getProcessingTime() {
-        return 0;
+        return processingTime.toMillis();
     }
 
     @Override
@@ -79,6 +105,12 @@ public class CompileTask implements Task {
     @Override
     public void incParallelism(Integer newVal) {
         parallelism = newVal;
+    }
+
+    @Override
+    public SimpleStringProperty getTaskOutput() {
+        return taskOutput;
+
     }
 
 }

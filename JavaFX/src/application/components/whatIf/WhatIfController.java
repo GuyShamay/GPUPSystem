@@ -55,7 +55,7 @@ public class WhatIfController implements Controller {
                         label.getStyleClass().add("lblItemTarget");
                         hBoxWhatIf.getChildren().add(label);
                     }
-                }
+                }else {labelMessage.setText("There aren't any targets");}
 
             } else {
                 labelMessage.setText("Please select a target");

@@ -156,4 +156,12 @@ public class Target {
     public void unlock() {
         isLockBySerialSet = false;
     }
+
+    public void setRequiredFor(List<Target> requiredFor) {
+        requiredForList = requiredFor;
+    }
+
+    public void setDependOn(List<Target> dependOn) {
+        dependsOnList = dependOn;
+    }
 }

@@ -34,11 +34,7 @@ public class TaskController implements Controller {
     @FXML
     private Button buttonPauseAndResume;
     @FXML
-    private Button buttonTargetPick;
-    @FXML
     private ComboBox<String> comboBoxTargetPick;
-    @FXML
-    private FlowPane selectedTargetFlowPanel;
     @FXML
     private ProgressBar progressBar;
     @FXML
@@ -95,8 +91,6 @@ public class TaskController implements Controller {
         isRunning = new SimpleBooleanProperty(false);
         isFinished = new SimpleBooleanProperty(true);
         bindingControls();
-        // TEST
-        e = new EngineTT();
     }
 
     private void bindingControls() {
@@ -137,7 +131,6 @@ public class TaskController implements Controller {
             labelIncThreads.setVisible(false);
             appController.resumeTask();
         }
-
     }
 
     @FXML
@@ -149,10 +142,9 @@ public class TaskController implements Controller {
             isRunning.set(true);
             isFinished.set(false);
 
-
             // Invoke task in engine
             if (taskConfig != null) {
-                //Test for compile
+                // Test for compile
                 /*CompileConfig compileConfig = (CompileConfig) taskConfig.getConfig();
                 CompileTask task = new CompileTask(compileConfig.getSrcDir(), compileConfig.getDestDir(), 2);
                 task.setPathFromFQN("gpup.compilation.example.l2.Koo");
@@ -162,69 +154,22 @@ public class TaskController implements Controller {
                     ex.printStackTrace();
                 }*/
                 try {
-
                     appController.initTask(taskConfig);
-                    updateTargetPick();
-                    bindTaskToUI();
                     if (!appController.isCircuit()) {
+                        updateTargetPick();
+                        bindTaskToUI();
                         appController.startTask();
-                        // onFinished!!!!!!
                     } else {
                         labelRunTaskStatus.setText("There is a cycle in the graph! can't run task.");
                         isRunning.set(false);
                         isFinished.set(true);
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
+                } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
                 }
             } else {
                 labelTaskMessage.setText("Please define task's Settings");
             }
-            // TEST
-            //e.initTask();
-           // labelTaskMessage.textProperty().bind(e.getCurrTask().messageProperty());
-         //   progressBar.progressProperty().bind(e.getCurrTask().progressProperty());
-           // successCol.setItems(e.getList("success"));
-          //  frozenCol.setItems(e.getList("frozen"));
-           // waitingCol.setItems(e.getList("waiting"));
-
-            // Binding Task Result:
-//            TaskResults TR = (TaskResults) ((TaskTT) e.getCurrTask()).getTaskResults();
-//            labelTaskStatus.textProperty().bind(TR.messageProperty());
-//            labelSuccess.textProperty().bind(TR.successTargetsProperty().asString());
-//            labelWarnings.textProperty().bind(TR.warningsTargetsProperty().asString());
-//            labelFailure.textProperty().bind(TR.failureTargetsProperty().asString());
-//            labelSkipped.textProperty().bind(TR.skippedTargetsProperty().asString());
-//            TR.valueProperty().addListener((observable, oldValue, newValue) -> {
-//                onTaskResultFinished();
-//            e.initTask();
-//            labelTaskMessage.textProperty().bind(e.getCurrTask().messageProperty());
-//            progressBar.progressProperty().bind(e.getCurrTask().progressProperty());
-//            successCol.setItems(e.getList("success"));
-//            frozenCol.setItems(e.getList("frozen"));
-//            waitingCol.setItems(e.getList("waiting"));
-//
-//            // Binding Task Result:
-////            TaskResults TR = (TaskResults) ((TaskTT) e.getCurrTask()).getTaskResults();
-////            labelTaskStatus.textProperty().bind(TR.messageProperty());
-////            labelSuccess.textProperty().bind(TR.successTargetsProperty().asString());
-////            labelWarnings.textProperty().bind(TR.warningsTargetsProperty().asString());
-////            labelFailure.textProperty().bind(TR.failureTargetsProperty().asString());
-////            labelSkipped.textProperty().bind(TR.skippedTargetsProperty().asString());
-////            TR.valueProperty().addListener((observable, oldValue, newValue) -> {
-////                onTaskResultFinished();
-////            });
-//
-
-
-//            e.getCurrTask().valueProperty().addListener((observable, oldValue, newValue) -> {
-//                onTaskFinished();
-//            });
-            // run task
-
-          //  e.runTaskEngine();
         } else { // The task isn't over (could be in pause or running)
             if (!isRunning.get()) { // The task is in pause
                 labelRunTaskStatus.setText("The task isn't over yet, resume it.");
@@ -247,35 +192,32 @@ public class TaskController implements Controller {
         appController.getCurrTask().valueProperty().addListener(((observable, oldValue, newValue) -> {
             onTaskFinished();
         }));
+        textAreaOutput.textProperty().bind(Bindings.createStringBinding(() ->
+                appController.getCurrTask().taskOutputProperty().get() + "-----------------\n" + textAreaOutput.getText(), appController.getCurrTask().taskOutputProperty()));
     }
 
     private void onTaskFinished() {
         isFinished.set(true);
         isRunning.set(false);
+        spinnerIncThreads.setVisible(false);
+        labelIncThreads.setVisible(false);
         labelTaskMessage.textProperty().unbind();
         progressBar.progressProperty().unbind();
+        textAreaOutput.textProperty().unbind();
+        updateTaskResult();
     }
 
-    public void onTaskResultFinished() {
-        labelTaskStatus.textProperty().unbind();
-        labelSuccess.textProperty().unbind();
-        labelWarnings.textProperty().unbind();
-        labelFailure.textProperty().unbind();
-        labelSkipped.textProperty().unbind();
-
+    private void updateTaskResult() {
+        labelSkipped.setText(String.valueOf(skippedCol.getItems().size()));
+        labelSuccess.setText(String.valueOf(successCol.getItems().size()));
+        labelWarnings.setText(String.valueOf(warningsCol.getItems().size()));
+        labelFailure.setText(String.valueOf(failureCol.getItems().size()));
+        if (skippedCol.getItems().size() == 0) {
+            labelTaskStatus.setText("Task finished completely");
+        } else {
+            labelTaskStatus.setText("Task didn't finished completely");
+        }
     }
-//        if (taskConfig != null) {
-//            try {
-//                appController.initTask(taskConfig);
-//                appController.startTask();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        } else {
-//            taskMessageLabel.setText("Please define task's Settings");
-//        }
 
     private void cleanData() {
         successCol.getItems().clear();

@@ -29,7 +29,7 @@ public class TargetGraph implements DirectableGraph, GraphActions {
     }
 
     public TargetGraph() {
-        this.name=null;
+        this.name = null;
     }
 
     public SerialSet getSerialSet(String name) {
@@ -61,26 +61,25 @@ public class TargetGraph implements DirectableGraph, GraphActions {
             targetMap.put(target.getName(), target);
         });
         targetMap.values().forEach(target -> target.getDependsOnList().forEach(target1 -> addEdge(target.getName(), target1)));
-       // updateLeavesAndIndependentsToWaiting();
+        // updateLeavesAndIndependentsToWaiting();
     }
 
-    public TargetGraph buildSubGraph(List<String> subTargetsList)
-    {
+    public TargetGraph buildSubGraph(List<String> subTargetsList) {
         TargetGraph subTargetGraph = new TargetGraph();
         Map<String, List<Target>> SubGraphDependsOn = new HashMap<>();
         Map<String, Target> subTargetMap = new HashMap<>();
 
         subTargetsList.forEach(targetName -> {
-            SubGraphDependsOn.put(targetName,new LinkedList<>());
-            subTargetMap.put(targetName,targetMap.get(targetName));
+            SubGraphDependsOn.put(targetName, new LinkedList<>());
+            subTargetMap.put(targetName, targetMap.get(targetName));
         });
 
         subTargetGraph.setDependsOnList(SubGraphDependsOn);
         subTargetGraph.setTargetMap(subTargetMap);
 
         subTargetMap.values().forEach(target -> {
-            target.getDependsOnList().forEach(adj->{
-                if(subTargetsList.contains(adj.getName())) subTargetGraph.addEdge(target.getName(),adj);
+            target.getDependsOnList().forEach(adj -> {
+                if (subTargetsList.contains(adj.getName())) subTargetGraph.addEdge(target.getName(), adj);
             });
         });
 
@@ -91,24 +90,25 @@ public class TargetGraph implements DirectableGraph, GraphActions {
 
     private void setSubGraphSerialSets(Map<String, SerialSet> fullSerialSets) {
         serialSets = new HashMap<>();
-        fullSerialSets.forEach(((s, serialSet) -> {
-            SerialSet serialSetCopy = new SerialSet(serialSet.getName(),serialSet.getTargetAsString());
-            List<Target> newTargets = new ArrayList<>();
-            for (Target t : serialSet.getTargets()){
-                if(targetMap.containsKey(t.getName()))
-                    newTargets.add(t);
+        if (fullSerialSets != null && fullSerialSets.size() != 0) {
+            fullSerialSets.forEach(((s, serialSet) -> {
+                SerialSet serialSetCopy = new SerialSet(serialSet.getName(), serialSet.getTargetAsString());
+                List<Target> newTargets = new ArrayList<>();
+                for (Target t : serialSet.getTargets()) {
+                    if (targetMap.containsKey(t.getName()))
+                        newTargets.add(t);
                 }
-            if(!newTargets.isEmpty()){
-                serialSetCopy.setTargets(newTargets);
-                serialSets.put(s,serialSetCopy);
-            }
-        }));
+                if (!newTargets.isEmpty()) {
+                    serialSetCopy.setTargets(newTargets);
+                    serialSets.put(s, serialSetCopy);
+                }
+            }));
+        }
     }
 
 
-
     private void setTargetMap(Map<String, Target> subTargetMap) {
-        targetMap=subTargetMap;
+        targetMap = subTargetMap;
     }
 
     private void setDependsOnList(Map<String, List<Target>> subDependsOnGraph) {
@@ -269,13 +269,13 @@ public class TargetGraph implements DirectableGraph, GraphActions {
 
     public void updateTargetAdjAfterFinishWithoutFailure(ProgressData progressData, List<Target> waitingList, Target currentTarget) {
         gTranspose.get(currentTarget.getName()).forEach(target -> {
-            if(target.getRunResult()!=RunResult.FINISHED) {
+            if (target.getRunResult() != RunResult.FINISHED) {
                 if (isAllAdjOfTargetFinished(target))
                     currentTarget.addToJustOpenedList(target);
                 if (isAllAdjOfTargetFinishedWithoutFailure(target)) {
-                     target.setRunResult(RunResult.WAITING);
-                    Platform.runLater(()->{
-                        progressData.move(RunResult.FROZEN,RunResult.WAITING,target.getName());
+                    target.setRunResult(RunResult.WAITING);
+                    Platform.runLater(() -> {
+                        progressData.move(RunResult.FROZEN, RunResult.WAITING, target.getName());
                     });
                     if (!waitingList.contains(target)) {
                         waitingList.add(target);
@@ -311,7 +311,7 @@ public class TargetGraph implements DirectableGraph, GraphActions {
         List<Target> skippedList = currentTarget.getSkippedList();
         recDfsUpdateDependentsList(isVisited, skippedList, currentTarget);
         skippedList.remove(currentTarget);
-      //  skippedList.forEach((target -> target.setRunResult(RunResult.SKIPPED)));
+        //  skippedList.forEach((target -> target.setRunResult(RunResult.SKIPPED)));
     }
 
     private void recDfsUpdateDependentsList(Map<Target, Boolean> isVisited, List<Target> skippedList, Target
@@ -337,7 +337,7 @@ public class TargetGraph implements DirectableGraph, GraphActions {
         targetMap.forEach(((s, target) -> {
             if (target.getRunResult().equals(RunResult.FINISHED)) {
                 if (target.getFinishResult().equals(FinishResult.FAILURE)) {
-                    if(isAllAdjOfTargetFinishedWithoutFailure(target)) {
+                    if (isAllAdjOfTargetFinishedWithoutFailure(target)) {
                         target.setFinishResult(null);
                         target.setRunResult(RunResult.WAITING);
                     }
@@ -362,13 +362,13 @@ public class TargetGraph implements DirectableGraph, GraphActions {
 
     public boolean allTargetsHaveRunResult() {
         boolean res = true;
-        for (Target t : targetMap.values()){
-            if(t.getRunResult()== RunResult.FROZEN) {
+        for (Target t : targetMap.values()) {
+            if (t.getRunResult() == RunResult.FROZEN) {
                 res = false;
                 break;
             }
         }
-      return res;
+        return res;
     }
 
     public void clearJustOpenAndSkippedLists() {
@@ -426,26 +426,26 @@ public class TargetGraph implements DirectableGraph, GraphActions {
         return null;
     }
 
-    public List<Target> getTargetsByRelation(String targetName, TargetsRelationType relationType){
+    public List<Target> getTargetsByRelation(String targetName, TargetsRelationType relationType) {
         Target t = targetMap.get(targetName);
         List<Target> targetsList = new ArrayList<>();
-        switch (relationType){
+        switch (relationType) {
             case DependsOn:
-                targetsList =t.getDependsOnList();
+                targetsList = t.getDependsOnList();
                 break;
             case RequiredFor:
-                targetsList =t.getRequiredForList();
+                targetsList = t.getRequiredForList();
                 break;
         }
         return targetsList;
     }
 
-    public void updateTargetsTypes(){
+    public void updateTargetsTypes() {
         dependsOnGraph.forEach((s, targets) -> {
             boolean isRequiredFor = isTargetRequiredForSomeone(s);
-            if(targets.isEmpty() && !isRequiredFor)
+            if (targets.isEmpty() && !isRequiredFor)
                 targetMap.get(s).setType(TargetType.Independent);
-            else if(!targets.isEmpty() && isRequiredFor)
+            else if (!targets.isEmpty() && isRequiredFor)
                 targetMap.get(s).setType(TargetType.Middle);
             else if (targets.isEmpty())
                 targetMap.get(s).setType(TargetType.Leaf);
@@ -455,9 +455,9 @@ public class TargetGraph implements DirectableGraph, GraphActions {
     }
 
     private boolean isTargetRequiredForSomeone(String s) {
-        boolean res=false;
+        boolean res = false;
         for (List<Target> adjList : dependsOnGraph.values()) {
-            if (adjList.contains(targetMap.get(s))){
+            if (adjList.contains(targetMap.get(s))) {
                 res = true;
                 break;
             }
@@ -466,7 +466,7 @@ public class TargetGraph implements DirectableGraph, GraphActions {
     }
 
     public void lockSerialSetOf(Target currentTarget) {
-        if(serialSets!=null) {
+        if (serialSets != null) {
             serialSets.values().forEach(serialSet -> {
                 if (serialSet.contains(currentTarget))
                     serialSet.lockAll(currentTarget);
@@ -475,7 +475,7 @@ public class TargetGraph implements DirectableGraph, GraphActions {
     }
 
     public void unlockSerialSetOf(Target currentTarget) {
-        if(serialSets!=null) {
+        if (serialSets != null) {
             serialSets.values().forEach(serialSet -> {
                 if (serialSet.contains(currentTarget))
                     serialSet.unlockAll();
@@ -487,8 +487,45 @@ public class TargetGraph implements DirectableGraph, GraphActions {
         return targetMap.values().stream().allMatch(t -> (t.getRunResult().equals(RunResult.FINISHED)));
     }
 
-    public Map<String,Target> getTargetsMap(){
+    public Map<String, Target> getTargetsMap() {
         return targetMap;
+    }
+
+    public void updateEachTargetDepListRecList() {
+        dependsOnGraph.forEach((s, targets) -> {
+            Target t = targetMap.get(s);
+            t.setRequiredFor(dfsTravelUpdateRelativesList(t, TargetsRelationType.RequiredFor));
+            t.setDependOn(dfsTravelUpdateRelativesList(t, TargetsRelationType.DependsOn));
+        });
+    }
+
+    private List<Target> dfsTravelUpdateRelativesList(Target t, TargetsRelationType relationType) {
+        Map<Target, Boolean> isVisited = new HashMap<>();
+        List<Target> list = new ArrayList<>();
+        targetMap.forEach(((s, target) -> isVisited.put(target, false)));
+        switch (relationType) {
+            case DependsOn:
+                recDfsUpdateImDependsOnList(isVisited, list, t);
+                break;
+            case RequiredFor:
+                recDfsUpdateDependentsList(isVisited, list, t);
+                break;
+        }
+
+        list.remove(t);
+        return list;
+    }
+
+    private void recDfsUpdateImDependsOnList(Map<Target, Boolean> isVisited, List<Target> list, Target currentTarget) {
+        list.add(currentTarget);
+
+        for (Target t : dependsOnGraph.get(currentTarget.getName())) {
+            if (!isVisited.get(t)) {
+                recDfsUpdateImDependsOnList(isVisited, list, t);
+            }
+        }
+
+        isVisited.replace(currentTarget, false, true);
     }
 }
 
