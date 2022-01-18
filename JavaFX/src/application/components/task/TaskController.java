@@ -5,8 +5,6 @@ import application.components.task.config.TaskConfigController;
 import application.general.Component;
 import application.general.ComponentCreator;
 import application.general.Controller;
-import component.task.compile.CompileTask;
-import component.task.config.CompileConfig;
 import component.task.config.TaskConfig;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -78,9 +76,11 @@ public class TaskController implements Controller {
     @FXML
     private ListView<String> successCol;
     @FXML
-    private ListView<String> progressCol;
-    @FXML
     private TextArea textAreaOutput;
+
+    @FXML
+    private ListView<String> inProcessCol;
+
 
     private AppController appController;
     private TaskConfigController taskConfigController;
@@ -149,6 +149,7 @@ public class TaskController implements Controller {
             isRunning.set(true);
             isFinished.set(false);
 
+
             // Invoke task in engine
             if (taskConfig != null) {
                 //Test for compile
@@ -163,6 +164,7 @@ public class TaskController implements Controller {
                 try {
 
                     appController.initTask(taskConfig);
+                    bindTaskToUI();
                     if (!appController.isCircuit()) {
                         appController.startTask();
                         // onFinished!!!!!!
@@ -180,6 +182,22 @@ public class TaskController implements Controller {
                 labelTaskMessage.setText("Please define task's Settings");
             }
             // TEST
+            //e.initTask();
+           // labelTaskMessage.textProperty().bind(e.getCurrTask().messageProperty());
+         //   progressBar.progressProperty().bind(e.getCurrTask().progressProperty());
+           // successCol.setItems(e.getList("success"));
+          //  frozenCol.setItems(e.getList("frozen"));
+           // waitingCol.setItems(e.getList("waiting"));
+
+            // Binding Task Result:
+//            TaskResults TR = (TaskResults) ((TaskTT) e.getCurrTask()).getTaskResults();
+//            labelTaskStatus.textProperty().bind(TR.messageProperty());
+//            labelSuccess.textProperty().bind(TR.successTargetsProperty().asString());
+//            labelWarnings.textProperty().bind(TR.warningsTargetsProperty().asString());
+//            labelFailure.textProperty().bind(TR.failureTargetsProperty().asString());
+//            labelSkipped.textProperty().bind(TR.skippedTargetsProperty().asString());
+//            TR.valueProperty().addListener((observable, oldValue, newValue) -> {
+//                onTaskResultFinished();
 //            e.initTask();
 //            labelTaskMessage.textProperty().bind(e.getCurrTask().messageProperty());
 //            progressBar.progressProperty().bind(e.getCurrTask().progressProperty());
@@ -198,14 +216,14 @@ public class TaskController implements Controller {
 ////                onTaskResultFinished();
 ////            });
 //
+
+
 //            e.getCurrTask().valueProperty().addListener((observable, oldValue, newValue) -> {
 //                onTaskFinished();
 //            });
-//            // run task
-//
-//            e.runTaskEngine();
+            // run task
 
-
+          //  e.runTaskEngine();
         } else { // The task isn't over (could be in pause or running)
             if (!isRunning.get()) { // The task is in pause
                 labelRunTaskStatus.setText("The task isn't over yet, resume it.");
@@ -213,7 +231,21 @@ public class TaskController implements Controller {
                 labelRunTaskStatus.setText("The task isn't over yet, still running.");
             }
         }
+    }
 
+    private void bindTaskToUI() {
+        labelTaskMessage.textProperty().bind(appController.getCurrTask().messageProperty());
+        progressBar.progressProperty().bind(appController.getCurrTask().progressProperty());
+        frozenCol.setItems(appController.getList("frozen"));
+        waitingCol.setItems(appController.getList("waiting"));
+        inProcessCol.setItems(appController.getList("inProcess"));
+        skippedCol.setItems(appController.getList("skipped"));
+        successCol.setItems(appController.getList("success"));
+        warningsCol.setItems(appController.getList("warnings"));
+        failureCol.setItems(appController.getList("failure"));
+        appController.getCurrTask().valueProperty().addListener(((observable, oldValue, newValue) -> {
+            onTaskFinished();
+        }));
     }
 
     private void onTaskFinished() {
@@ -231,11 +263,27 @@ public class TaskController implements Controller {
         labelSkipped.textProperty().unbind();
 
     }
+//        if (taskConfig != null) {
+//            try {
+//                appController.initTask(taskConfig);
+//                appController.startTask();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        } else {
+//            taskMessageLabel.setText("Please define task's Settings");
+//        }
 
     private void cleanData() {
         successCol.getItems().clear();
         frozenCol.getItems().clear();
         waitingCol.getItems().clear();
+        failureCol.getItems().clear();
+        skippedCol.getItems().clear();
+        inProcessCol.getItems().clear();
+        warningsCol.getItems().clear();
         progressBar.setPadding(Insets.EMPTY);
         labelTaskMessage.setText("");
         labelSkipped.setText("-");
