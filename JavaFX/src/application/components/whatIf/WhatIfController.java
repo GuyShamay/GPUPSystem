@@ -7,6 +7,7 @@ import dto.TargetInfoDTO;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
@@ -17,17 +18,8 @@ public class WhatIfController implements Controller {
 
     @Override
     public void setParentController(Controller c) {
-        appController=(AppController)c;
+        appController = (AppController) c;
     }
-
-    @FXML
-    private ComboBox<String> comboBoxTargets;
-
-    @FXML
-    private Label labelCircuit;
-
-    @FXML
-    private Button buttonOk;
 
     @FXML
     private CheckBox checkBoxDependsOn;
@@ -36,46 +28,59 @@ public class WhatIfController implements Controller {
     private CheckBox checkBoxRequiredFor;
 
     @FXML
-    void checkBoxDependsOnChoosen(ActionEvent event) {
-        checkBoxRequiredFor.setSelected(false); }
+    private ComboBox<String> comboBoxTarget;
 
     @FXML
-    void checkBoxRequiredForChoosen(ActionEvent event) {
-        checkBoxDependsOn.setSelected(false); }
+    private Label labelMessage;
 
     @FXML
-    private TextFlow textFlowTargets;
+    private HBox hBoxWhatIf;
 
     @FXML
-    void buttonWhatIfClicked(ActionEvent event) {
-        textFlowTargets.getChildren().clear();
-        String msg = "";
-        if(allDetailsIn()) {
-            msg = getTargetsStringToShow();
+    void buttonSubmitClicked(ActionEvent event) {
+        labelMessage.setText("");
+        hBoxWhatIf.getChildren().clear();
+        if (checkBoxDependsOn.isSelected() || checkBoxRequiredFor.isSelected()) {
+            if (isValidChoose()) {
+                TargetsRelationType relationType = checkBoxDependsOn.isSelected() ? TargetsRelationType.DependsOn : TargetsRelationType.RequiredFor;
+                List<TargetInfoDTO> targetsList = appController.getTarget(comboBoxTarget.getValue(), relationType);
+                if (!targetsList.isEmpty()) {
+                    for (int i = 0; i < targetsList.size(); i++) {
+                        Label label;
+                        if (i == targetsList.size() - 1) {
+                            label = new Label(targetsList.get(i).getName());
+                        } else {
+                            label = new Label(targetsList.get(i).getName() + ", ");
+                        }
+                        label.getStyleClass().add("lblItemTarget");
+                        hBoxWhatIf.getChildren().add(label);
+                    }
+                }
+
+            } else {
+                labelMessage.setText("Please select a target");
+            }
         } else {
-            msg= "Missing Details";
+            labelMessage.setText("Please select relation");
         }
-
-        textFlowTargets.getChildren().add(new Text(msg));
     }
 
-    private boolean allDetailsIn() {
-        return (!comboBoxTargets.getSelectionModel().isEmpty() && (checkBoxDependsOn.isSelected()|| checkBoxRequiredFor.isSelected()));
+    @FXML
+    void checkBoxDependsOnChosen(ActionEvent event) {
+        checkBoxRequiredFor.setSelected(!checkBoxDependsOn.isSelected());
     }
 
-    private String getTargetsStringToShow() {
-        String targets = "";
-        TargetsRelationType relationType = checkBoxDependsOn.isSelected() == true ? TargetsRelationType.DependsOn : TargetsRelationType.RequiredFor;
-        List<TargetInfoDTO> targetsList = appController.getTarget(comboBoxTargets.getValue(), relationType);
-        ///To be replaced
-        for (TargetInfoDTO targetInfoDTO : targetsList) {
-            targets += targetInfoDTO.getName() + " , ";
-        }
-        String str = targetsList.isEmpty() == true ? "No Targets" : targets.substring(0, targets.length() - 3);
-        return str;
+    @FXML
+    void checkBoxRequiredForChosen(ActionEvent event) {
+        checkBoxDependsOn.setSelected(!checkBoxRequiredFor.isSelected());
     }
 
-    public void Init(){
-        appController.fillComboBoxWithTargets(comboBoxTargets);
+
+    private boolean isValidChoose() {
+        return (!comboBoxTarget.getSelectionModel().isEmpty());
+    }
+
+    public void init() {
+        appController.fillComboBoxWithTargets(comboBoxTarget);
     }
 }

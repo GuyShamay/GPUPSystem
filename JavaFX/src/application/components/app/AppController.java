@@ -17,7 +17,6 @@ import engine.Engine;
 import exception.ElementExistException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -49,7 +48,6 @@ public class AppController implements Controller {
     private WelcomeController welcomeController;
     private static final String FIND_PATHS_FXML_NAME = "../findPathes/pathes.fxml";
     private static final String INFO_FXML_NAME = "../graphinfo/graph-info.fxml";
-    private static final String TASK_CONFIG_FXML_NAME = "../task/config/task-config.fxml";
     private static final String FINDCIRCUIT_FXML_NAME = "../findCircuit/findCircuit.fxml";
     private static final String WHATIF_FXML_NAME = "../whatIf/whatIf.fxml";
     private static final String TASK_FXML_NAME = "../task/task2.fxml";
@@ -59,8 +57,6 @@ public class AppController implements Controller {
 
     @FXML
     private BorderPane borderPaneApp;
-    @FXML
-    private Button buttonLoadFile;
     @FXML
     private Button buttonInfo;
     @FXML
@@ -74,9 +70,11 @@ public class AppController implements Controller {
 
     @FXML
     public void initialize() {
-        comboBoxActions.getItems().removeAll(comboBoxActions.getItems());
-        comboBoxActions.getItems().addAll("Find Path", "Find Circuit", "What-if?");
 
+        comboBoxActions.getItems().addAll("Find Path", "Find Circuit", "What-if?");
+        comboBoxActions.valueProperty().addListener(((observable, oldValue, newValue) -> {
+            comboBoxActionChosen(newValue);
+        }));
         // Disable all buttons except Load
         setDisableControls(true);
 
@@ -93,9 +91,9 @@ public class AppController implements Controller {
     public void setWelcomeController(WelcomeController welcomeController) {
         this.welcomeController = welcomeController;
     }
+
     //--------------------------------------------------------------------------
     //Show Information
-
     @FXML
     void buttonInfoClicked(ActionEvent event) {
 
@@ -117,9 +115,9 @@ public class AppController implements Controller {
         return FXCollections.observableArrayList(list);
     }
 
+
     //--------------------------------------------------------------------------
     //Load File
-
     @FXML
     void buttonLoadFileClicked(ActionEvent event) {
         Button btn = (Button) event.getSource();
@@ -144,7 +142,7 @@ public class AppController implements Controller {
                 new FileChooser.ExtensionFilter("Xml Files", "*.xml"));
         File selectedFile = fileChooser.showOpenDialog(btn.getScene().getWindow());
         */
-        File selectedFile = new File("C:\\Users\\Noam\\Downloads\\ex2-big.xml");
+        File selectedFile = new File("C:\\Users\\guysh\\Downloads\\ex2-big.xml");
         if (selectedFile != null) {
             try {
                 engine.buildGraphFromXml(selectedFile);
@@ -167,9 +165,9 @@ public class AppController implements Controller {
         comboBoxThemes.setDisable(isDisable);
         checkBoxAnimations.setDisable(isDisable);
     }
+
     //--------------------------------------------------------------------------
     // Run Task
-
     @FXML
     void buttonTaskClicked(ActionEvent event) {
         URL url = getClass().getResource(TASK_FXML_NAME);
@@ -190,17 +188,31 @@ public class AppController implements Controller {
     public boolean isCircuit() {
         return engine.isCircuit();
     }
+
     //--------------------------------------------------------------------------
 
     // Actions: paths, circle, what-if
-
-    @FXML
-    void buttonActionsClicked(ActionEvent event) {}
+    private void comboBoxActionChosen(String newValue) {
+        String path = "";
+        switch (newValue) {
+            case "Find Path":
+                path = FIND_PATHS_FXML_NAME;
+                break;
+            case "Find Circuit":
+                path = FINDCIRCUIT_FXML_NAME;
+                break;
+            case "What-if?":
+                path = WHATIF_FXML_NAME;
+                break;
+        }
+        URL url = getClass().getResource(path);
+        makeComponent(url);
+    }
 
     @FXML
     void ActionChosen(ActionEvent event) {
         String path = "";
-        switch (comboBoxActions.getSelectionModel().getSelectedItem()) {
+        switch (comboBoxActions.getValue()) {
             case "Find Path":
                 path = FIND_PATHS_FXML_NAME;
                 break;
@@ -214,13 +226,13 @@ public class AppController implements Controller {
         URL url = getClass().getResource(path);
         makeComponent(url);
 
-        comboBoxActions.getSelectionModel().clearAndSelect(-1);
+        comboBoxActions.setValue("");
     }
 
     private void makeComponent(URL url) {
         Component component = ComponentCreator.createComponent(url);
         component.getController().setParentController(this);
-        component.getController().Init();
+        component.getController().init();
         borderPaneApp.setCenter(component.getPane());
     }
 
@@ -266,6 +278,7 @@ public class AppController implements Controller {
     public void resumeTask() {
         engine.resume();
     }
+
     //--------------------------------------------------------------------------
     // Animations
     @FXML

@@ -1,74 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.text.TextFlow?>
 
-<GridPane alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="380.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.components.whatIf.WhatIfController">
-   <columnConstraints>
-      <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="10.0" prefWidth="50.0" />
-      <ColumnConstraints hgrow="SOMETIMES" maxWidth="280.0" minWidth="10.0" prefWidth="280.0" />
-      <ColumnConstraints hgrow="SOMETIMES" maxWidth="280.0" minWidth="10.0" prefWidth="280.0" />
-      <ColumnConstraints hgrow="SOMETIMES" maxWidth="280.0" minWidth="10.0" prefWidth="280.0" />
-      <ColumnConstraints hgrow="SOMETIMES" maxWidth="280.0" minWidth="10.0" prefWidth="280.0" />
-      <ColumnConstraints hgrow="SOMETIMES" maxWidth="280.0" minWidth="10.0" prefWidth="280.0" />
-      <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="10.0" prefWidth="50.0" />
-   </columnConstraints>
-   <rowConstraints>
-      <RowConstraints maxHeight="50.0" minHeight="10.0" prefHeight="22.666671752929688" vgrow="SOMETIMES" />
-      <RowConstraints maxHeight="64.33332824707031" minHeight="10.0" prefHeight="64.33332824707031" vgrow="SOMETIMES" />
-      <RowConstraints maxHeight="146.33331298828125" minHeight="10.0" prefHeight="70.33334350585938" vgrow="SOMETIMES" />
-      <RowConstraints maxHeight="146.33331298828125" minHeight="10.0" prefHeight="47.666656494140625" vgrow="SOMETIMES" />
-      <RowConstraints maxHeight="87.0" minHeight="10.0" prefHeight="53.333343505859375" vgrow="SOMETIMES" />
-      <RowConstraints maxHeight="114.0" minHeight="10.0" prefHeight="103.66665649414062" vgrow="SOMETIMES" />
-      <RowConstraints maxHeight="50.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-   </rowConstraints>
-   <children>
-      <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="27.0" prefWidth="493.0" text="Choose Target And See Which Targets Influenced By Him" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.columnSpan="5" GridPane.halignment="CENTER" GridPane.rowIndex="1">
-         <font>
-            <Font name="Yu Gothic UI Regular" size="18.0" />
-         </font>
-      </Label>
-      <Label text="Target :" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="2" GridPane.valignment="CENTER">
-         <font>
-            <Font name="Yu Gothic UI Regular" size="18.0" />
-         </font>
-         <GridPane.margin>
-            <Insets right="20.0" />
-         </GridPane.margin>
-      </Label>
-      <Label fx:id="labelCircuit" alignment="CENTER" prefHeight="28.0" prefWidth="498.0" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="5">
-         <font>
-            <Font name="Yu Gothic UI Regular" size="19.0" />
-         </font>
-      </Label>
-      <Button fx:id="buttonOk" mnemonicParsing="false" onAction="#buttonWhatIfClicked" prefWidth="60.0" text="OK" GridPane.columnIndex="2" GridPane.columnSpan="3" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
-         <GridPane.margin>
-            <Insets />
-         </GridPane.margin>
-      </Button>
-      <CheckBox fx:id="checkBoxDependsOn" mnemonicParsing="false" onAction="#checkBoxDependsOnChoosen" text="DependsOn" GridPane.columnIndex="3" GridPane.rowIndex="3" GridPane.valignment="TOP">
-         <GridPane.margin>
-            <Insets bottom="30.0" />
-         </GridPane.margin>
-      </CheckBox>
-      <CheckBox fx:id="checkBoxRequiredFor" mnemonicParsing="false" onAction="#checkBoxRequiredForChoosen" text="RequiredFor" GridPane.columnIndex="3" GridPane.rowIndex="3" GridPane.valignment="BOTTOM">
-         <GridPane.margin>
-            <Insets />
-         </GridPane.margin>
-      </CheckBox>
-      <TextFlow fx:id="textFlowTargets" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.columnSpan="3" GridPane.halignment="CENTER" GridPane.rowIndex="5" />
-      <ComboBox fx:id="comboBoxTargets" prefHeight="25.0" prefWidth="60.0" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="2">
-         <GridPane.margin>
-            <Insets />
-         </GridPane.margin>
-      </ComboBox>
-   </children>
-</GridPane>
+<ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="403.0" prefWidth="665.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.components.whatIf.WhatIfController">
+   <content>
+      <AnchorPane>
+         <children>
+            <GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="401.0" prefWidth="438.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-2.0" AnchorPane.topAnchor="0.0">
+              <columnConstraints>
+                <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="60.0" prefWidth="60.0" />
+                  <ColumnConstraints hgrow="NEVER" maxWidth="60.0" minWidth="10.0" />
+                  <ColumnConstraints hgrow="NEVER" maxWidth="160.0" minWidth="130.0" prefWidth="152.0" />
+                  <ColumnConstraints hgrow="NEVER" maxWidth="60.0" minWidth="0.0" prefWidth="25.0" />
+                <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="60.0" prefWidth="393.0" />
+                  <ColumnConstraints hgrow="NEVER" maxWidth="70.0" minWidth="25.0" prefWidth="25.0" />
+              </columnConstraints>
+              <rowConstraints>
+                  <RowConstraints maxHeight="-Infinity" minHeight="25.0" prefHeight="25.0" vgrow="NEVER" />
+                  <RowConstraints maxHeight="25.0" minHeight="25.0" prefHeight="25.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                  <RowConstraints vgrow="NEVER" />
+                  <RowConstraints vgrow="NEVER" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                  <RowConstraints vgrow="NEVER" />
+                  <RowConstraints maxHeight="151.0" minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                  <RowConstraints maxHeight="151.0" prefHeight="30.0" vgrow="NEVER" />
+                  <RowConstraints maxHeight="151.0" minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                <RowConstraints maxHeight="151.0" prefHeight="30.0" vgrow="NEVER" />
+                <RowConstraints maxHeight="183.66668701171875" prefHeight="40.0" vgrow="NEVER" />
+                  <RowConstraints maxHeight="183.66668701171875" minHeight="10.0" prefHeight="40.0" vgrow="NEVER" />
+                  <RowConstraints maxHeight="1.7976931348623157E308" minHeight="100.0" vgrow="ALWAYS" />
+                  <RowConstraints maxHeight="26.3333740234375" minHeight="25.0" prefHeight="25.0" vgrow="NEVER" />
+              </rowConstraints>
+               <children>
+                  <Label alignment="CENTER" styleClass="lblHeader" text="Choose a target in order to see all the targets" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="3">
+                     <font>
+                        <Font name="Yu Gothic Regular" size="14.0" />
+                     </font>
+                  </Label>
+                  <CheckBox fx:id="checkBoxDependsOn" mnemonicParsing="false" onAction="#checkBoxDependsOnChosen" text="Depends On" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="10">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </CheckBox>
+                  <CheckBox fx:id="checkBoxRequiredFor" mnemonicParsing="false" onAction="#checkBoxRequiredForChosen" text="Required For" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="11">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </CheckBox>
+                  <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#buttonSubmitClicked" prefHeight="25.0" prefWidth="121.0" text="Search" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.halignment="LEFT" GridPane.rowIndex="11" GridPane.valignment="CENTER">
+                     <GridPane.margin>
+                        <Insets bottom="20.0" right="30.0" top="20.0" />
+                     </GridPane.margin>
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Button>
+                  <ComboBox fx:id="comboBoxTarget" prefHeight="29.0" prefWidth="159.0" promptText="Choose Target" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="6" />
+                  <Label id="lblTitle" text="What If" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                  <Label styleClass="lblHeader" text="Select relation:" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="8" />
+                  <Label id="lblMsg" fx:id="labelMessage" alignment="CENTER" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="12">
+                     <font>
+                        <Font name="Yu Gothic Regular" size="14.0" />
+                     </font>
+                  </Label>
+                  <Label alignment="CENTER" styleClass="lblHeader" text="that depend on it, in the selected relation" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="4">
+                     <font>
+                        <Font name="Yu Gothic Regular" size="14.0" />
+                     </font>
+                  </Label>
+                  <HBox fx:id="hBoxWhatIf" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="13" />
+               </children>
+            </GridPane>
+         </children>
+      </AnchorPane>
+   </content>
+   <stylesheets>
+      <URL value="@../app/actions.css" />
+      <URL value="@../app/app.css" />
+   </stylesheets>
+</ScrollPane>
