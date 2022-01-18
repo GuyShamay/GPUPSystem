@@ -164,6 +164,7 @@ public class TaskController implements Controller {
                 try {
 
                     appController.initTask(taskConfig);
+                    updateTargetPick();
                     bindTaskToUI();
                     if (!appController.isCircuit()) {
                         appController.startTask();
@@ -315,7 +316,6 @@ public class TaskController implements Controller {
         });
         stage.showAndWait();
         if (!isCancel.get()) {
-            updateTargetPick();
             spinnerIncThreads.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(taskConfig.getThreadsParallelism(), appController.getMaxParallelism()));
         }
     }

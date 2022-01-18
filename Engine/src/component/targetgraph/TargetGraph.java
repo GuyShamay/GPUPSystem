@@ -84,6 +84,7 @@ public class TargetGraph implements DirectableGraph, GraphActions {
             });
         });
 
+
         subTargetGraph.setSubGraphSerialSets(serialSets);
         return subTargetGraph;
     }
