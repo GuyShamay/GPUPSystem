@@ -253,7 +253,6 @@ public class AppController implements Controller {
         return engine.getCurrentTaskTargetByName();
     }
 
-
     public void fillComboBoxWithTargets(ComboBox<String> comboBox) {
         Set<String> targets = getAllTargetsByName();
         ObservableList<String> list = comboBox.getItems();
