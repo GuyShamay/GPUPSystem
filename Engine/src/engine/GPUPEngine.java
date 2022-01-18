@@ -338,7 +338,7 @@ public class GPUPEngine implements Engine {
         totalStart = Instant.now();
         String dirPath = createDirectoryName();
         createTaskDirectory(dirPath);
-        task.setDirectoryPath(dirPath);
+      //  task.setDirectoryPath(dirPath);
 
         if (waitingList.isEmpty() && processingType.equals(ProcessingType.Incremental)) {
             throw new RuntimeException("The graph already had been processed completely, there is no need for 'Incremental' action");
@@ -365,7 +365,7 @@ public class GPUPEngine implements Engine {
             GPUPConsumer consumerDTO = new ProcessedTargetDTO(currentTarget);
             consumerDTO.setTaskOutput(new SimulationOutputDTO(task.getProcessingTime()));
             //Writing to file
-            writeTargetToFile(start, end, consumerDTO, task.getDirectoryPath());
+          //  writeTargetToFile(start, end, consumerDTO, task.getDirectoryPath());
             // Writing to console
             consumer.accept(consumerDTO);
         }
@@ -382,6 +382,19 @@ public class GPUPEngine implements Engine {
 
     public int getSpecificTypeOfTargetsNum(TargetType targetType) {
         return targetGraph.getSpecificTypeOfTargetsNum(targetType);
+    }
+
+    @Override
+    public void increaseThreadsNum(Integer newVal) {
+        task.incParallelism(newVal);
+    }
+
+    @Override
+    public boolean isCircuit() {
+        if (subTargetGraph.count() != 0) {
+            return subTargetGraph.getTargetsMap().keySet().stream().anyMatch(s -> targetGraph.findCircuit(s) != null);
+        }
+        return false;
     }
 
 }

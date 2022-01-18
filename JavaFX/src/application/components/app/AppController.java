@@ -183,29 +183,6 @@ public class AppController implements Controller {
         return engine.getMaxParallelism();
     }
 
-    public void initTask(TaskConfig taskConfig) {
-        engine.initTask(taskConfig);
-    }
-
-    public void startTask() throws IOException, InterruptedException {
-        Thread engineThread = new Thread(() -> {
-            try {
-                engine.runTaskGPUP2();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-        engineThread.start();
-    }
-
-    public void pauseTask() {
-        engine.pause();
-    }
-
-    public void resumeTask() {
-        engine.resume();
-    }
-
     public void incParallelism(Integer newVal) {
         engine.increaseThreadsNum(newVal);
     }
@@ -218,9 +195,7 @@ public class AppController implements Controller {
     // Actions: paths, circle, what-if
 
     @FXML
-    void buttonActionsClicked(ActionEvent event) {
-
-    }
+    void buttonActionsClicked(ActionEvent event) {}
 
     @FXML
     void ActionChosen(ActionEvent event) {
@@ -282,14 +257,6 @@ public class AppController implements Controller {
 
     public void startTask() throws IOException, InterruptedException {
         new Thread(engine.getCurrTask()).start();
-//        Thread engineThread = new Thread(() -> {
-//            try {
-//                engine.runTask();
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        });
-//        engineThread.start();
     }
 
     public void pauseTask() {

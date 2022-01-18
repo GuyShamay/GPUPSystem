@@ -33,6 +33,7 @@ public class RunTask extends Task<Boolean> {
     private boolean doneRunning;
     private ProgressData progressData;
     private int finishedCounter;
+    private List<Target> runningTargets;
 
     public RunTask(TargetGraph subTargetGraph,component.task.Task task){
         this.subTargetGraph = subTargetGraph;

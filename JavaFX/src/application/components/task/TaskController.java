@@ -5,8 +5,6 @@ import application.components.task.config.TaskConfigController;
 import application.general.Component;
 import application.general.ComponentCreator;
 import application.general.Controller;
-import component.task.compile.CompileTask;
-import component.task.config.CompileConfig;
 import component.task.config.TaskConfig;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -79,6 +77,8 @@ public class TaskController implements Controller {
     private ListView<String> successCol;
     @FXML
     private TextArea textAreaOutput;
+
+    @FXML
     private ListView<String> inProcessCol;
 
 

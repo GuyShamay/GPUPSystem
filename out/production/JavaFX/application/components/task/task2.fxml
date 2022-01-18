@@ -141,7 +141,7 @@
                         <Label id="lblcol" text="Skipped" GridPane.columnIndex="7" GridPane.rowIndex="2" />
                         <Label id="lblcol" text="Failure" GridPane.columnIndex="9" GridPane.rowIndex="2" />
                         <Label id="lblcol" text="Warnings" GridPane.columnIndex="11" GridPane.rowIndex="2" />
-                        <Label id="lblcol" text="Full Success" GridPane.columnIndex="13" GridPane.rowIndex="2" />
+                        <Label id="lblcol" text="Success" GridPane.columnIndex="13" GridPane.rowIndex="2" />
                         <Label id="lblColFinish" text="Finished" GridPane.columnIndex="11" />
                         <Separator prefWidth="200.0" GridPane.columnIndex="9" GridPane.columnSpan="5" GridPane.rowIndex="1" />
                         <Label id="lblcol" text="Waiting" GridPane.columnIndex="3" GridPane.rowIndex="2" />
@@ -156,7 +156,7 @@
                         <Label text="Full Success" GridPane.columnIndex="13" GridPane.rowIndex="6" />
                         <Label fx:id="labelTaskStatus" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="8" />
                         <Separator prefWidth="200.0" style="-fx-border-color: black;" GridPane.columnIndex="1" GridPane.columnSpan="13" GridPane.rowIndex="5" />
-                        <ListView fx:id="progressCol" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="5" GridPane.rowIndex="3" GridPane.rowSpan="2" />
+                        <ListView fx:id="inProcessCol" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="5" GridPane.rowIndex="3" GridPane.rowSpan="2" />
                      </children>
                   </GridPane>
                </children>
