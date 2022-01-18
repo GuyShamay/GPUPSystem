@@ -155,9 +155,11 @@
                         <Label text="Failure" GridPane.columnIndex="9" GridPane.rowIndex="6" />
                         <Label text="Warnings" GridPane.columnIndex="11" GridPane.rowIndex="6" />
                         <Label text="Full Success" GridPane.columnIndex="13" GridPane.rowIndex="6" />
-                        <Label fx:id="labelTaskStatus" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="8" />
+                        <Label fx:id="labelTaskStatus" alignment="TOP_LEFT" prefHeight="43.0" prefWidth="184.0" wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="7" GridPane.rowSpan="3" />
                         <Separator prefWidth="200.0" style="-fx-border-color: black;" GridPane.columnIndex="1" GridPane.columnSpan="13" GridPane.rowIndex="5" />
                         <ListView fx:id="inProcessCol" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="5" GridPane.rowIndex="3" GridPane.rowSpan="2" />
+                        <Label text="Total" GridPane.columnIndex="5" GridPane.rowIndex="6" />
+                        <Label fx:id="labelTotal" prefHeight="21.0" prefWidth="0.0" GridPane.columnIndex="5" GridPane.rowIndex="8" />
                      </children>
                   </GridPane>
                </children>

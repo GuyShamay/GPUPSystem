@@ -52,6 +52,8 @@ public class TaskController implements Controller {
     @FXML
     private Label labelSkipped;
     @FXML
+    private Label labelTotal;
+    @FXML
     private Label labelSuccess;
     @FXML
     private Label labelWarnings;
@@ -218,6 +220,7 @@ public class TaskController implements Controller {
         } else {
             labelTaskStatus.setText("Task didn't finished completely");
         }
+        labelTotal.setText(String.valueOf(appController.getCurrentTaskTargetByName().size()));
     }
 
     private void cleanData() {
