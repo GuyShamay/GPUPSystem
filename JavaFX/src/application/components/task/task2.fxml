@@ -76,6 +76,7 @@
                         <Label text="Type:" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                         <Label fx:id="labelPickedName" styleClass="grid" text="Label" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
                         <Label fx:id="labelPickedType" text="Label" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
+                        <Label fx:id="labelPickInfo" alignment="TOP_LEFT" prefHeight="57.0" prefWidth="188.0" text="Label" wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="5" />
                      </children>
                   </GridPane>
                   <TextArea fx:id="textAreaOutput" layoutX="2.0" layoutY="235.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="305.0" prefWidth="178.0" styleClass="txtOutput" wrapText="true" AnchorPane.bottomAnchor="4.0" AnchorPane.topAnchor="235.0" />
