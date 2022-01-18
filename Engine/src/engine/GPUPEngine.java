@@ -94,9 +94,6 @@ public class GPUPEngine implements Engine {
     }
 
     public void initTask(TaskConfig taskConfig) {
-        subTargetGraph = createSubTargetGraph(taskConfig);
-        subTargetGraph.updateTargetsTypes();
-        subTargetGraph.buildTransposeGraph();
         processingType = taskConfig.getProcessingType();
 
         switch (taskConfig.getTaskType()) {
@@ -107,29 +104,27 @@ public class GPUPEngine implements Engine {
                 break;
         }
 
-        runTask = new RunTask(subTargetGraph,task);
+        runTask = new RunTask(task);
+        initGraphForRun(taskConfig);
+    }
+
+    private void initGraphForRun(TaskConfig taskConfig) {
+        subTargetGraph = createSubTargetGraph(taskConfig);
+        runTask.setSubTargetGraph(subTargetGraph);
         runTask.initProgressData(processingType);
-
-        initGraphForRun();
-    }
-
-    private void initGraphForRun() {
-        correctProcessingType();
-        prepareGraphByProcType();
+        subTargetGraph.updateTargetsTypes();
+        subTargetGraph.buildTransposeGraph();
+        //NEEDED??
         task.updateRelevantTargets(subTargetGraph.getWaitingAndFrozen());
+        ///
         subTargetGraph.clearJustOpenAndSkippedLists();
+        updateRunAndFinishResults();
     }
 
-    private void prepareGraphByProcType(){
-        switch (processingType) {
-            case FromScratch:
-                updateTargetsFromScratch();
-                updateLeavesAndIndependentsToWaiting();
-                break;
-            case Incremental:
-                updateTargetIncremental();
-                break;
-        }
+    //NOT IN USE
+    private void updateRunAndFinishResults(){
+        resetEveryOne();
+        updateLeavesAndIndependentsToWaiting();
     }
 
     public void updateLeavesAndIndependentsToWaiting() {
@@ -141,24 +136,26 @@ public class GPUPEngine implements Engine {
         }));
     }
 
+    ///NOT IN USE
     private void updateTargetIncremental() {
-        subTargetGraph.getTargetsMap().forEach(((s, target) -> {
-            if (target.getRunResult().equals(RunResult.FINISHED)) {
-                if (target.getFinishResult().equals(FinishResult.FAILURE)) {
-                    if(subTargetGraph.isAllAdjOfTargetFinishedWithoutFailure(target)) {
-                        target.setFinishResult(null);
-                        target.setRunResult(RunResult.WAITING);
-                        runTask.getProgressData().move(RunResult.FROZEN,RunResult.WAITING,target.getName());
-                    }
-                }
-            }
-            if (target.getRunResult().equals(RunResult.SKIPPED))
-                target.setRunResult(RunResult.FROZEN);
-            //Already frozen in UI
-        }));
+//        subTargetGraph.getTargetsMap().forEach(((s, target) -> {
+//            if (target.getRunResult().equals(RunResult.FINISHED)) {
+//                if (target.getFinishResult().equals(FinishResult.FAILURE)) {
+//                    if(subTargetGraph.isAllAdjOfTargetFinishedWithoutFailure(target)) {
+//                        target.setFinishResult(null);
+//                        target.setRunResult(RunResult.WAITING);
+//                        runTask.getProgressData().move(RunResult.FROZEN,RunResult.WAITING,target.getName());
+//                    }
+//                }
+//            }
+//            if (target.getRunResult().equals(RunResult.SKIPPED))
+//                target.setRunResult(RunResult.FROZEN);
+//            //Already frozen in UI
+//        }));
     }
 
-    private void updateTargetsFromScratch() {
+    //Everyone null and Frozen.
+    private void resetEveryOne() {
         subTargetGraph.getTargetsMap().forEach(((s, target) -> {
             target.setFinishResult(null);
             target.setRunResult(RunResult.FROZEN);
@@ -166,23 +163,66 @@ public class GPUPEngine implements Engine {
         }));
     }
 
-    private void correctProcessingType() {
-        if ((subTargetGraph.allTargetsFinished() || !subTargetGraph.allTargetsHaveRunResult()) && processingType == ProcessingType.Incremental) {
+    private void correctProcessingType(List<String> choosenTargets) {
+        if (allTargetsFinished(choosenTargets) && processingType == ProcessingType.Incremental) {
             System.out.println("Task will run 'From Scrach'.");
             processingType = ProcessingType.FromScratch;
         }
+//        if ((subTargetGraph.allTargetsFinished() || !subTargetGraph.allTargetsHaveRunResult()) && processingType == ProcessingType.Incremental) {
+//            System.out.println("Task will run 'From Scrach'.");
+//            processingType = ProcessingType.FromScratch;
+//        }
+    }
+
+    private boolean allTargetsFinished(List<String> choosenTargets) {
+        for (String s:choosenTargets) {
+            if(!hasGoodRunResult(s))
+                return false;
+        }
+        return true;
     }
 
     private TargetGraph createSubTargetGraph(TaskConfig taskConfig) {
-        if (taskConfig.isAllTargets()) subTargetGraph = targetGraph;
-        else if (taskConfig.getCustomTargets() != null) {
-            subTargetGraph = targetGraph.buildSubGraph(taskConfig.getCustomTargets());
-        } else {
-            List<String> res = getWhatIfSubTargetsList(taskConfig.getWhatIfTarget(), taskConfig.getWhatIfRelation());
-            subTargetGraph = targetGraph.buildSubGraph(res);
-        }
+        ///List Of The Targets User Asked To Run
+        List<String> choosenTargets = getChoosenTargets(taskConfig);
+        correctProcessingType(choosenTargets);
+        //Updated List after incremental if needed
+        correctListByProcType(choosenTargets);
+        //subTargetGraph contains all and only relevant targets.
+        subTargetGraph = targetGraph.buildSubGraph(choosenTargets);
 
         return subTargetGraph;
+    }
+
+    private void correctListByProcType(List<String> choosenTargets) {
+          if(processingType.equals(ProcessingType.Incremental)){
+              choosenTargets.removeIf(s -> hasGoodRunResult(s));
+            }
+    }
+
+    private boolean hasGoodRunResult(String s) {
+        Target t = targetGraph.getTargetsMap().get(s);
+        if(t.getRunResult()==RunResult.FINISHED && (t.getFinishResult()==FinishResult.SUCCESS || t.getFinishResult() == FinishResult.WARNING)){
+            return true;
+        }
+        return false;
+    }
+
+    private List<String> getChoosenTargets(TaskConfig taskConfig) {
+        List<String> choosenTargets = new ArrayList<>();
+
+        if (taskConfig.isAllTargets()){
+            for (String t : targetGraph.getTargetsMap().keySet()) {
+                choosenTargets.add(t);
+            }
+        }
+        else if (taskConfig.getCustomTargets() != null) {
+            choosenTargets = taskConfig.getCustomTargets();
+        } else {
+            choosenTargets = getWhatIfSubTargetsList(taskConfig.getWhatIfTarget(), taskConfig.getWhatIfRelation());
+        }
+
+        return choosenTargets;
     }
 
     private List<String> getWhatIfSubTargetsList(String whatIfTarget, TargetsRelationType whatIfRelation) {

@@ -15,7 +15,9 @@ import javafx.concurrent.Task;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -32,33 +34,25 @@ public class RunTask extends Task<Boolean> {
     private final Object changeRunResult;
     private boolean doneRunning;
     private ProgressData progressData;
-    private int finishedCounter;
-    private List<Target> runningTargets;
+   // private List<String> currRunTargets;
+    private Set<Target> doneTargets;
 
-    public RunTask(TargetGraph subTargetGraph,component.task.Task task){
-        this.subTargetGraph = subTargetGraph;
+    public RunTask(component.task.Task task){
         this.task=task;
         runPaused = false;
         doneRunning = false;
         progressData = new ProgressData();
         condition = new ReentrantLock();
         changeRunResult=new ReentrantLock();
-        finishedCounter=0;
+        doneTargets = new HashSet<>();
+    }
+
+    public void setSubTargetGraph(TargetGraph subTargetGraph){
+        this.subTargetGraph=subTargetGraph;
     }
 
     public void initProgressData(ProcessingType processingType){
-        subTargetGraph.getTargetsMap().forEach((s, target) -> {
-            switch (processingType) {
-                case FromScratch:
-                    progressData.initToFrozen(target.getName());
-                    break;
-                case Incremental:
-                    if((target.getRunResult() == RunResult.FINISHED && target.getFinishResult()==FinishResult.FAILURE)||
-                            (target.getRunResult()==RunResult.SKIPPED))
-                        progressData.initToFrozen(target.getName());
-                    break;
-            }
-        });
+        subTargetGraph.getTargetsMap().forEach((s, target) -> progressData.initToFrozen(s));
     }
 
     @Override
@@ -186,7 +180,9 @@ public class RunTask extends Task<Boolean> {
         task.updateProcessingTime();
         currentTarget.setFinishResult(task.run());
         synchronized (changeRunResult) {
-            updateProgress(++finishedCounter, subTargetGraph.count());
+            System.out.println("TRY Adding TO DONE SET "+ currentTarget.getName()+ " . THERE IS Already "+ doneTargets.size());
+            doneTargets.add(currentTarget);
+            updateProgress(doneTargets.size(), subTargetGraph.count());
         }
         changeRunResult(RunResult.INPROCESS ,currentTarget.getFinishResult(), currentTarget);
         updateGraphAfterTaskResult(waitingList, currentTarget);
@@ -227,12 +223,20 @@ public class RunTask extends Task<Boolean> {
             currentTarget.setRunResult(RunResult.FINISHED);
             if (currentTarget.getFinishResult().equals(FinishResult.FAILURE)) {
                 subTargetGraph.dfsTravelToUpdateSkippedList(currentTarget);
+                addSkippedToDoneSet(currentTarget);
                 changeRunResultOfList(currentTarget.getSkippedList(), RunResult.FROZEN, RunResult.SKIPPED);
                 subTargetGraph.updateTargetAdjAfterFinishWithFailure(currentTarget);
             } else {
                 subTargetGraph.updateTargetAdjAfterFinishWithoutFailure(progressData,waitingList, currentTarget);
             }
         }
+    }
+
+    private void addSkippedToDoneSet(Target currentTarget) {
+        currentTarget.getSkippedList().forEach(target -> {
+            System.out.println("TRY Adding TO DONE SET "+ target.getName()+ " . THERE IS Already "+ doneTargets.size());
+            doneTargets.add(target);
+        });
     }
 
     private void changeRunResultOfList(List<Target> list, Result from, Result to) {
@@ -246,4 +250,5 @@ public class RunTask extends Task<Boolean> {
     public ProgressData getProgressData() {
         return progressData;
     }
+
 }
