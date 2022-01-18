@@ -39,7 +39,7 @@
                   <RowConstraints maxHeight="151.0" prefHeight="30.0" vgrow="NEVER" />
                   <RowConstraints maxHeight="151.0" minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
                 <RowConstraints maxHeight="151.0" prefHeight="30.0" vgrow="NEVER" />
-                <RowConstraints maxHeight="183.66668701171875" prefHeight="40.0" vgrow="NEVER" />
+                <RowConstraints vgrow="NEVER" />
                   <RowConstraints maxHeight="183.66668701171875" minHeight="10.0" prefHeight="40.0" vgrow="NEVER" />
                   <RowConstraints maxHeight="1.7976931348623157E308" minHeight="100.0" vgrow="ALWAYS" />
                   <RowConstraints maxHeight="26.3333740234375" minHeight="25.0" prefHeight="25.0" vgrow="NEVER" />
@@ -76,7 +76,7 @@
                         <Font name="Yu Gothic Regular" size="14.0" />
                      </font>
                   </Label>
-                  <Label alignment="CENTER" styleClass="lblHeader" text="that depend on it, in the selected relation" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="4">
+                  <Label alignment="CENTER" styleClass="lblHeader" text="that depend on it, or that required for it." textAlignment="CENTER" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="4">
                      <font>
                         <Font name="Yu Gothic Regular" size="14.0" />
                      </font>

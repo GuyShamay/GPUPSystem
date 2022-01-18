@@ -53,7 +53,7 @@
             <AnchorPane id="anchor" minHeight="-Infinity" minWidth="-Infinity" prefHeight="544.0" prefWidth="0.0">
                <children>
                   <ComboBox fx:id="comboBoxTargetPick" layoutX="10.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="166.0" promptText="Pick a Target" AnchorPane.topAnchor="5.0" />
-                  <Button fx:id="buttonTargetPick" layoutX="10.0" layoutY="41.0" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#buttonGetStatusClicked" prefHeight="31.0" prefWidth="166.0" text="Get Status" AnchorPane.topAnchor="41.0" />
+                  <Button layoutX="10.0" layoutY="41.0" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#buttonGetStatusClicked" prefHeight="31.0" prefWidth="166.0" text="Get Status" AnchorPane.topAnchor="41.0" />
                   <GridPane layoutY="77.0" prefHeight="131.0" prefWidth="198.0">
                     <columnConstraints>
                         <ColumnConstraints hgrow="NEVER" maxWidth="5.0" minWidth="5.0" prefWidth="5.0" />
@@ -78,7 +78,7 @@
                         <Label fx:id="labelPickedType" text="Label" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
                      </children>
                   </GridPane>
-                  <TextArea fx:id="textAreaOutput" layoutX="2.0" layoutY="235.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="305.0" prefWidth="178.0" styleClass="txtOutput" AnchorPane.bottomAnchor="4.0" AnchorPane.topAnchor="235.0" />
+                  <TextArea fx:id="textAreaOutput" layoutX="2.0" layoutY="235.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="305.0" prefWidth="178.0" styleClass="txtOutput" wrapText="true" AnchorPane.bottomAnchor="4.0" AnchorPane.topAnchor="235.0" />
                   <Label id="lblTitle" fx:id="labelPickedType1" layoutX="43.0" layoutY="209.0" text="Task Output" />
                </children>
             </AnchorPane>

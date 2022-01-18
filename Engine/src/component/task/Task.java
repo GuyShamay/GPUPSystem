@@ -2,21 +2,21 @@ package component.task;
 
 import component.target.FinishResult;
 import component.target.Target;
+import javafx.beans.property.SimpleStringProperty;
 
 import java.util.List;
 
 public interface Task {
 
-    FinishResult run() throws InterruptedException;
+    public FinishResult run(String targetName, String userData) throws InterruptedException;
 
     long getProcessingTime();
-
-    default void updateProcessingTime() {
-    }
 
     void updateRelevantTargets(List<Target> targets);
 
     int getParallelism();
 
     void incParallelism(Integer newVal);
+
+    SimpleStringProperty getTaskOutput();
 }

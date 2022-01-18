@@ -10,6 +10,7 @@ import dto.GPUPConsumer;
 import dto.ProcessedTargetDTO;
 import dto.SimulationOutputDTO;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
 
 import java.time.Duration;
@@ -34,24 +35,28 @@ public class RunTask extends Task<Boolean> {
     private final Object changeRunResult;
     private boolean doneRunning;
     private ProgressData progressData;
-   // private List<String> currRunTargets;
+    // private List<String> currRunTargets;
     private Set<Target> doneTargets;
 
-    public RunTask(component.task.Task task){
-        this.task=task;
+    public RunTask(component.task.Task task) {
+        this.task = task;
         runPaused = false;
         doneRunning = false;
         progressData = new ProgressData();
         condition = new ReentrantLock();
-        changeRunResult=new ReentrantLock();
+        changeRunResult = new ReentrantLock();
         doneTargets = new HashSet<>();
     }
 
-    public void setSubTargetGraph(TargetGraph subTargetGraph){
-        this.subTargetGraph=subTargetGraph;
+    public SimpleStringProperty taskOutputProperty() {
+        return task.getTaskOutput();
     }
 
-    public void initProgressData(ProcessingType processingType){
+    public void setSubTargetGraph(TargetGraph subTargetGraph) {
+        this.subTargetGraph = subTargetGraph;
+    }
+
+    public void initProgressData(ProcessingType processingType) {
         subTargetGraph.getTargetsMap().forEach((s, target) -> progressData.initToFrozen(s));
     }
 
@@ -82,6 +87,7 @@ public class RunTask extends Task<Boolean> {
         do {
             while (!waitingList.isEmpty()) {
                 while (runPaused) {
+                    updateMessage("Task Paused");
                     handlePause(futures, waitingList);
                     Thread.sleep(1000);
                     System.out.println("max parallism is " + task.getParallelism());
@@ -175,16 +181,16 @@ public class RunTask extends Task<Boolean> {
 
         Instant start, end;
         start = Instant.now();
-
+        updateMessage("Target " + currentTarget.getName() + " Starting");
         changeRunResult(RunResult.WAITING, RunResult.INPROCESS, currentTarget);
-        task.updateProcessingTime();
-        currentTarget.setFinishResult(task.run());
+        currentTarget.setFinishResult(task.run(currentTarget.getName(), currentTarget.getUserData()));
+        updateMessage("Target " + currentTarget.getName() + " Finished");
+
         synchronized (changeRunResult) {
-            System.out.println("TRY Adding TO DONE SET "+ currentTarget.getName()+ " . THERE IS Already "+ doneTargets.size());
-            doneTargets.add(currentTarget);
-            updateProgress(doneTargets.size(), subTargetGraph.count());
+            System.out.println("TRY Adding TO DONE SET " + currentTarget.getName() + " . THERE IS Already " + doneTargets.size());
+            updateProgressBar(currentTarget);
         }
-        changeRunResult(RunResult.INPROCESS ,currentTarget.getFinishResult(), currentTarget);
+        changeRunResult(RunResult.INPROCESS, currentTarget.getFinishResult(), currentTarget);
         updateGraphAfterTaskResult(waitingList, currentTarget);
 
         end = Instant.now();
@@ -227,21 +233,26 @@ public class RunTask extends Task<Boolean> {
                 changeRunResultOfList(currentTarget.getSkippedList(), RunResult.FROZEN, RunResult.SKIPPED);
                 subTargetGraph.updateTargetAdjAfterFinishWithFailure(currentTarget);
             } else {
-                subTargetGraph.updateTargetAdjAfterFinishWithoutFailure(progressData,waitingList, currentTarget);
+                subTargetGraph.updateTargetAdjAfterFinishWithoutFailure(progressData, waitingList, currentTarget);
             }
         }
     }
 
+    private void updateProgressBar(Target target) {
+        doneTargets.add(target);
+        updateProgress(doneTargets.size(), subTargetGraph.count());
+    }
+
     private void addSkippedToDoneSet(Target currentTarget) {
         currentTarget.getSkippedList().forEach(target -> {
-            System.out.println("TRY Adding TO DONE SET "+ target.getName()+ " . THERE IS Already "+ doneTargets.size());
-            doneTargets.add(target);
+            System.out.println("TRY Adding TO DONE SET " + target.getName() + " . THERE IS Already " + doneTargets.size());
+            updateProgressBar(target);
         });
     }
 
     private void changeRunResultOfList(List<Target> list, Result from, Result to) {
         synchronized (changeRunResult) {
-            for (Target t: list ) {
+            for (Target t : list) {
                 changeRunResult(from, to, t);
             }
         }
