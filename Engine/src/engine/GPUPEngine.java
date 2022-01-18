@@ -242,7 +242,7 @@ public class GPUPEngine implements Engine {
                 throw new NoSuchElementException("The required targets aren't exist");
             }
         } else {
-            throw new RuntimeException("The target you entered are the same.");
+            throw new RuntimeException("The targets you entered are the same.");
         }
     }
 

@@ -16,7 +16,7 @@
       <GridPane styleClass="toolbar">
         <columnConstraints>
             <ColumnConstraints hgrow="NEVER" maxWidth="10.0" minWidth="10.0" prefWidth="10.0" />
-            <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="NEVER" minWidth="100.0" prefWidth="100.0" />
             <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="20.0" />
             <ColumnConstraints hgrow="NEVER" />
             <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="20.0" />
@@ -37,9 +37,9 @@
           <RowConstraints maxHeight="5.0" minHeight="5.0" prefHeight="5.0" vgrow="NEVER" />
         </rowConstraints>
          <children>
-            <Button fx:id="buttonLoadFile" minWidth="80.0" mnemonicParsing="false" onAction="#buttonLoadFileClicked" prefHeight="31.0" prefWidth="110.0" text="Load File" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+            <Button minWidth="80.0" mnemonicParsing="false" onAction="#buttonLoadFileClicked" prefHeight="31.0" prefWidth="110.0" text="Load File" GridPane.columnIndex="3" GridPane.rowIndex="1" />
             <Button fx:id="buttonInfo" minWidth="100.0" mnemonicParsing="false" onAction="#buttonInfoClicked" prefHeight="31.0" prefWidth="129.0" text="Information" GridPane.columnIndex="5" GridPane.rowIndex="1" />
-            <ComboBox fx:id="comboBoxActions" minWidth="100.0" onAction="#ActionChosen" prefHeight="31.0" prefWidth="132.0" promptText="Actions" GridPane.columnIndex="7" GridPane.rowIndex="1">
+            <ComboBox fx:id="comboBoxActions" minWidth="100.0" prefHeight="31.0" prefWidth="132.0" promptText="Actions" GridPane.columnIndex="7" GridPane.rowIndex="1">
                <opaqueInsets>
                   <Insets />
                </opaqueInsets>

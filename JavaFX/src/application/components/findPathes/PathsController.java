@@ -4,27 +4,21 @@ import application.components.app.AppController;
 import application.general.Controller;
 import component.target.TargetsRelationType;
 import dto.PathsDTO;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 
-import java.util.Set;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 public class PathsController implements Controller {
 
     private AppController appController;
-
-    @FXML
-    private Label labelFrom;
-
-    @FXML
-    private Label labelTo;
 
     @FXML
     private CheckBox checkBoxDependsOn;
@@ -33,56 +27,71 @@ public class PathsController implements Controller {
     private CheckBox checkBoxRequiredFor;
 
     @FXML
-    private TextFlow textFlowPaths;
-
-    @FXML
-    private ComboBox<String> comboBoxFrom;;
+    private ComboBox<String> comboBoxFrom;
 
     @FXML
     private ComboBox<String> comboBoxTo;
 
     @FXML
-    void checkBoxDependsOnChoosen(ActionEvent event) {checkBoxRequiredFor.setSelected(false); }
+    private VBox vboxPath;
 
     @FXML
-    void checkBoxRequiredForChoosen(ActionEvent event) {checkBoxDependsOn.setSelected(false); }
+    private Label labelMessage;
 
     @FXML
-    void onFindPathClicked(ActionEvent event) {
-        textFlowPaths.getChildren().clear();
-        String msg="";
-        if(allDetailsIn()) {
-            msg = getPathsToShow();
-        } else{
-            msg= "Missing Details";
+    void checkBoxDependsOnChosen(ActionEvent event) {
+        checkBoxRequiredFor.setSelected(!checkBoxDependsOn.isSelected());
+    }
+
+    @FXML
+    void checkBoxRequiredForChosen(ActionEvent event) {
+        checkBoxDependsOn.setSelected(!checkBoxRequiredFor.isSelected());
+    }
+
+    @FXML
+    public void initialize() {
+
+    }
+
+    @FXML
+    void buttonFindPathClicked(ActionEvent event) {
+        labelMessage.setText("");
+        vboxPath.getChildren().clear();
+        if (checkBoxDependsOn.isSelected() || checkBoxRequiredFor.isSelected()) {
+            if (isValidFromToChoose()) {
+                TargetsRelationType relationType = checkBoxDependsOn.isSelected() ? TargetsRelationType.DependsOn : TargetsRelationType.RequiredFor;
+                try {
+                    PathsDTO paths = appController.getFoundPaths(comboBoxFrom.getValue(), comboBoxTo.getValue(), relationType);
+                    List<String> list = paths.getPaths();
+                    for (String s : list) {
+                        Label label = new Label(s);
+                        label.getStyleClass().add("lblItem");
+                        vboxPath.getChildren().add(label);
+                    }
+                } catch (NoSuchElementException ex) {
+                    labelMessage.setText("There isn't a path from target " + comboBoxFrom.getValue() + " to target " + comboBoxTo.getValue());
+                } catch (RuntimeException e) {
+                    labelMessage.setText(e.getMessage());
+                }
+            } else {
+                labelMessage.setText("Please select target (From, To)");
+            }
+        } else {
+            labelMessage.setText("Please select relation");
         }
-        textFlowPaths.getChildren().add(new Text(msg));
     }
 
-    private String getPathsToShow() {
-        TargetsRelationType relationType = checkBoxDependsOn.isSelected() == true ? TargetsRelationType.DependsOn : TargetsRelationType.RequiredFor;
-        PathsDTO paths = appController.getFoundPaths(comboBoxFrom.getValue(), comboBoxTo.getValue(), relationType);
-        return paths.toString().substring(paths.toString().indexOf(":")+1);
+    public static void addPathsToVBox(List<String> list, VBox vbox) {
+
     }
 
-
-    private boolean allDetailsIn() {
+    private boolean isValidFromToChoose() {
         return (!comboBoxFrom.getSelectionModel().isEmpty() &&
-                !comboBoxTo.getSelectionModel().isEmpty()&&
-                (checkBoxDependsOn.isSelected()|| checkBoxRequiredFor.isSelected()));
+                !comboBoxTo.getSelectionModel().isEmpty());
     }
 
-    public void Init(){
+    public void init() {
         initTargetsToChoose();
-        labelFrom.setStyle("-fx-font-weight: bold");
-        comboBoxFrom.setOnAction((event -> {
-            labelTo.setStyle("-fx-font-weight: bold");
-            labelFrom.setStyle("-fx-font-weight: regular");
-        }));
-        comboBoxTo.setOnAction(event -> {
-            labelFrom.setStyle("-fx-font-weight: bold");
-            labelTo.setStyle("-fx-font-weight: regular");
-        });
     }
 
     private void initTargetsToChoose() {
@@ -91,7 +100,7 @@ public class PathsController implements Controller {
     }
 
     @Override
-    public void setParentController(Controller c){
-        appController = (AppController)c;
+    public void setParentController(Controller c) {
+        appController = (AppController) c;
     }
 }

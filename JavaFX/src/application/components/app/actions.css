@@ -1,0 +1,40 @@
+
+#lblMsg {
+    -fx-text-fill: #be2525;
+    -fx-font-size: 15;
+    -fx-font-weight: bold;
+}
+
+.lblItem{
+    -fx-font-size: 60;
+    -fx-text-fill: rgba(34, 34, 168, 0.89);
+    -fx-font-family: Century;
+}
+
+.lblItemTarget{
+    -fx-font-size: 40;
+    -fx-text-fill: rgba(34, 34, 168, 0.89);
+    -fx-font-family: Century;
+}
+#lblTitle {
+    -fx-font-size: 30;
+}
+
+.lblHeader {
+    -fx-font-size: 15;
+    -fx-font-weight: lighter;
+}
+
+.check-box {
+    -fx-font-weight: normal;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+    -fx-font-weight: bold;
+
+}

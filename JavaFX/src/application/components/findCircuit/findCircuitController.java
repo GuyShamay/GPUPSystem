@@ -1,16 +1,17 @@
 package application.components.findCircuit;
 
 import application.components.app.AppController;
+import application.components.findPathes.PathsController;
 import application.general.Controller;
 import dto.CircuitDTO;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class findCircuitController implements Controller {
     private AppController appController;
@@ -29,13 +30,12 @@ public class findCircuitController implements Controller {
 
     @FXML
     void buttonFindCircleClicked(ActionEvent event) {
-        String msg = "";
+        labelMessage.setText("");
+        hboxCircuit.getChildren().clear();
         if (allDetailsIn()) {
             CircuitDTO circuitDTO = appController.findCircuit(comboBoxTargets.getValue());
-            List<String> list = circuitDTO.getCircuit();
-            if (list == null) {
-                labelMessage.setText("Target " + comboBoxTargets.getSelectionModel().getSelectedItem() + " isn't part of a circuit.");
-            } else {
+            try {
+                List<String> list = circuitDTO.getCircuit();
                 for (int i = 0; i < list.size(); i++) {
                     Label label;
                     if (i == list.size() - 1) {
@@ -46,6 +46,8 @@ public class findCircuitController implements Controller {
                     label.getStyleClass().add("lblItem");
                     hboxCircuit.getChildren().add(label);
                 }
+            } catch (NoSuchElementException ex) {
+                labelMessage.setText("Target " + comboBoxTargets.getSelectionModel().getSelectedItem() + " isn't part of a circuit.");
             }
         } else {
             labelMessage.setText("Please select a target");
@@ -56,7 +58,7 @@ public class findCircuitController implements Controller {
         return !comboBoxTargets.getSelectionModel().isEmpty();
     }
 
-    public void Init() {
+    public void init() {
         appController.fillComboBoxWithTargets(comboBoxTargets);
     }
 }

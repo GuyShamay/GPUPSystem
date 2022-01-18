@@ -5,57 +5,68 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<GridPane alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="380.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.components.findCircuit.findCircuitController">
-  <columnConstraints>
-      <ColumnConstraints hgrow="NEVER" maxWidth="100.0" minWidth="10.0" prefWidth="50.0" />
-      <ColumnConstraints hgrow="ALWAYS" maxWidth="280.0" minWidth="10.0" prefWidth="280.0" />
-    <ColumnConstraints hgrow="NEVER" maxWidth="280.0" minWidth="10.0" prefWidth="280.0" />
-    <ColumnConstraints hgrow="NEVER" maxWidth="100.0" minWidth="10.0" prefWidth="50.0" />
-  </columnConstraints>
-  <rowConstraints>
-      <RowConstraints maxHeight="50.0" minHeight="10.0" prefHeight="42.0" vgrow="NEVER" />
-      <RowConstraints maxHeight="52.666656494140625" minHeight="10.0" prefHeight="52.666656494140625" vgrow="NEVER" />
-    <RowConstraints maxHeight="146.33331298828125" minHeight="10.0" prefHeight="47.0" vgrow="SOMETIMES" />
-    <RowConstraints maxHeight="121.0" minHeight="10.0" prefHeight="10.0" vgrow="SOMETIMES" />
-      <RowConstraints maxHeight="200.0" minHeight="10.0" prefHeight="200.0" vgrow="ALWAYS" />
-    <RowConstraints maxHeight="50.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-  </rowConstraints>
-   <children>
-      <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="27.0" prefWidth="493.0" text="Choose a Target:" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
-         <font>
-            <Font name="Yu Gothic UI Regular" size="18.0" />
-         </font>
-      </Label>
-      <Label fx:id="labelMessage" alignment="CENTER" prefHeight="17.0" prefWidth="499.0" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="2">
-         <font>
-            <Font name="Yu Gothic UI Regular" size="19.0" />
-         </font>
-      </Label>
-      <Button fx:id="buttonOk" mnemonicParsing="false" onAction="#buttonFindCircleClicked" prefHeight="31.0" prefWidth="121.0" text="Find Circuit" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
-         <GridPane.margin>
-            <Insets />
-         </GridPane.margin>
-      </Button>
-      <ComboBox fx:id="comboBoxTargets" prefHeight="31.0" prefWidth="135.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
-         <GridPane.margin>
-            <Insets />
-         </GridPane.margin>
-      </ComboBox>
-      <Label id="lblTitle" alignment="CENTER" contentDisplay="CENTER" prefHeight="27.0" prefWidth="493.0" text="Find a Circuit" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.columnSpan="2">
-         <font>
-            <Font name="Yu Gothic UI Regular" size="18.0" />
-         </font>
-      </Label>
-      <HBox fx:id="hboxCircuit" prefHeight="100.0" prefWidth="200.0" spacing="5.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
-   </children>
+<ScrollPane fitToHeight="true" fitToWidth="true" minHeight="300.0" minWidth="400.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.components.findCircuit.findCircuitController">
+   <content>
+      <AnchorPane id="anchor-fc" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+         <children>
+            <GridPane alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="grid-pane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+              <columnConstraints>
+                  <ColumnConstraints hgrow="NEVER" maxWidth="100.0" minWidth="50.0" prefWidth="50.0" />
+                  <ColumnConstraints halignment="LEFT" hgrow="NEVER" maxWidth="285.0" minWidth="140.0" prefWidth="210.0" />
+                <ColumnConstraints halignment="LEFT" hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="140.0" prefWidth="350.0" />
+                <ColumnConstraints hgrow="NEVER" maxWidth="100.0" minWidth="50.0" prefWidth="50.0" />
+              </columnConstraints>
+              <rowConstraints>
+                  <RowConstraints maxHeight="50.0" minHeight="40.0" prefHeight="40.0" vgrow="NEVER" />
+                  <RowConstraints maxHeight="52.666656494140625" minHeight="10.0" vgrow="NEVER" />
+                  <RowConstraints maxHeight="52.666656494140625" minHeight="10.0" prefHeight="10.0" vgrow="NEVER" />
+                <RowConstraints maxHeight="146.33331298828125" minHeight="45.0" prefHeight="45.0" vgrow="NEVER" />
+                <RowConstraints maxHeight="121.0" minHeight="26.0" prefHeight="28.0" vgrow="NEVER" />
+                  <RowConstraints maxHeight="195.0" minHeight="10.0" prefHeight="193.0" valignment="CENTER" vgrow="ALWAYS" />
+                <RowConstraints maxHeight="50.0" minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+              </rowConstraints>
+               <children>
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="27.0" prefWidth="492.0" text="Choose a target to find if it part of a circuit in the graph" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.halignment="LEFT" GridPane.rowIndex="1">
+                     <font>
+                        <Font name="Yu Gothic UI Regular" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label id="lblMsg" fx:id="labelMessage" alignment="CENTER" prefHeight="28.0" prefWidth="345.0" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4">
+                     <font>
+                        <Font name="Yu Gothic UI Regular" size="19.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="buttonOk" mnemonicParsing="false" onAction="#buttonFindCircleClicked" prefHeight="31.0" prefWidth="128.0" text="Find Circuit" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.rowIndex="3">
+                     <GridPane.margin>
+                        <Insets left="5.0" />
+                     </GridPane.margin>
+                  </Button>
+                  <ComboBox fx:id="comboBoxTargets" prefHeight="31.0" prefWidth="163.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3">
+                     <GridPane.margin>
+                        <Insets />
+                     </GridPane.margin>
+                  </ComboBox>
+                  <Label id="lblTitle" alignment="CENTER" contentDisplay="CENTER" prefHeight="45.0" prefWidth="235.0" text="Find a Circuit" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.halignment="LEFT">
+                     <font>
+                        <Font name="Yu Gothic UI Regular" size="18.0" />
+                     </font>
+                  </Label>
+                  <HBox fx:id="hboxCircuit" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="400.0" spacing="5.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
+               </children>
+            </GridPane>
+         </children>
+      </AnchorPane>
+   </content>
    <stylesheets>
+      <URL value="@../app/actions.css" />
       <URL value="@../app/app.css" />
-      <URL value="@findCircuit.css" />
    </stylesheets>
-</GridPane>
+</ScrollPane>

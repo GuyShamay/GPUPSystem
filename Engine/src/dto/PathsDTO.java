@@ -3,8 +3,28 @@ package dto;
 import component.target.TargetsRelationType;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class PathsDTO {
+    public List<String> getPaths() {
+        if (paths != null && paths.size() !=0) {
+            return paths;
+        }
+        throw new NoSuchElementException();
+    }
+
+    public String getSrcName() {
+        return srcName;
+    }
+
+    public String getDestName() {
+        return destName;
+    }
+
+    public TargetsRelationType getType() {
+        return type;
+    }
+
     private final List<String> paths;
     private final String srcName;
     private final String destName;
