@@ -324,14 +324,15 @@ public class TaskController implements Controller {
         if (taskConfig.isAllTargets()) {
             ObservableList<String> all = FXCollections.observableArrayList(appController.getTargetsListByName());
             comboBoxTargetPick.setItems(all);
-        } else if (taskConfig.getCustomTargets().size() != 0) {
+        } else if (taskConfig.getCustomTargets() != null) {
             ObservableList<String> custom = FXCollections.observableArrayList(taskConfig.getCustomTargets());
-
             comboBoxTargetPick.setItems(custom);
         } else {
             /// NEED TO ADD
         }
     }
+
+
 
     public Set<String> getTargetsListByName() {
         return appController.getTargetsListByName();

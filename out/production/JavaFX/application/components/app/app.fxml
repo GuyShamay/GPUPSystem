@@ -16,7 +16,7 @@
       <GridPane styleClass="toolbar">
         <columnConstraints>
             <ColumnConstraints hgrow="NEVER" maxWidth="10.0" minWidth="10.0" prefWidth="10.0" />
-            <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="NEVER" minWidth="100.0" prefWidth="100.0" />
             <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="20.0" />
             <ColumnConstraints hgrow="NEVER" />
             <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="20.0" />
