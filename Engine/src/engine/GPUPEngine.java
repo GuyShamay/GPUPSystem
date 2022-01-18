@@ -339,7 +339,7 @@ public class GPUPEngine implements Engine {
         //return new StatisticsDTO(totalRunDuration, task.getTargetsRunInfo());
     }*/
 
-    public Set<String> getTargetsNamesList() {
+    public Set<String> getAllTargetsByName() {
         return targetGraph.getTargetsNamesList();
     }
 
@@ -435,6 +435,11 @@ public class GPUPEngine implements Engine {
             return subTargetGraph.getTargetsMap().keySet().stream().anyMatch(s -> targetGraph.findCircuit(s) != null);
         }
         return false;
+    }
+
+    @Override
+    public Set<String> getCurrentTaskTargetByName() {
+        return subTargetGraph.getTargetsNamesList();
     }
 
 }
