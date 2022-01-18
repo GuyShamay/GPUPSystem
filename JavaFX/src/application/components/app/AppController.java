@@ -245,12 +245,17 @@ public class AppController implements Controller {
         return engine.findPaths(src, dest, type);
     }
 
-    public Set<String> getTargetsListByName() {
-        return engine.getTargetsNamesList();
+    public Set<String> getAllTargetsByName() {
+        return engine.getAllTargetsByName();
     }
 
+    public Set<String> getCurrentTaskTargetByName() {
+        return engine.getCurrentTaskTargetByName();
+    }
+
+
     public void fillComboBoxWithTargets(ComboBox<String> comboBox) {
-        Set<String> targets = getTargetsListByName();
+        Set<String> targets = getAllTargetsByName();
         ObservableList<String> list = comboBox.getItems();
         list.addAll(targets);
     }

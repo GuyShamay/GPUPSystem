@@ -321,20 +321,12 @@ public class TaskController implements Controller {
     }
 
     private void updateTargetPick() {
-        if (taskConfig.isAllTargets()) {
-            ObservableList<String> all = FXCollections.observableArrayList(appController.getTargetsListByName());
-            comboBoxTargetPick.setItems(all);
-        } else if (taskConfig.getCustomTargets().size() != 0) {
-            ObservableList<String> custom = FXCollections.observableArrayList(taskConfig.getCustomTargets());
-
-            comboBoxTargetPick.setItems(custom);
-        } else {
-            /// NEED TO ADD
-        }
+        ObservableList<String> list = FXCollections.observableArrayList(appController.getCurrentTaskTargetByName());
+        comboBoxTargetPick.setItems(list);
     }
 
     public Set<String> getTargetsListByName() {
-        return appController.getTargetsListByName();
+        return appController.getAllTargetsByName();
     }
 
     public int getMaxParallelism() {

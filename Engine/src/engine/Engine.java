@@ -11,10 +11,8 @@ import javafx.collections.ObservableList;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 
 public interface Engine {
     void buildGraphFromXml(String path) throws JAXBException, FileNotFoundException, ElementExistException;
@@ -41,7 +39,7 @@ public interface Engine {
 
     List<TargetInfoDTO> getTargetsInfo();
 
-    Set<String> getTargetsNamesList();
+    Set<String> getAllTargetsByName();
 
     List<SerialSetDTO> getSerialSetInfo();
 
@@ -63,4 +61,6 @@ public interface Engine {
     void increaseThreadsNum(Integer newVal);
 
     boolean isCircuit();
+
+    Set<String> getCurrentTaskTargetByName();
 }
