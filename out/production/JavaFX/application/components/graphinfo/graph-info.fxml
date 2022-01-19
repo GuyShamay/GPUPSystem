@@ -107,7 +107,7 @@
                               <TableView fx:id="serialSetTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="200.0" minWidth="195.0" prefHeight="200.0" prefWidth="195.0">
                                 <columns>
                                   <TableColumn fx:id="serialNameCol" prefWidth="75.0" text="Name" />
-                                  <TableColumn fx:id="serialTargets" prefWidth="75.0" text="C2" />
+                                  <TableColumn fx:id="serialTargets" prefWidth="75.0" text="Targets" />
                                 </columns>
                                  <columnResizePolicy>
                                     <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

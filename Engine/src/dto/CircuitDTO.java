@@ -12,7 +12,7 @@ public class CircuitDTO {
         throw new NoSuchElementException();
     }
 
-    private List<String> circuit;
+    private final List<String> circuit;
 
     @Override
     public String toString() {

@@ -1,13 +1,16 @@
 #welcome{
-    -fx-font-weight: bold;
     -fx-font-size: 30px;
 }
 #desktop-app{
-    -fx-font-weight: bold;
     -fx-font-size: 15px;
 }
 
-.label-instr{
+.label-instr, #welcome, #desktop-app, .lbl-status{
     -fx-font-weight: bold;
+
 }
 
+.lbl-status{
+    -fx-text-fill: green;
+-fx-font-size: 30;
+}

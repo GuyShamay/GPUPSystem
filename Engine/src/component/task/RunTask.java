@@ -6,9 +6,6 @@ import component.target.Result;
 import component.target.RunResult;
 import component.target.Target;
 import component.targetgraph.TargetGraph;
-import dto.GPUPConsumer;
-import dto.ProcessedTargetDTO;
-import dto.SimulationOutputDTO;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
@@ -61,27 +58,17 @@ public class RunTask extends Task<Boolean> {
     }
 
     @Override
-    protected Boolean call() throws Exception {
+    protected Boolean call() {
         updateMessage("Task Starting");
         updateProgress(0, subTargetGraph.count());
-        startTask();
+        runTask();
         updateMessage("Task Finished");
         return true;
     }
 
-    public void startTask() throws InterruptedException {
-        Instant totalStart, totalEnd;
-        totalStart = Instant.now();
-        runTask();
-        totalEnd = Instant.now();
-        Duration totalRunDuration = Duration.between(totalStart, totalEnd);
-        //StatisticsDTO statisticsDTO = calcStatistics(totalRunDuration);
-        //System.out.println(statisticsDTO);
-    }
-
-    private void runTask() throws InterruptedException {
+    private void runTask() {
         List<Target> waitingList = subTargetGraph.getAllWaitingTargets();
-        List<Future<?>> futures = new ArrayList<Future<?>>();
+        List<Future<?>> futures = new ArrayList<>();
         threadExecutor = Executors.newFixedThreadPool(task.getParallelism());
 
         do {
@@ -89,10 +76,7 @@ public class RunTask extends Task<Boolean> {
                 while (runPaused) {
                     updateMessage("Task Paused");
                     handlePause(futures, waitingList);
-                    Thread.sleep(1000);
-                    System.out.println("max parallism is " + task.getParallelism());
-                    System.out.println("POOL SIZE:" + ((ThreadPoolExecutor) threadExecutor).getPoolSize());
-                    System.out.println("Core POOL Size:" + ((ThreadPoolExecutor) threadExecutor).getCorePoolSize());
+                    //Thread.sleep(1000);
                 }
                 Target currentTarget = waitingList.remove(0);
                 while (currentTarget.isLock()) {
@@ -108,7 +92,6 @@ public class RunTask extends Task<Boolean> {
                     };
                     Future<?> f = threadExecutor.submit(r);
                     futures.add(f);
-                    // System.out.println("POOL SIZE:"+((ThreadPoolExecutor)threadExecutor).getPoolSize());
                 }
             }
         } while (!AllThreadsDone(futures));
@@ -116,15 +99,12 @@ public class RunTask extends Task<Boolean> {
 
         doneRunning = true;
         threadExecutor.shutdownNow();
-        //System.out.println("FINISHED WITH POOL SIZE:" + ((ThreadPoolExecutor) threadExecutor).getPoolSize());
     }
 
     public void resume() {
         if (!doneRunning) {
             runPaused = false;
             synchronized (condition) {
-                System.out.println("thread number " + Thread.currentThread() + " im waking run");
-                Thread.getAllStackTraces().keySet();
                 condition.notify();
             }
         }
@@ -139,11 +119,10 @@ public class RunTask extends Task<Boolean> {
         return runPaused;
     }
 
-    private void handlePause(List<Future<?>> futures, List<Target> waitingList) throws InterruptedException {
+    private void handlePause(List<Future<?>> futures, List<Target> waitingList) {
         cancelAllFutures(futures);
         try {
             synchronized (condition) {
-                System.out.println("thread number " + Thread.currentThread() + "says: im going to sleep");
                 condition.wait();
                 ((ThreadPoolExecutor) threadExecutor).setCorePoolSize(task.getParallelism());
                 updateWaitingList(waitingList);
@@ -151,7 +130,6 @@ public class RunTask extends Task<Boolean> {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("thread number " + Thread.currentThread() + "i waked up");
     }
 
     private void updateWaitingList(List<Target> waitingList) {
@@ -163,9 +141,7 @@ public class RunTask extends Task<Boolean> {
     }
 
     private void cancelAllFutures(List<Future<?>> futures) {
-        futures.forEach(future -> {
-            future.cancel(false);
-        });
+        futures.forEach(future -> future.cancel(false));
     }
 
     private boolean AllThreadsDone(List<Future<?>> futures) {
@@ -179,29 +155,17 @@ public class RunTask extends Task<Boolean> {
     private void runTarget(List<Target> waitingList, Target currentTarget) throws InterruptedException {
         subTargetGraph.lockSerialSetOf(currentTarget);
 
-        Instant start, end;
-        start = Instant.now();
+        currentTarget.setStartRunningTime();
         updateMessage("Target " + currentTarget.getName() + " Starting");
         changeRunResult(RunResult.WAITING, RunResult.INPROCESS, currentTarget);
         currentTarget.setFinishResult(task.run(currentTarget.getName(), currentTarget.getUserData()));
         updateMessage("Target " + currentTarget.getName() + " Finished");
 
         synchronized (changeRunResult) {
-            System.out.println("TRY Adding TO DONE SET " + currentTarget.getName() + " . THERE IS Already " + doneTargets.size());
             updateProgressBar(currentTarget);
         }
         changeRunResult(RunResult.INPROCESS, currentTarget.getFinishResult(), currentTarget);
         updateGraphAfterTaskResult(waitingList, currentTarget);
-
-        end = Instant.now();
-
-        currentTarget.setTaskRunDuration(Duration.between(start, end));
-        //Temporary
-        GPUPConsumer consumerDTO = new ProcessedTargetDTO(currentTarget);
-        consumerDTO.setTaskOutput(new SimulationOutputDTO(task.getProcessingTime()));
-        print(consumerDTO);
-        // Writing to console
-
         subTargetGraph.unlockSerialSetOf(currentTarget);
     }
 
@@ -212,17 +176,11 @@ public class RunTask extends Task<Boolean> {
                     target.setRunResult((RunResult) to);
                 else
                     target.setFinishResult((FinishResult) to);
-                Platform.runLater(() -> {
-                    progressData.move(from, to, target.getName());
-                });
+                Platform.runLater(() -> progressData.move(from, to, target.getName()));
             }
         }
     }
 
-    private synchronized void print(GPUPConsumer consumerDTO) {
-        System.out.println(consumerDTO);
-        System.out.println(Thread.currentThread().getId());
-    }
 
     private void updateGraphAfterTaskResult(List<Target> waitingList, Target currentTarget) {
         synchronized (changeRunResult) {
@@ -245,7 +203,6 @@ public class RunTask extends Task<Boolean> {
 
     private void addSkippedToDoneSet(Target currentTarget) {
         currentTarget.getSkippedList().forEach(target -> {
-            System.out.println("TRY Adding TO DONE SET " + target.getName() + " . THERE IS Already " + doneTargets.size());
             updateProgressBar(target);
         });
     }

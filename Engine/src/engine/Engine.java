@@ -47,7 +47,7 @@ public interface Engine {
 
     int getMaxParallelism();
 
-    void runTask() throws InterruptedException;
+    default void runTask(){}
 
     void resume();
 
@@ -55,12 +55,12 @@ public interface Engine {
 
     RunTask getCurrTask();
 
-    boolean isRunPaused();
-
     ObservableList<String> getList(String runStatus);
     void increaseThreadsNum(Integer newVal);
 
     boolean isCircuit();
 
     Set<String> getCurrentTaskTargetByName();
+
+    TargetInfoDTO getTargetInfoDTO(String name);
 }

@@ -70,7 +70,6 @@ public class AppController implements Controller {
 
     @FXML
     public void initialize() {
-
         comboBoxActions.getItems().addAll("Find Path", "Find Circuit", "What-if?");
         comboBoxActions.valueProperty().addListener(((observable, oldValue, newValue) -> {
             comboBoxActionChosen(newValue);
@@ -145,7 +144,7 @@ public class AppController implements Controller {
                 new FileChooser.ExtensionFilter("Xml Files", "*.xml"));
         File selectedFile = fileChooser.showOpenDialog(btn.getScene().getWindow());
         */
-        File selectedFile = new File("C:\\Users\\guysh\\Downloads\\ex2-compilation.xml");
+        File selectedFile = new File("C:\\Users\\guysh\\Downloads\\ex2-big.xml");
         if (selectedFile != null) {
             try {
                 engine.buildGraphFromXml(selectedFile);
@@ -165,8 +164,6 @@ public class AppController implements Controller {
         buttonInfo.setDisable(isDisable);
         buttonTask.setDisable(isDisable);
         comboBoxActions.setDisable(isDisable);
-        comboBoxThemes.setDisable(isDisable);
-        checkBoxAnimations.setDisable(isDisable);
     }
 
     //--------------------------------------------------------------------------
@@ -252,7 +249,7 @@ public class AppController implements Controller {
         return engine.getAllTargetsByName();
     }
 
-    public Set<String> getCurrentTaskTargetByName() {
+    public Set<String> getCurrentTaskTargetsByName() {
         return engine.getCurrentTaskTargetByName();
     }
 
@@ -286,26 +283,14 @@ public class AppController implements Controller {
         engine.resume();
     }
 
-    //--------------------------------------------------------------------------
-    // Animations
-    @FXML
-    void animationChecked(ActionEvent event) {
-
-    }
-    //--------------------------------------------------------------------------
-
-    //Themes
-
-    @FXML
-    void themeChosen(ActionEvent event) {
-
-    }
-
-    public RunTask getCurrTask() {
+        public RunTask getCurrTask() {
         return engine.getCurrTask();
     }
 
     public ObservableList<String> getList(String runStatus) {
         return engine.getList(runStatus);
+    }
+    public TargetInfoDTO getTargetInfoDTOByName(String name) {
+        return engine.getTargetInfoDTO(name);
     }
 }

@@ -13,14 +13,6 @@ public class PathsDTO {
         throw new NoSuchElementException();
     }
 
-    public String getSrcName() {
-        return srcName;
-    }
-
-    public String getDestName() {
-        return destName;
-    }
-
     public TargetsRelationType getType() {
         return type;
     }

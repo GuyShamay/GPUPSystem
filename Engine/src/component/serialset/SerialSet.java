@@ -9,11 +9,9 @@ public class SerialSet {
     private final String name;
     private final String targetAsString;
     private List<Target> targets;
-    private boolean isLocked;
 
     public SerialSet(String name, String targetAsString) {
         this.name = name;
-        isLocked = false;
         this.targetAsString = targetAsString;
     }
 
@@ -35,12 +33,10 @@ public class SerialSet {
 
     public void lockAll(Target lockingTarget) {
         targets.stream().filter(target -> !(target.equals(lockingTarget))).forEach(Target::lock);
-        isLocked = true;
     }
 
     public void unlockAll(){
         targets.forEach(Target::unlock);
-        isLocked = false;
     }
 
     public boolean contains(Target currentTarget) {

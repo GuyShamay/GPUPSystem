@@ -32,15 +32,9 @@ public class TargetGraph implements DirectableGraph, GraphActions {
         this.name = null;
     }
 
-    public SerialSet getSerialSet(String name) {
-        return serialSets.get(name);
-    }
-
     public void setSerialSets(Map<String, SerialSet> serialSets) {
         this.serialSets = serialSets;
-        serialSets.forEach((s, serialSet) -> {
-            serialSet.getTargets().forEach(Target::incrementSerialSetCounter);
-        });
+        serialSets.forEach((s, serialSet) -> serialSet.getTargets().forEach(Target::incrementSerialSetCounter));
     }
 
     public String getWorkingDirectory() {
@@ -77,11 +71,9 @@ public class TargetGraph implements DirectableGraph, GraphActions {
         subTargetGraph.setDependsOnList(SubGraphDependsOn);
         subTargetGraph.setTargetMap(subTargetMap);
 
-        subTargetMap.values().forEach(target -> {
-            target.getDependsOnList().forEach(adj -> {
-                if (subTargetsList.contains(adj.getName())) subTargetGraph.addEdge(target.getName(), adj);
-            });
-        });
+        subTargetMap.values().forEach(target -> target.getDependsOnList().forEach(adj -> {
+            if (subTargetsList.contains(adj.getName())) subTargetGraph.addEdge(target.getName(), adj);
+        }));
 
 
         subTargetGraph.setSubGraphSerialSets(serialSets);
@@ -274,11 +266,10 @@ public class TargetGraph implements DirectableGraph, GraphActions {
                     currentTarget.addToJustOpenedList(target);
                 if (isAllAdjOfTargetFinishedWithoutFailure(target)) {
                     target.setRunResult(RunResult.WAITING);
-                    Platform.runLater(() -> {
-                        progressData.move(RunResult.FROZEN, RunResult.WAITING, target.getName());
-                    });
+                    Platform.runLater(() -> progressData.move(RunResult.FROZEN, RunResult.WAITING, target.getName()));
                     if (!waitingList.contains(target)) {
                         waitingList.add(target);
+                        target.setStartWaitingTime();
                     }
                 }
             }
@@ -311,7 +302,6 @@ public class TargetGraph implements DirectableGraph, GraphActions {
         List<Target> skippedList = currentTarget.getSkippedList();
         recDfsUpdateDependentsList(isVisited, skippedList, currentTarget);
         skippedList.remove(currentTarget);
-        //  skippedList.forEach((target -> target.setRunResult(RunResult.SKIPPED)));
     }
 
     private void recDfsUpdateDependentsList(Map<Target, Boolean> isVisited, List<Target> skippedList, Target
@@ -405,9 +395,7 @@ public class TargetGraph implements DirectableGraph, GraphActions {
 
     public List<TargetInfoDTO> getTargetsInfo() {
         List<TargetInfoDTO> list = new ArrayList<>();
-        targetMap.forEach((s, target) -> {
-            list.add(new TargetInfoDTO(target));
-        });
+        targetMap.forEach((s, target) -> list.add(new TargetInfoDTO(target)));
         return list;
     }
 
@@ -418,9 +406,7 @@ public class TargetGraph implements DirectableGraph, GraphActions {
     public List<SerialSetDTO> getSerialSetInfo() {
         if (serialSets != null) {
             List<SerialSetDTO> list = new ArrayList<>();
-            serialSets.forEach((s, serialSet) -> {
-                list.add(new SerialSetDTO(serialSet));
-            });
+            serialSets.forEach((s, serialSet) -> list.add(new SerialSetDTO(serialSet)));
             return list;
         }
         return null;
@@ -526,6 +512,10 @@ public class TargetGraph implements DirectableGraph, GraphActions {
         }
 
         isVisited.replace(currentTarget, false, true);
+    }
+
+    public TargetInfoDTO getTargetInfoDTO(String name) {
+        return new TargetInfoDTO(targetMap.get(name));
     }
 }
 
