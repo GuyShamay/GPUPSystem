@@ -143,24 +143,6 @@ public class GPUPEngine implements Engine {
         }));
     }
 
-    ///NOT IN USE
-    private void updateTargetIncremental() {
-//        subTargetGraph.getTargetsMap().forEach(((s, target) -> {
-//            if (target.getRunResult().equals(RunResult.FINISHED)) {
-//                if (target.getFinishResult().equals(FinishResult.FAILURE)) {
-//                    if(subTargetGraph.isAllAdjOfTargetFinishedWithoutFailure(target)) {
-//                        target.setFinishResult(null);
-//                        target.setRunResult(RunResult.WAITING);
-//                        runTask.getProgressData().move(RunResult.FROZEN,RunResult.WAITING,target.getName());
-//                    }
-//                }
-//            }
-//            if (target.getRunResult().equals(RunResult.SKIPPED))
-//                target.setRunResult(RunResult.FROZEN);
-//            //Already frozen in UI
-//        }));
-    }
-
     //Everyone null and Frozen.
     private void resetEveryOne() {
         subTargetGraph.getTargetsMap().forEach(((s, target) -> {
@@ -175,10 +157,6 @@ public class GPUPEngine implements Engine {
             System.out.println("Task will run 'From Scrach'.");
             processingType = ProcessingType.FromScratch;
         }
-//        if ((subTargetGraph.allTargetsFinished() || !subTargetGraph.allTargetsHaveRunResult()) && processingType == ProcessingType.Incremental) {
-//            System.out.println("Task will run 'From Scrach'.");
-//            processingType = ProcessingType.FromScratch;
-//        }
     }
 
     private boolean allTargetsFinished(List<String> choosenTargets) {
@@ -201,9 +179,9 @@ public class GPUPEngine implements Engine {
         return subTargetGraph;
     }
 
-    private void correctListByProcType(List<String> choosenTargets) {
+    private void correctListByProcType(List<String> chosenTargets) {
         if (processingType.equals(ProcessingType.Incremental)) {
-            choosenTargets.removeIf(s -> hasGoodRunResult(s));
+            chosenTargets.removeIf(this::hasGoodRunResult);
         }
     }
 
@@ -233,9 +211,7 @@ public class GPUPEngine implements Engine {
 
     private List<String> getWhatIfSubTargetsList(String whatIfTarget, TargetsRelationType whatIfRelation) {
         List<String> res = new ArrayList<>();
-        targetGraph.getTargetsByRelation(whatIfTarget, whatIfRelation).forEach(target -> {
-            res.add(target.getName());
-        });
+        targetGraph.getTargetsByRelation(whatIfTarget, whatIfRelation).forEach(target -> res.add(target.getName()));
         return res;
     }
 
@@ -278,11 +254,6 @@ public class GPUPEngine implements Engine {
     @Override
     public void pause() {
         runTask.pause();
-    }
-
-    @Override
-    public boolean isRunPaused() {
-        return runTask.isRunPaused();
     }
 
     @Override
@@ -347,10 +318,6 @@ public class GPUPEngine implements Engine {
         }
     }
 
-    /*private StatisticsDTO calcStatistics(Duration totalRunDuration) {
-        //return new StatisticsDTO(totalRunDuration, task.getTargetsRunInfo());
-    }*/
-
     public Set<String> getAllTargetsByName() {
         return targetGraph.getTargetsNamesList();
     }
@@ -363,9 +330,7 @@ public class GPUPEngine implements Engine {
     public List<TargetInfoDTO> getTargetsByRelation(String targetName, TargetsRelationType relationType) {
         List<Target> targetsList = targetGraph.getTargetsByRelation(targetName, relationType);
         List<TargetInfoDTO> targetsDTOList = new ArrayList<>();
-        targetsList.forEach((target -> {
-            targetsDTOList.add(new TargetInfoDTO(target));
-        }));
+        targetsList.forEach((target -> targetsDTOList.add(new TargetInfoDTO(target))));
         return targetsDTOList;
     }
 
@@ -374,12 +339,7 @@ public class GPUPEngine implements Engine {
         return maxParallelism;
     }
 
-    //Not in use
-    @Override
-    public void runTask() throws InterruptedException {
-    }
-
-    public void runTaskGPUP1(Consumer<GPUPConsumer> consumer) throws InterruptedException, IOException {
+    public void runTaskGPUP1(Consumer<GPUPConsumer> consumer) throws InterruptedException {
         Instant totalStart, totalEnd, start, end;
         List<Target> waitingList;
 
@@ -434,6 +394,11 @@ public class GPUPEngine implements Engine {
 
     public int getSpecificTypeOfTargetsNum(TargetType targetType) {
         return targetGraph.getSpecificTypeOfTargetsNum(targetType);
+    }
+
+    @Override
+    public TargetInfoDTO getTargetInfoDTO(String name) {
+        return subTargetGraph.getTargetInfoDTO(name);
     }
 
     @Override

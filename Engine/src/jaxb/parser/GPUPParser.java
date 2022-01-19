@@ -52,6 +52,7 @@ public abstract class GPUPParser {
         SerialSet serialSet = new SerialSet(name, gpupSerialSet.getTargets());
         try {
             List<Target> targets = parseSerialSetFromString(targetsByString, targetMap);
+            targets.forEach(target -> target.addToSerialSetsList(name));
             serialSet.setTargets(targets);
         } catch (NoSuchElementException ex) {
             throw new NoSuchElementException("In serial set " + name + "\n" + ex.getMessage());

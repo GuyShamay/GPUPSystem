@@ -3,6 +3,7 @@ package component.target;
 import component.serialset.SerialSet;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 public class Target {
@@ -19,12 +20,16 @@ public class Target {
     private Duration taskRunDuration;
     private int serialSetCounter;
     private boolean isLockBySerialSet;
+    private Instant startRunningTime;
+    private Instant startWaitingTime;
+    private List<String> serialSets;
 
     public Target(String name) {
         this.name = name;
         requiredForList = new ArrayList<>();
         dependsOnList = new ArrayList<>();
         runResult = RunResult.FROZEN;
+        serialSets = new ArrayList<>();
     }
 
     public String getName() {
@@ -82,7 +87,6 @@ public class Target {
     //GPUP1 func
     public boolean isAllAdjFinished() {
         return dependsOnList.stream().allMatch(target -> (target.getRunResult().equals(RunResult.FINISHED)));
-        //||target.getRunResult().equals(RunResult.SKIPPED)));
     }
 
     //GPUP1 func
@@ -163,5 +167,53 @@ public class Target {
 
     public void setDependOn(List<Target> dependOn) {
         dependsOnList = dependOn;
+    }
+
+    public void setStartRunningTime() {
+        startRunningTime = Instant.now();
+    }
+
+    public void setStartWaitingTime() {
+        startWaitingTime = Instant.now();
+    }
+
+    public Duration getWaitingTimeDuration() {
+        if(runResult.equals(RunResult.WAITING))
+            return Duration.between(startWaitingTime,Instant.now());
+        return null;
+    }
+
+    public Duration getProcessingTimeDuration() {
+        if(runResult.equals(RunResult.INPROCESS))
+            return Duration.between(startRunningTime,Instant.now());
+        return null;
+    }
+
+    public List<Target> getDependsOnToOpenList() {
+        final List<Target> res = new ArrayList<>();
+        dependsOnList.forEach(target -> {
+            if(target.getFinishResult()==null)
+                res.add(target);
+        });
+
+        return res;
+    }
+
+    public List<Target> getSkippedBecauseList() {
+        final List<Target> res = new ArrayList<>();
+        dependsOnList.forEach(target -> {
+            if(target.getFinishResult()==FinishResult.FAILURE)
+                res.add(target);
+        });
+
+        return res;
+    }
+
+    public List<String> getSerialSets() {
+        return serialSets;
+    }
+
+    public void addToSerialSetsList(String name) {
+        serialSets.add(name);
     }
 }

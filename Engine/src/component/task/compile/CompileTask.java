@@ -5,7 +5,6 @@ import component.target.Target;
 import component.task.Task;
 import component.task.config.CompileConfig;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 import java.io.BufferedReader;
@@ -39,11 +38,9 @@ public class CompileTask implements Task {
     @Override
     public FinishResult run(String targetName, String userData) throws InterruptedException {
         Instant start = Instant.now();
-        Platform.runLater(() -> {
-            taskOutput.setValue("File " + targetName + " is about to compile\n");
-        });
+        Platform.runLater(() -> taskOutput.setValue("File " + targetName + " is about to compile\n"));
         setPathFromFQN(userData);
-        FinishResult result = null;
+        FinishResult result;
         int exitCode = -1;
         try {
             String[] command = {"javac", "-d", destDirectory, "-cp", srcDirectory, filePath};
@@ -66,14 +63,10 @@ public class CompileTask implements Task {
         processingTime = Duration.between(start, end);
         if (exitCode == 0) {
             result = FinishResult.SUCCESS;
-            Platform.runLater(() -> {
-                taskOutput.setValue("File " + targetName + " Compiled in " + processingTime.toMillis() + "ms\n");
-            });
+            Platform.runLater(() -> taskOutput.setValue("File " + targetName + " Compiled in " + processingTime.toMillis() + "ms\n"));
         } else {
             result = FinishResult.FAILURE;
-            Platform.runLater(() -> {
-                taskOutput.setValue("File " + targetName + " Failed to compile\n");
-            });
+            Platform.runLater(() -> taskOutput.setValue("File " + targetName + " Failed to compile\n"));
         }
         return result;
     }

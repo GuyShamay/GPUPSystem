@@ -6,6 +6,7 @@ import application.general.Component;
 import application.general.ComponentCreator;
 import application.general.Controller;
 import component.task.config.TaskConfig;
+import dto.TargetInfoDTO;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -21,6 +22,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.Duration;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -211,16 +213,22 @@ public class TaskController implements Controller {
     }
 
     private void updateTaskResult() {
-        labelSkipped.setText(String.valueOf(skippedCol.getItems().size()));
-        labelSuccess.setText(String.valueOf(successCol.getItems().size()));
-        labelWarnings.setText(String.valueOf(warningsCol.getItems().size()));
-        labelFailure.setText(String.valueOf(failureCol.getItems().size()));
-        if (skippedCol.getItems().size() == 0) {
+        int skipped = skippedCol.getItems().size();
+        int success = successCol.getItems().size();
+        int warnings = warningsCol.getItems().size();
+        int fail = failureCol.getItems().size();
+        int total = fail + warnings + skipped + success;
+
+        labelSkipped.setText(String.valueOf(skipped));
+        labelSuccess.setText(String.valueOf(success));
+        labelWarnings.setText(String.valueOf(warnings));
+        labelFailure.setText(String.valueOf(fail));
+        if (skipped == 0) {
             labelTaskStatus.setText("Task finished completely");
         } else {
             labelTaskStatus.setText("Task didn't finished completely");
         }
-        labelTotal.setText(String.valueOf(appController.getCurrentTaskTargetByName().size()));
+        labelTotal.setText(String.valueOf(total));
     }
 
     private void cleanData() {
@@ -238,6 +246,7 @@ public class TaskController implements Controller {
         labelWarnings.setText("-");
         labelSuccess.setText("-");
         labelTaskStatus.setText("");
+        textAreaOutput.setText("");
     }
 
     @FXML
@@ -267,7 +276,7 @@ public class TaskController implements Controller {
     }
 
     private void updateTargetPick() {
-        ObservableList<String> list = FXCollections.observableArrayList(appController.getCurrentTaskTargetByName());
+        ObservableList<String> list = FXCollections.observableArrayList(appController.getCurrentTaskTargetsByName());
         comboBoxTargetPick.setItems(list);
     }
 
@@ -288,15 +297,49 @@ public class TaskController implements Controller {
     }
 
     // Pick target while running ----------------------------------
-
-
     @FXML
     void buttonGetStatusClicked(ActionEvent event) {
         if (!comboBoxTargetPick.getSelectionModel().isEmpty()) {
-            labelPickedName.setText(comboBoxTargetPick.getSelectionModel().getSelectedItem());
+            String targetName = comboBoxTargetPick.getSelectionModel().getSelectedItem();
+            labelPickedName.setText(targetName);
+            TargetInfoDTO target = appController.getTargetInfoDTOByName(targetName);
+            labelPickedType.setText(target.getType());
+            String infoText = "";
+
+            if (target.getSerialSetsList().size() != 0)
+                infoText = "Serial Sets : " + target.getSerialSetsList() + "\n";
+
+            Duration duration;
+            switch (target.getRunResult()) {
+                case "FROZEN":
+                    infoText += "Frozen Until " + target.getDependsOnToOpenList().toString() + " Will Finish";
+                    break;
+                case "WAITING":
+                    infoText += "Waiting Already :\n";
+                    duration = target.getWaitingTimeInMs();
+                    infoText += String.format("%d min\n%02d sec\n%02d ms",
+                            duration.toMinutes(),
+                            duration.getSeconds(),
+                            duration.toMillis());
+                    break;
+                case "SKIPPED":
+                    infoText += "Skipped Because " + target.getSkippedBecauseList().toString() + " Failed";
+                    break;
+                case "INPROCESS":
+                    infoText += "InProcces Already :\n";
+                    duration = target.getProcessingTimeInMs();
+                    infoText += String.format("%d min\n%02d sec\n%02d ms",
+                            duration.toMinutes(),
+                            duration.getSeconds(),
+                            duration.toMillis());
+                    break;
+                case "FINISHED":
+                    infoText += "Finished With " + target.getFinishResult();
+                    break;
+            }
+
+            labelPickInfo.setText(infoText);
         }
-
-
         comboBoxTargetPick.getSelectionModel().clearSelection();
     }
 }

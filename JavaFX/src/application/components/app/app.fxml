@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -27,7 +26,6 @@
           <ColumnConstraints hgrow="NEVER" />
             <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="20.0" />
             <ColumnConstraints hgrow="NEVER" />
-            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="20.0" />
             <ColumnConstraints hgrow="NEVER" />
           <ColumnConstraints hgrow="NEVER" maxWidth="10.0" minWidth="10.0" prefWidth="10.0" />
         </columnConstraints>
@@ -45,11 +43,9 @@
                </opaqueInsets>
             </ComboBox>
             <Button fx:id="buttonTask" minWidth="80.0" mnemonicParsing="false" onAction="#buttonTaskClicked" prefHeight="25.0" prefWidth="98.0" text="Task" GridPane.columnIndex="9" GridPane.rowIndex="1" />
-            <ComboBox fx:id="comboBoxThemes" minWidth="100.0" onAction="#themeChosen" prefWidth="150.0" promptText="Themes" GridPane.columnIndex="11" GridPane.rowIndex="1" />
-            <CheckBox fx:id="checkBoxAnimations" mnemonicParsing="false" onAction="#animationChecked" text="Animations" GridPane.columnIndex="13" GridPane.rowIndex="1" />
             <ImageView fitHeight="44.0" fitWidth="100.0" pickOnBounds="true" GridPane.columnIndex="1" GridPane.rowSpan="3">
                <image>
-                  <Image url="@../../../resources/LogoMakr-6r9eQE%20(1).png" />
+                  <Image url="@../../../resources/LogoMakr-6r9eQE (1).png" />
                </image>
             </ImageView>
          </children>
