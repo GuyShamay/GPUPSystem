@@ -30,8 +30,8 @@ import java.util.Set;
 
 
 public class TaskConfigController implements Controller {
-    private final String SIMULATION_CONFIG_FXML_NAME = "simulation/simulation-config.fxml";
-    private final String COMPILE_CONFIG_FXML_NAME = "compile/compile-config.fxml";
+    private final String SIMULATION_CONFIG_FXML_NAME = "/application/components/task/config/simulation/simulation-config.fxml";
+    private final String COMPILE_CONFIG_FXML_NAME = "/application/components/task/config/compile/compile-config.fxml";
 
     private TaskController taskController;
     private SimulationConfigController simulationController;

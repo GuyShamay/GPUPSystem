@@ -54,8 +54,10 @@ public class GPUPEngine implements Engine {
     @Override
     public void buildGraphFromXml(File file) throws JAXBException, FileNotFoundException, ElementExistException {
         loadFileToGraph(file);
-        targetGraph.buildTransposeGraph();
-        targetGraph.updateEachTargetDepListRecList();
+        if (!targetGraph.getTargetsMap().keySet().stream().anyMatch(s -> targetGraph.findCircuit(s) != null)) {
+            targetGraph.buildTransposeGraph();
+            targetGraph.updateEachTargetDepListRecList();
+        }
     }
 
     private void loadFileToGraph(File file) throws FileNotFoundException, JAXBException {

@@ -45,7 +45,7 @@
             <Button fx:id="buttonTask" minWidth="80.0" mnemonicParsing="false" onAction="#buttonTaskClicked" prefHeight="25.0" prefWidth="98.0" text="Task" GridPane.columnIndex="9" GridPane.rowIndex="1" />
             <ImageView fitHeight="44.0" fitWidth="100.0" pickOnBounds="true" GridPane.columnIndex="1" GridPane.rowSpan="3">
                <image>
-                  <Image url="@../../../resources/LogoMakr-6r9eQE%20(1).png" />
+                  <Image url="@../../../resources/LogoMakr-6r9eQE (1).png" />
                </image>
             </ImageView>
          </children>

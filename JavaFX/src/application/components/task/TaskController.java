@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TaskController implements Controller {
-    private static final String TASK_CONFIG_FXML_NAME = "config/task-config.fxml";
+    private static final String TASK_CONFIG_FXML_NAME = "/application/components/task/config/task-config.fxml";
 
     @FXML
     private Button buttonSettings;
@@ -149,15 +149,6 @@ public class TaskController implements Controller {
 
             // Invoke task in engine
             if (taskConfig != null) {
-                // Test for compile
-                /*CompileConfig compileConfig = (CompileConfig) taskConfig.getConfig();
-                CompileTask task = new CompileTask(compileConfig.getSrcDir(), compileConfig.getDestDir(), 2);
-                task.setPathFromFQN("gpup.compilation.example.l2.Koo");
-                try {
-                    task.run();
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }*/
                 try {
                     appController.initTask(taskConfig);
                     if (!appController.isCircuit()) {

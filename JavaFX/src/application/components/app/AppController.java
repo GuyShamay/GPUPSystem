@@ -1,7 +1,6 @@
 package application.components.app;
 
 
-import application.components.findPathes.PathsController;
 import application.components.task.TaskController;
 import application.components.welcome.WelcomeController;
 import application.components.graphinfo.InfoController;
@@ -20,10 +19,10 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.FileChooser;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -38,7 +37,6 @@ public class AppController implements Controller {
     //--------------------------------------------------------------------------
     //Controllers & Modal:
     private Engine engine;
-    private PathsController findPathesController;
     private InfoController graphInfoController;
     private TaskController taskController;
 
@@ -46,11 +44,11 @@ public class AppController implements Controller {
     //Vars & Const:
     private AnchorPane welcomePage;
     private WelcomeController welcomeController;
-    private static final String FIND_PATHS_FXML_NAME = "../findPathes/pathes.fxml";
-    private static final String INFO_FXML_NAME = "../graphinfo/graph-info.fxml";
-    private static final String FINDCIRCUIT_FXML_NAME = "../findCircuit/findCircuit.fxml";
-    private static final String WHATIF_FXML_NAME = "../whatIf/whatIf.fxml";
-    private static final String TASK_FXML_NAME = "../task/task2.fxml";
+    private static final String FIND_PATHS_FXML_NAME = "/application/components/findPathes/pathes.fxml";
+    private static final String INFO_FXML_NAME = "/application/components/graphinfo/graph-info.fxml";
+    private static final String FINDCIRCUIT_FXML_NAME = "/application/components/findCircuit/findCircuit.fxml";
+    private static final String WHATIF_FXML_NAME = "/application/components/whatIf/whatIf.fxml";
+    private static final String TASK_FXML_NAME = "/application/components/task/task2.fxml";
 
     //--------------------------------------------------------------------------
     //FXML Controls:
@@ -63,10 +61,6 @@ public class AppController implements Controller {
     private Button buttonTask;
     @FXML
     private ComboBox<String> comboBoxActions;
-    @FXML
-    private ComboBox<?> comboBoxThemes;
-    @FXML
-    private CheckBox checkBoxAnimations;
 
     @FXML
     public void initialize() {
@@ -95,7 +89,6 @@ public class AppController implements Controller {
     //Show Information
     @FXML
     void buttonInfoClicked(ActionEvent event) {
-
         URL url = getClass().getResource(INFO_FXML_NAME);
         Component infoComponent = ComponentCreator.createComponent(url);
         graphInfoController = (InfoController) infoComponent.getController();
@@ -117,7 +110,6 @@ public class AppController implements Controller {
         return FXCollections.observableArrayList(list);
     }
 
-
     //--------------------------------------------------------------------------
     //Load File
     @FXML
@@ -137,14 +129,14 @@ public class AppController implements Controller {
     }
 
     private boolean loadFile(Button btn) {
-        /*
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open XML File");
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Xml Files", "*.xml"));
         File selectedFile = fileChooser.showOpenDialog(btn.getScene().getWindow());
-        */
-        File selectedFile = new File("C:\\Users\\guysh\\Downloads\\ex2-big.xml");
+
+        // File selectedFile = new File("C:\\Users\\guysh\\Downloads\\ex2-big.xml"); // For Test
         if (selectedFile != null) {
             try {
                 engine.buildGraphFromXml(selectedFile);
@@ -283,13 +275,14 @@ public class AppController implements Controller {
         engine.resume();
     }
 
-        public RunTask getCurrTask() {
+    public RunTask getCurrTask() {
         return engine.getCurrTask();
     }
 
     public ObservableList<String> getList(String runStatus) {
         return engine.getList(runStatus);
     }
+
     public TargetInfoDTO getTargetInfoDTOByName(String name) {
         return engine.getTargetInfoDTO(name);
     }

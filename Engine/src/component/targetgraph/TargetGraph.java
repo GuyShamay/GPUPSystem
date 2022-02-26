@@ -478,6 +478,7 @@ public class TargetGraph implements DirectableGraph, GraphActions {
     }
 
     public void updateEachTargetDepListRecList() {
+
         dependsOnGraph.forEach((s, targets) -> {
             Target t = targetMap.get(s);
             t.setRequiredFor(dfsTravelUpdateRelativesList(t, TargetsRelationType.RequiredFor));
